@@ -39,8 +39,8 @@ public class ToyProblem extends AbstractProblem {
 		//Solution(numberOfVariables, numberOfObjectives);
 		Solution solution = new Solution(2,2);
 		
-		solution.setVariable(0, new RealVariable(-7.0, 100.0));
-		solution.setVariable(1, new RealVariable(4.0, 100.0));
+		solution.setVariable(0, new RealVariable(-7.0, 13.0));
+		solution.setVariable(1, new RealVariable(4.0, 24.0));
 		
 		return solution;
 	}

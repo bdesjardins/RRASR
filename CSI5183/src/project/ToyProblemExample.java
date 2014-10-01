@@ -15,12 +15,12 @@ public class ToyProblemExample {
 
 	public static void main(String[] args) {		
 
-		Instrumenter instrumenter = new Instrumenter()
-			.withProblemClass(ToyProblem.class)
-			.withFrequency(50)
-			.attachApproximationSetCollector()
-			.attachHypervolumeCollector()
-			.withReferenceSet(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/ToyProblemSet"));
+//		Instrumenter instrumenter = new Instrumenter()
+//			.withProblemClass(ToyProblem.class)
+//			.withFrequency(50)
+//			.attachApproximationSetCollector()
+//			.attachHypervolumeCollector()
+//			.withReferenceSet(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/ToyProblemSet"));
 
 		
 
@@ -29,21 +29,21 @@ public class ToyProblemExample {
 		NondominatedPopulation result = new Executor()
 				.withProblemClass(ToyProblem.class)
 				.withAlgorithm("NSGAII")
-				.withMaxEvaluations(450)
-				.withProperty("populationSize", 50)
-				.withInstrumenter(instrumenter)
+				.withMaxEvaluations(50)
+				.withProperty("populationSize", 10)
+//				.withInstrumenter(instrumenter)
 				.run();
 
-//		try {
-//			Analyzer analyzer = new Analyzer()
-//			.add("ToyProblem", result)
-//			.saveReferenceSet(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/ToyProblemSet"));
-//			
-//			System.out.println("Created a reference set");
-//		} catch (IOException e) {
-//			//do nothing
-//		} finally {
-			// print the results
+		try {
+			Analyzer analyzer = new Analyzer()
+			.add("ToyProblem", result)
+			.saveReferenceSet(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/ToyProblemSet"));
+			
+			System.out.println("Created a reference set");
+		} catch (IOException e) {
+			//do nothing
+		} finally {
+			//print the results
 			for (int i = 0; i < result.size(); i++) {
 				Solution solution = result.get(i);
 				double[] objectives = solution.getObjectives();
@@ -54,13 +54,15 @@ public class ToyProblemExample {
 				System.out.println("  f1 = " + objectives[0]);
 				System.out.println("  f2 = " + objectives[1]);
 			}
-//		}
-	
-		Accumulator accumulator = instrumenter.getLastAccumulator();
-		
-		for (int i = 0; i < accumulator.size("NFE"); i++) {
-			System.out.println(accumulator.get("NFE", i) + "\t" +
-					accumulator.get("Hypervolume", i));
 		}
+			
+			System.out.println();
+	
+//		Accumulator accumulator = instrumenter.getLastAccumulator();
+//		
+//		for (int i = 0; i < accumulator.size("NFE"); i++) {
+//			System.out.println(accumulator.get("NFE", i) + "\t" +
+//					accumulator.get("Hypervolume", i));
+//		}
 	}
 }
