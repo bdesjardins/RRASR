@@ -2,12 +2,16 @@ package assignment1;
 
 public interface Solution {
 	
-	public double getFitness();
+	abstract double getFitness();
 	
-	public void printRepresentation();
+	public abstract void printRepresentation();
 	
-	abstract double evaluate();
+	abstract void evaluate();
+	
+	void mutate (double mutationChance);
+	
+	Solution crossover (Solution parent2);
 
-	
+	abstract Object getRepresentation();
 	
 }

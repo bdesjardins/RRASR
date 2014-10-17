@@ -21,20 +21,18 @@ public class OneMaxSolution implements Solution {
 		}
 		
 		this.representation = rep;
-		this.fitness = evaluate();
+		evaluate();
 	}
 	
 	public OneMaxSolution(String representation){
 		this.representation = representation;
-		this.fitness = evaluate();
+		evaluate();
 	}
-	
 	
 	@Override
 	public double getFitness() {
 		return this.fitness;
 	}
-
 
 	@Override
 	public void printRepresentation() {
@@ -46,7 +44,7 @@ public class OneMaxSolution implements Solution {
 	}
 
 	@Override
-	public double evaluate() {
+	public void evaluate() {
 		int fitness = 0;
 		
 		for(int i = 0; i < representation.length(); i++) {
@@ -55,16 +53,39 @@ public class OneMaxSolution implements Solution {
 			}
 		}
 		
-		return (double) fitness;		
+		this.fitness = fitness;		
 	}
 
-	public static Solution mutate(Solution solution) {
+	@Override
+	public void mutate(double mutationChance) {
 		
-		return null;
+		char[] chars = this.representation.toCharArray();
+		
+		for (int i = 0; i < chars.length; i++) {
+			if (Math.random() < mutationChance) {
+				if (chars[i] == '1') {
+					chars[i] = '0';
+				} else {
+					chars[i] = '1';
+				}
+			}
+		}
+		
+		String temp = "";
+		
+		for (int j = 0; j <chars.length; j++) {
+			temp += chars[j];
+		}
+		
+		this.representation = temp;
+		evaluate();
 	}
 
-	public static Solution crossover(Solution parent1, Solution parent2) {
+	@Override
+	public Solution crossover(Solution parent2) {
+		String part1 = this.representation.substring(0, (int) Math.floor(this.solutionSize/2));
+		String part2 = ((String) parent2.getRepresentation()).substring((int) Math.floor(this.solutionSize/2), this.solutionSize);
 		
-		return null;
+		return new OneMaxSolution(part1 + part2);
 	}
 }

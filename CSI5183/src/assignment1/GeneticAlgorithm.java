@@ -8,7 +8,9 @@ public abstract interface GeneticAlgorithm {
 	
 //	abstract void mutate(Solution solution);
 	
-	abstract void crossover(Solution parent1, Solution parent2);
-	
-	abstract void reproduce();
+//	abstract void crossover(Solution parent1, Solution parent2);
+
+	void newGeneration();
+
+	void reproduce(Solution parent1, Solution parent2);
 }
