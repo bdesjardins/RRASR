@@ -8,8 +8,10 @@ public class BasicGA implements GeneticAlgorithm {
 	private ArrayList<Solution> nextPopulation;
 	private Solution best;
 	
-	private  double mutationChance;
-	private  double crossoverChance;
+	private double mutationChance;
+	private double crossoverChance;
+	
+	private static int generationNumber = 1;
 	
 	public BasicGA(Solution type){
 		this.population = new ArrayList<Solution>();
@@ -33,7 +35,9 @@ public class BasicGA implements GeneticAlgorithm {
 	public void runGeneration(int num) {
 		for (int i = 0; i < num; i++) {
 			newGeneration();
+			System.out.print(this.generationNumber + "	");
 			this.best.printRepresentation();
+			generationNumber++;
 		}		
 	}
 
@@ -45,28 +49,21 @@ public class BasicGA implements GeneticAlgorithm {
 	@Override
 	public void reproduce(Solution parent1, Solution parent2) {
 		//TODO use Solution instead of OneMaxSolution in every case
-		Solution child1 = parent2.crossover(parent1);
-		Solution child2 = parent1.crossover(parent2);
+		Solution child = parent1.crossover(parent2);
 		
-		child1.mutate(this.mutationChance);
-		child2.mutate(this.mutationChance);
+		child.mutate(this.mutationChance);
 		
-		if (child1.getFitness() > this.best.getFitness()) {
-			this.best = child1;
-		}
-		if (child2.getFitness() > this.best.getFitness()) {
-			this.best = child2;
+		if (child.getFitness() > this.best.getFitness()) {
+			this.best = child;
 		}
 		
-		nextPopulation.add(child1);
-		nextPopulation.add(child2);			
+		nextPopulation.add(child);		
 	}
 
 	@Override
 	public void newGeneration() {
 		//Add best and 1 random to provide some elitist selection
 		this.nextPopulation.add(this.best);
-		this.nextPopulation.add(this.population.get((int) Math.floor((Math.random() * this.population.size()))));
 		
 		while (this.nextPopulation.size() < this.population.size()) {
 			reproduce(tournamentSelection(), tournamentSelection());
