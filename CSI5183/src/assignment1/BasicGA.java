@@ -32,11 +32,10 @@ public class BasicGA implements GeneticAlgorithm {
 	}
 	
 	@Override
-	public void runGeneration(int num) {
+	public void runGeneration(int num, String mutType, String xType) {
 		for (int i = 0; i < num; i++) {
-			newGeneration();
-			System.out.print(this.generationNumber + "	");
-			this.best.printRepresentation();
+			newGeneration(mutType, xType);
+			System.out.println(this.generationNumber + "	" + this.best.printRepresentation());
 			generationNumber++;
 		}		
 	}
@@ -47,11 +46,11 @@ public class BasicGA implements GeneticAlgorithm {
 	}
 
 	@Override
-	public void reproduce(Solution parent1, Solution parent2) {
+	public void reproduce(Solution parent1, Solution parent2, String mutType, String xType) {
 		//TODO use Solution instead of OneMaxSolution in every case
-		Solution child = parent1.crossover(parent2);
+		Solution child = parent1.crossover(parent2, xType);
 		
-		child.mutate(this.mutationChance);
+		child.mutate(this.mutationChance, mutType);
 		
 		if (child.getFitness() > this.best.getFitness()) {
 			this.best = child;
@@ -61,12 +60,12 @@ public class BasicGA implements GeneticAlgorithm {
 	}
 
 	@Override
-	public void newGeneration() {
+	public void newGeneration(String mutType, String xType) {
 		//Add best and 1 random to provide some elitist selection
 		this.nextPopulation.add(this.best);
 		
 		while (this.nextPopulation.size() < this.population.size()) {
-			reproduce(tournamentSelection(), tournamentSelection());
+			reproduce(tournamentSelection(), tournamentSelection(), mutType, xType);
 		}
 		
 		this.population = this.nextPopulation;

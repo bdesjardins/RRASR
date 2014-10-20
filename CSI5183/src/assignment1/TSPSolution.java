@@ -87,21 +87,30 @@ public class TSPSolution implements Solution {
 	}
 
 	@Override
-	public void printRepresentation() {
+	public String printRepresentation() {
+		String toPrint = "";
+		
 		for (int i = 0; i < representation.size(); i++) {
-			System.out.print(representation.get(i));
+			toPrint += representation.get(i);
 			if (i == representation.size()-1) {
 				break;
 			}
-			System.out.print("-");			
+			toPrint += "-";			
 		}
 		
-		System.out.println("	" + this.fitness);
+		toPrint += "	" + (-1 * this.fitness);
+		
+		return toPrint;
 	}
 
 	@Override
 	public void evaluate() {
 		double fit = 0;
+		
+		if (cities == null) {
+			this.fitness = 0;
+			return;
+		}
 		
 		for (int i = 0; i < representation.size(); i++) {
 			if (i+1 == representation.size()) {
@@ -116,40 +125,49 @@ public class TSPSolution implements Solution {
 	}
 
 	@Override
-	public void mutate(double mutationChance) {
+	public void mutate(double mutationChance, String type) {
 		if (Math.random() < mutationChance) {
-			int choice = (int) Math.floor((Math.random() * representation.size()));			
-			int city = representation.remove(choice);
-			
-			choice = (int) Math.floor((Math.random() * representation.size()));
-			representation.add(choice, city);			
+			if (type.equalsIgnoreCase("n-append")) {
+				int n = 5;
+				
+				for (int i = 0; i < n; i++) {
+					int choice = (int) Math.floor((Math.random() * representation.size()));			
+					int city = representation.remove(choice);
+					
+					representation.add(city);
+				}
+			}
+			else if (type.equalsIgnoreCase("random insert")) {
+				int choice = (int) Math.floor((Math.random() * representation.size()));			
+				int city = representation.remove(choice);
+				
+				choice = (int) Math.floor((Math.random() * representation.size()));
+				representation.add(choice, city);	
+			}		
 		}
 	}
 
 	@Override
-	public Solution crossover(Solution parent2) {
-		String type = "order";
-		
+	public Solution crossover(Solution parent2, String type) {
 		ArrayList<Integer> childHolder = new ArrayList<Integer>();
-				
-		if (type.equalsIgnoreCase("order")) {
-			int[] child = new int[representation.size()];
 			
-			int a = (int) Math.floor((Math.random() * representation.size()));
-			int b = (int) Math.floor((Math.random() * representation.size()));
-			ArrayList<Integer> par2 = (ArrayList<Integer>) parent2.getRepresentation();
-			
-			if (b < a) {
-				int temp = a;
-				a = b;
-				b = temp;
-			}
-			
-			for (int i = a; i <= b; i++) {
-//				child.add(i, this.representation.get(i));
-				child[i] = this.representation.get(i);
-			}
-			
+		int[] child = new int[representation.size()];
+		
+		int a = (int) Math.floor((Math.random() * representation.size()));
+		int b = (int) Math.floor((Math.random() * representation.size()));
+		ArrayList<Integer> par2 = (ArrayList<Integer>) parent2.getRepresentation();
+		
+		if (b < a) {
+			int temp = a;
+			a = b;
+			b = temp;
+		}
+		
+		for (int i = a; i <= b; i++) {
+			child[i] = this.representation.get(i);
+		}
+		
+		if (type.equalsIgnoreCase("order")) {		
 			int j = 0;
 			
 			for (int i = 0; i < par2.size(); i++) {
@@ -157,22 +175,35 @@ public class TSPSolution implements Solution {
 					j = b+1;
 				}
 				
-//				if (child.contains(par2.get(i))) {
 				if (contains(par2.get(i), child)) {
 					continue;
 				} else {
 					child[j] = par2.get(i);
-//					child.add(j, par2.get(i));
 					j++;
 				}
 			}
+		} else if (type.equalsIgnoreCase("partially-mapped")) {		
+			for (int i = 0; i < child.length; i++) {
+				if (!contains(par2.get(i), child)) {
+					child[i] = par2.get(i);
+				}
+			}
+			
+			int j = 1;
 			
 			for (int i = 0; i < child.length; i++) {
-				childHolder.add(child[i]);
+				while (child[i] == 0) {
+					if (!contains(j, child)) {
+						child[i] = j;
+					}
+					j++;
+				}
 			}
 		}
 		
-		else if (type.equalsIgnoreCase("partially-mapped")) {}
+		for (int i = 0; i < child.length; i++) {
+			childHolder.add(child[i]);
+		} 
 	
 		return new TSPSolution(childHolder);
 	}
@@ -198,7 +229,7 @@ public class TSPSolution implements Solution {
 		return new ArrayList<Integer>(cities.keySet());
 	}
 	
-	private boolean contains(int contain, int[] arr) {
+	private static boolean contains(int contain, int[] arr) {
 		for (int i = 0; i < arr.length; i++) {
 			if (arr[i] == contain) {
 				return true;

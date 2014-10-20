@@ -4,13 +4,13 @@ public interface Solution {
 	
 	abstract double getFitness();
 	
-	public abstract void printRepresentation();
+	public abstract String printRepresentation();
 	
 	abstract void evaluate();
 	
-	void mutate (double mutationChance);
+	void mutate (double mutationChance, String type);
 	
-	Solution crossover (Solution parent2);
+	Solution crossover (Solution parent2, String type);
 
 	abstract Object getRepresentation();
 	

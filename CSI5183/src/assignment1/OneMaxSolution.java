@@ -35,8 +35,8 @@ public class OneMaxSolution implements Solution {
 	}
 
 	@Override
-	public void printRepresentation() {
-		System.out.println(this.representation + "	" + this.fitness);
+	public String printRepresentation() {
+		return this.representation + "	" + this.fitness;
 	}
 	
 	public String getRepresentation() {
@@ -57,7 +57,7 @@ public class OneMaxSolution implements Solution {
 	}
 
 	@Override
-	public void mutate(double mutationChance) {
+	public void mutate(double mutationChance, String type) {
 		
 		char[] chars = this.representation.toCharArray();
 		
@@ -82,7 +82,7 @@ public class OneMaxSolution implements Solution {
 	}
 
 	@Override
-	public Solution crossover(Solution parent2) {
+	public Solution crossover(Solution parent2, String type) {
 		String part1 = this.representation.substring(0, (int) Math.floor(this.solutionSize/2));
 		String part2 = ((String) parent2.getRepresentation()).substring((int) Math.floor(this.solutionSize/2), this.solutionSize);
 		

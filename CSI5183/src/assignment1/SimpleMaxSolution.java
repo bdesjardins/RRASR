@@ -21,9 +21,9 @@ public class SimpleMaxSolution implements Solution {
 	}
 
 	@Override
-	public void printRepresentation() {
-		System.out.println("(" + rep[0] + "*" + rep[1] + "*" + rep[2] + "*" + rep[3] + "*" + rep[4] + ")/(" +
-				rep[5] + "*" + rep[6] + "*" + rep[7] + "*" + rep[8] + "*" + rep[9] + ")" + "	" + this.fitness);
+	public String printRepresentation() {
+		return "(" + rep[0] + "*" + rep[1] + "*" + rep[2] + "*" + rep[3] + "*" + rep[4] + ")/(" +
+				rep[5] + "*" + rep[6] + "*" + rep[7] + "*" + rep[8] + "*" + rep[9] + ")" + "	" + this.fitness;
 
 	}
 
@@ -34,7 +34,7 @@ public class SimpleMaxSolution implements Solution {
 	}
 
 	@Override
-	public void mutate(double mutationChance) {
+	public void mutate(double mutationChance, String type) {
 		//Using a random replacement mutation		
 		for (int i = 0; i < rep.length; i++) {
 			if (Math.random() < mutationChance) {
@@ -54,11 +54,11 @@ public class SimpleMaxSolution implements Solution {
 //			rep[i] = rep[j];
 //			rep[j] = temp;
 //		}
-//	}
+//	}s
 
 	@Override
-	public Solution crossover(Solution parent2) {
-		//Double point crossover: a b c d / e f g h i / j
+	public Solution crossover(Solution parent2, String type) {
+		//uniform crossover: a b c d / e f g h i / j
 		
 		int[] rep2 = (int[]) parent2.getRepresentation();
 		
