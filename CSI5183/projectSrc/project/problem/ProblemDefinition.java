@@ -1,7 +1,11 @@
 package project.problem;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.Stack;
 
 import org.moeaframework.core.Solution;
@@ -14,6 +18,8 @@ import project.problem.types.SpecialPermutation;
 
 public class ProblemDefinition extends AbstractProblem {
 
+	final static Charset ENCODING = StandardCharsets.UTF_8;
+	
 	private Coordinate[] activeNodes;
 	private NodeInfo[] nodes;
 	private NodeInfo depot;
@@ -26,8 +32,42 @@ public class ProblemDefinition extends AbstractProblem {
 	public ProblemDefinition(File nodeList, File activeNodeList) {
 		//Populate the nodes and activeNodes arrays so we can evaluate the solutions
 		//This will be done from generated instance files
-		
 		super(1,3);
+		try {
+			Scanner scanner = new Scanner(nodeList,ENCODING.name());			
+			while(!scanner.nextLine().equals("DATASTART")) {}
+			
+			//NODE	X_LOC	Y_LOC	DEMAND	BATTERY
+			String[] nodeString = scanner.nextLine().split("\t");
+			
+			int demand = Integer.parseInt(nodeString[3]);
+			double battery = Double.parseDouble(nodeString[4]);
+			Coordinate location = new Coordinate(Double.parseDouble(nodeString[1]), Double.parseDouble(nodeString[2]));
+			
+			this.depot = new NodeInfo(demand, location, battery, this.activeNodes);
+			
+			
+			ArrayList<NodeInfo> tempNodes = new ArrayList<NodeInfo>();
+			while(!scanner.next().equals("EOF")) {
+				nodeString = scanner.nextLine().split("\t");
+				
+				demand = Integer.parseInt(nodeString[3]);
+				battery = Double.parseDouble(nodeString[4]);
+				location = new Coordinate(Double.parseDouble(nodeString[1]), Double.parseDouble(nodeString[2]));
+				
+				tempNodes.add(new NodeInfo(demand, location, battery, this.activeNodes));
+				
+				if (demand == -1) {
+					this.sensingHoles.add(Integer.parseInt(nodeString[0]));
+				}
+			}
+			
+			scanner.close();
+			
+		} catch (FileNotFoundException e) {
+			System.out.println("Error generating problem from file");
+			e.printStackTrace();
+		}	
 	}
 
 	@Override
@@ -76,10 +116,8 @@ public class ProblemDefinition extends AbstractProblem {
 	@Override
 	public Solution newSolution() {
 		// TODO Auto-generated method stub
-		Solution solution = new Solution(1,3);
-		
-		SpecialPermutation newSolution = new SpecialPermutation(nodes.length);
-		
+		Solution solution = new Solution(1,3);		
+		SpecialPermutation newSolution = new SpecialPermutation(nodes.length);		
 		int[] perm = newSolution.toArray();
 		
 		for (int i = 0; i <perm.length; i++) {
@@ -90,8 +128,7 @@ public class ProblemDefinition extends AbstractProblem {
 			}
 		}
 		
-		newSolution.fromArray(perm);
-		
+		newSolution.fromArray(perm);		
 		solution.setVariable(0, newSolution);
 		
 		return solution;

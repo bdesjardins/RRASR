@@ -25,7 +25,7 @@ public class InstanceNode {
 
 	
 	public String toString() {
-		return (node + "	" + x_coord + "	" + y_coord + "	" + demand + "	" + battery);
+		return (node + "\t" + x_coord + "\t" + y_coord + "\t" + demand + "\t" + battery);
 	}
 	
 }

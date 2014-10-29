@@ -49,8 +49,9 @@ public class InstanceGenerator {
 		writer.println();
 		writer.println();
 		
-		writer.println("NODE	X_LOC	Y_LOC	DEMAND	BATTERY");
-		writer.println("0	0	0	0	0");
+		writer.println("NODE\tX_LOC\tY_LOC\tDEMAND\tBATTERY");
+		writer.println("DATASTART");
+		writer.println("0\t0\t0\t0\t0");
 		
 		InstanceNode[] nodes = generateNodes(areaSizeMin, areaSizeMax, n, deliveryPerPickup);
 		
@@ -65,7 +66,7 @@ public class InstanceGenerator {
 	private static InstanceNode[] generateNodes(int areaSizeMin, int areaSizeMax, int n, double deliveryPerPickup) {
 		InstanceNode[] nodes = new InstanceNode[n-1];
 		
-		int deliveries = (int) (n/deliveryPerPickup);
+		int deliveries = (int) (n*deliveryPerPickup);
 		int deliveryCounter = 0;
 		
 		for (int i = 0; i < nodes.length; i++) {
@@ -76,19 +77,21 @@ public class InstanceGenerator {
 			newNode.x_coord = x;
 			newNode.y_coord = y;
 			newNode.node = i+1;
+			newNode.demand = 1;
 			
 			newNode.battery = (int) (Math.random()*100);
+			
+			nodes[i] = newNode;
 		}
 		
 		while (deliveryCounter < deliveries) {
 			int node = (int) (Math.random()*nodes.length);
 			
-			if (nodes[node].demand != 0) {
+			if (nodes[node].demand != -1) {
 				if (Math.random() > 0.5) {
 					nodes[node].demand = -1;
 					nodes[node].battery = 0;
-				} else {
-					nodes[node].demand = 1;
+					deliveryCounter++;
 				}
 			}
 		}

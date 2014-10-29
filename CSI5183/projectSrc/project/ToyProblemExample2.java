@@ -16,11 +16,11 @@ public class ToyProblemExample2 {
 
 	public static void main(String[] args) {		
 
-		Instrumenter instrumenter = new Instrumenter()
-			.withProblemClass(ToyProblem2.class)
-			.withFrequency(50)
-			.attachAll()
-			.withReferenceSet(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/ToyProblemSet2"));
+//		Instrumenter instrumenter = new Instrumenter()
+//			.withProblemClass(ToyProblem2.class)
+//			.withFrequency(50)
+//			.attachAll();
+//			.withReferenceSet(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/Files/ToyProblemSet2"));
 	
 		// solve using NSGA-II
 		NondominatedPopulation result = new Executor()
@@ -28,14 +28,14 @@ public class ToyProblemExample2 {
 				.withAlgorithm("eNSGAII")
 				.withMaxEvaluations(10000)
 				.withProperty("populationSize", 500)
-				.withEpsilon(0.9)
-				.withInstrumenter(instrumenter)
+				.withEpsilon(1)
+//				.withInstrumenter(instrumenter)
 				.run();
 
 		try {
 			Analyzer analyzer = new Analyzer()
 			.add("ToyProblem", result)
-			.saveReferenceSet(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/ToyProblemSet2"));
+			.saveReferenceSet(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/Files/ToyProblemSet2"));
 			
 			System.out.println("Created a reference set");
 		} catch (IOException e) {
@@ -68,13 +68,13 @@ public class ToyProblemExample2 {
 			
 			System.out.println();
 	
-		Accumulator accumulator = instrumenter.getLastAccumulator();
-		
-		int temp = 101;
-		
-		for (int i = 0; i < accumulator.size("NFE"); i++) {
-			System.out.println(accumulator.get("NFE", i) + "\t" +
-					accumulator.get("Hypervolume", i));
-		}
+//		Accumulator accumulator = instrumenter.getLastAccumulator();
+//		
+//		int temp = 101;
+//		
+//		for (int i = 0; i < accumulator.size("NFE"); i++) {
+//			System.out.println(accumulator.get("NFE", i) + "\t" +
+//					accumulator.get("Hypervolume", i));
+//		}
 	}
 }
