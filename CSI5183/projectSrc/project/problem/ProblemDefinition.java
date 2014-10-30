@@ -20,7 +20,7 @@ public class ProblemDefinition extends AbstractProblem {
 
 	final static Charset ENCODING = StandardCharsets.UTF_8;
 	
-	private Coordinate[] activeNodes;
+//	private Coordinate[] activeNodes;
 	private NodeInfo[] nodes;
 	private NodeInfo depot;
 	private ArrayList<Integer> sensingHoles;
@@ -29,11 +29,13 @@ public class ProblemDefinition extends AbstractProblem {
 		super(1,3);
 	}
 	
-	public ProblemDefinition(File nodeList, File activeNodeList) {
+	public ProblemDefinition(File nodeList/*, File activeNodeList*/) {
 		//Populate the nodes and activeNodes arrays so we can evaluate the solutions
 		//This will be done from generated instance files
 		super(1,3);
 		try {
+			this.sensingHoles = new ArrayList<Integer>();
+			
 			Scanner scanner = new Scanner(nodeList,ENCODING.name());			
 			while(!scanner.nextLine().equals("DATASTART")) {}
 			
@@ -44,25 +46,54 @@ public class ProblemDefinition extends AbstractProblem {
 			double battery = Double.parseDouble(nodeString[4]);
 			Coordinate location = new Coordinate(Double.parseDouble(nodeString[1]), Double.parseDouble(nodeString[2]));
 			
-			this.depot = new NodeInfo(demand, location, battery, this.activeNodes);
-			
+		
 			
 			ArrayList<NodeInfo> tempNodes = new ArrayList<NodeInfo>();
-			while(!scanner.next().equals("EOF")) {
+			this.depot = new NodeInfo(demand, location, battery);
+			tempNodes.add(this.depot);
+			
+			int nodeCounter = 1;
+			
+			while(!scanner.next().equals("EODATA")) {
 				nodeString = scanner.nextLine().split("\t");
 				
 				demand = Integer.parseInt(nodeString[3]);
 				battery = Double.parseDouble(nodeString[4]);
 				location = new Coordinate(Double.parseDouble(nodeString[1]), Double.parseDouble(nodeString[2]));
 				
-				tempNodes.add(new NodeInfo(demand, location, battery, this.activeNodes));
+				tempNodes.add(new NodeInfo(demand, location, battery));
+				
+				nodeCounter++;
 				
 				if (demand == -1) {
 					this.sensingHoles.add(Integer.parseInt(nodeString[0]));
 				}
 			}
 			
+			while(!scanner.nextLine().equals("HOLESTART")) {}
+			
+			int degree = 0;
+			while(!scanner.next().equals("EOHOLE")) {
+				//NODE	X_LOC	Y_LOC	DEMAND	DEGREE
+				nodeString = scanner.nextLine().split("\t");
+				
+				demand = Integer.parseInt(nodeString[3]);
+				degree = Integer.parseInt(nodeString[4]);
+				location = new Coordinate(Double.parseDouble(nodeString[1]), Double.parseDouble(nodeString[2]));
+				
+				tempNodes.add(new NodeInfo(demand, location, 0, degree));
+				
+				
+				
+				if (demand == -1) {
+					this.sensingHoles.add(nodeCounter);
+				}
+				nodeCounter++;
+			}
+			
 			scanner.close();
+			
+			nodes = tempNodes.toArray(new NodeInfo[0]);
 			
 		} catch (FileNotFoundException e) {
 			System.out.println("Error generating problem from file");
@@ -100,35 +131,25 @@ public class ProblemDefinition extends AbstractProblem {
 					pathLifetime = batteries.peek();
 				}
 			}
-			if (vector.get(j).getDemand() == 1) {
+			if (vector.get(j).getDemand() == -1) {
 				pathRobustness += batteries.pop()/vector.get(j).getDegree();
 			}
 			
 			tourLength += vector.get(j).getLocation().distanceBetween( vector.get(j+1).getLocation());
 		}
 		
-		solution.setObjective(0, tourLength);
+		solution.setObjective(2, tourLength);
 		//MOEA only minimizes, therefore change maximization problems to minimization problems
-		solution.setObjective(1, -pathRobustness); 
-		solution.setObjective(2, -pathLifetime);		
+		solution.setObjective(1, -Math.round(Math.round(pathRobustness))); 
+		solution.setObjective(0, -Math.round(Math.round(pathLifetime)));		
 	}
 
 	@Override
 	public Solution newSolution() {
 		// TODO Auto-generated method stub
 		Solution solution = new Solution(1,3);		
-		SpecialPermutation newSolution = new SpecialPermutation(nodes.length);		
-		int[] perm = newSolution.toArray();
+		Permutation newSolution = new Permutation(this.nodes.length, this.sensingHoles);		
 		
-		for (int i = 0; i <perm.length; i++) {
-			if (!sensingHoles.contains(perm[i])) {
-				if (Math.random() > 0.5) {
-					perm[i] = -1 * perm[i];
-				}
-			}
-		}
-		
-		newSolution.fromArray(perm);		
 		solution.setVariable(0, newSolution);
 		
 		return solution;

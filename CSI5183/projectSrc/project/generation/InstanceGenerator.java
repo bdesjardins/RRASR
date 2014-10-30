@@ -3,6 +3,8 @@ package project.generation;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class InstanceGenerator {
 
@@ -10,9 +12,12 @@ public class InstanceGenerator {
 		String directory = "C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances";
 		int areaSizeMin = -500;
 		int areaSizeMax = 500;
-		int maxCapacity = 3;
-		int filesPerTuple = 10;
-		double deliveryPerPickup = 0.25;
+		int maxCapacity = 1;
+		int filesPerTuple = 2;
+		double deliveryPerPickup = 0.1;
+		
+		int sensingRadius = 50;
+		int communicationRadius = 2*sensingRadius;
 
 		int[] numberOfNodes = new int[]{20,30,40,50,60,100,200,300,400,500};
 
@@ -20,7 +25,7 @@ public class InstanceGenerator {
 			for (int q = 1; q <= maxCapacity; q++) {
 				for (int fileNo = 1; fileNo <= filesPerTuple; fileNo++) {
 					try {
-						generateInstance(areaSizeMin, areaSizeMax, numberOfNodes[n], q, fileNo, deliveryPerPickup, directory);
+						generateInstance(areaSizeMin, areaSizeMax, numberOfNodes[n], q, fileNo, deliveryPerPickup, directory, sensingRadius, communicationRadius);
 					} catch (FileNotFoundException e) {
 						System.out.println("Directory not found");
 						System.exit(0);
@@ -32,7 +37,7 @@ public class InstanceGenerator {
 		System.out.println("Done!");		
 	}
 
-	private static void generateInstance(int areaSizeMin, int areaSizeMax, int n, int q, int fileNo, double deliveryPerPickup, String directory) 
+	private static void generateInstance(int areaSizeMin, int areaSizeMax, int n, int q, int fileNo, double deliveryPerPickup, String directory, int sensingRadius, int communicationRadius) 
 			throws FileNotFoundException{
 		
 		String fileName = directory + "/" + n + "_" + q + "_instance" + fileNo + ".tsp";
@@ -53,12 +58,22 @@ public class InstanceGenerator {
 		writer.println("DATASTART");
 		writer.println("0\t0\t0\t0\t0");
 		
-		InstanceNode[] nodes = generateNodes(areaSizeMin, areaSizeMax, n, deliveryPerPickup);
+		InstanceNode[] nodes = generateNodes2(areaSizeMin, areaSizeMax, n, deliveryPerPickup);
 		
 		for (int i = 0; i < nodes.length; i++) {
 			writer.println(nodes[i].toString());
 		}
 		
+		writer.println("EODATA");
+		writer.println("NODE\tX_LOC\tY_LOC\tDEMAND\tDEGREE");
+		writer.println("HOLESTART");
+		
+		InstanceNode[] holes = generateSensingHoles(areaSizeMin, areaSizeMax, Math.round(Math.round(n*deliveryPerPickup)), deliveryPerPickup, sensingRadius, communicationRadius);
+		
+		for (int i = 0; i < holes.length; i++) {
+			writer.println(holes[i].toString());
+		}
+		writer.println("EOHOLE");
 		writer.println("EOF");
 		writer.close();
 	}
@@ -79,7 +94,7 @@ public class InstanceGenerator {
 			newNode.node = i+1;
 			newNode.demand = 1;
 			
-			newNode.battery = (int) (Math.random()*100);
+			newNode.battery = (int) Math.floor((Math.random()*100 + 1));
 			
 			nodes[i] = newNode;
 		}
@@ -97,6 +112,97 @@ public class InstanceGenerator {
 		}
 				
 		return nodes;
+	}
+	
+	private static InstanceNode[] generateNodes2(int areaSizeMin, int areaSizeMax, int n, double deliveryPerPickup) {		
+		int pickups = Math.round(Math.round(n - n*deliveryPerPickup));
+		
+		InstanceNode[] nodes = new InstanceNode[pickups-1];
+		
+		for (int i = 0; i < nodes.length; i++) {
+			int x = (int) (Math.random() * (areaSizeMax - areaSizeMin) + areaSizeMin);
+			int y = (int) (Math.random() * (areaSizeMax - areaSizeMin) + areaSizeMin);
+			
+			InstanceNode newNode = new InstanceNode();
+			newNode.x_coord = x;
+			newNode.y_coord = y;
+			newNode.node = i+1;
+			newNode.demand = 1;
+			
+			newNode.battery = (int) Math.floor(((Math.random()*100 + 1)));
+			
+			nodes[i] = newNode;
+		}
+						
+		return nodes;
+	}
+	
+	private static InstanceNode[] generateSensingHoles(int areaSizeMin, int areaSizeMax, int numHoles, double deliveryPerPickup, int sensingRadius, int communicationRadius) {
+		InstanceNode[] active = ActiveNetworkGenerator.gridGeneration(areaSizeMin, areaSizeMax, sensingRadius);
+		
+		HashMap<Integer, ArrayList<Integer>> adjacencyList = new HashMap<Integer, ArrayList<Integer>>();
+		
+		for (int i=0; i<active.length;i++) {
+			ArrayList<Integer> temp = new ArrayList<Integer>();
+			for (int j=0; j<active.length;j++) {
+				if (i == j) {
+					continue;
+				}
+				if (active[i].getDistance(active[j]) <= communicationRadius) {
+					temp.add(j);
+				}
+			}
+			adjacencyList.put(i, temp);
+		}
+		
+		ArrayList<Integer> holeIndex = new ArrayList<Integer>();
+		
+		while (holeIndex.size() < numHoles) {
+			int index = (int) (Math.random()*active.length);
+			
+			if (holeIndex.contains(index)) {
+				continue;
+			}
+			
+			boolean willDisconnect = false;
+			for (int i = 0; i < active.length; i++) {
+				if (i == index) {
+					continue;
+				}
+				
+				ArrayList<Integer> temp = adjacencyList.get(i);
+				
+				if (temp.contains(index) && temp.size() == 1) {
+					willDisconnect = true;
+					break;
+				}
+			}
+			if (willDisconnect) {
+				continue;
+			}
+			
+			for (int i = 0; i < active.length; i++) {
+				if (i == index) {
+					continue;
+				}
+				
+				adjacencyList.get(i).remove((Integer) index);
+			}
+						
+			holeIndex.add(index);
+		}
+		
+		ArrayList<InstanceNode> sensingHoles = new ArrayList<InstanceNode>();
+		
+		int holeCount = 0;
+		
+		while (holeIndex.size() > 0) {
+			int index = holeIndex.remove(0);
+			
+			sensingHoles.add(new InstanceNode(holeCount++, active[index].x_coord, active[index].y_coord,-1, adjacencyList.get(index).size()));
+		}
+		
+		return sensingHoles.toArray(new InstanceNode[0]);
 	}
 
 }

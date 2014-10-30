@@ -8,6 +8,7 @@ public class NodeInfo {
 	private Coordinate location;
 	private double battery;
 	
+	//TODO set communication radius
 	private static double communicationRadius = 0;
 	
 	public NodeInfo(int demand, Coordinate location, double battery, Coordinate[] activeNodes) {
@@ -29,8 +30,26 @@ public class NodeInfo {
 		}
 	}
 	
+	public NodeInfo(int demand, Coordinate location, double battery) {
+		this.demand = demand;
+		this.location = location;
+		this.battery = battery;
+		this.activeDegree = 0;
+	}
+	
+	public NodeInfo(int demand, Coordinate location, double battery, int degree) {
+		this.demand = demand;
+		this.location = location;
+		this.battery = battery;
+		this.activeDegree=degree;
+	}
+	
 	public int getDegree() {
 		return this.activeDegree;
+	}
+	
+	public void setDegree(int degree) {
+		this.activeDegree = degree;
 	}
 	
 	public int getDemand() {

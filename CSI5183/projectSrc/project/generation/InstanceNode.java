@@ -28,4 +28,16 @@ public class InstanceNode {
 		return (node + "\t" + x_coord + "\t" + y_coord + "\t" + demand + "\t" + battery);
 	}
 	
+	public double getDistance(InstanceNode other) {
+		double x1 = this.x_coord;
+		double y1 = this.y_coord;
+		
+		double x2 = other.x_coord;
+		double y2 = other.y_coord;
+		
+		double distance = Math.sqrt(Math.pow((x2-x1),2) + Math.pow((y2-y1),2));
+		
+		return distance;
+	}
+	
 }
