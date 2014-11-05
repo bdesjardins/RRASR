@@ -59,7 +59,7 @@ public class SpecialPermutation extends Permutation {
 	
 	//Permutation Repair function
 	@SuppressWarnings("static-access")
-	private void repair() {
+	public void repair() {
 		int pickups = startingSensors;
 		int dropoffs = this.sensingHoles.size();
 		

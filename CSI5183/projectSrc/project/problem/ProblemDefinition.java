@@ -127,6 +127,11 @@ public class ProblemDefinition extends AbstractProblem {
 		
 		int[] perm = ((Permutation) solution.getVariable(0)).toArray();
 		
+//		if (!Permutation.isPermutation(perm)) {
+//			((Permutation) solution.getVariable(0)).repair();
+//			perm = ((Permutation) solution.getVariable(0)).toArray();
+//		}
+		
 		vector.add(0);
 				
 		for (int i = 0; i < perm.length; i++) {
@@ -182,10 +187,9 @@ public class ProblemDefinition extends AbstractProblem {
 		default: newSolution = new Permutation(this.nodes.length, this.sensingHoles); break;
 		}		
 		
-//		newSolution = new Permutation(this.nodes.length, this.sensingHoles);
 		
 		solution.setVariable(0, newSolution);		
-		return solution;
+		return solution;	
 	}
 	
 	private Permutation pathHeuristic() {

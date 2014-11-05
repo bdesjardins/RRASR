@@ -191,7 +191,7 @@ public class Permutation implements Variable {
 		
 		repair();
 		
-		if (!isPermutation(permutation)) {
+		if (!isPermutation(this.permutation)) {
 			this.permutation = temp;
 		}
 		
@@ -254,7 +254,7 @@ public class Permutation implements Variable {
 	
 	//Permutation Repair function
 	@SuppressWarnings("static-access")
-	private void repair() {
+	public void repair() {
 		int pickups = startingSensors;
 		int dropoffs = this.sensingHoles.size();
 		
@@ -360,5 +360,4 @@ public class Permutation implements Variable {
 		
 		return -1;
 	}
-
 }
