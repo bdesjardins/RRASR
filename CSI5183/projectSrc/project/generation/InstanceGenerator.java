@@ -9,38 +9,64 @@ import java.util.HashMap;
 public class InstanceGenerator {
 
 	public static void main(String[] args){
-		String directory = "C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances";
+		String directoryRoot = "C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances";
 		int areaSizeMin = -500;
 		int areaSizeMax = 500;
-		int maxCapacity = 1;
-		int filesPerTuple = 2;
-		double deliveryPerPickup = 0.1;
 		
-		int sensingRadius = 50;
+		int sensingRadius = 25;
 		int communicationRadius = 2*sensingRadius;
-
-		int[] numberOfNodes = new int[]{20,30,40,50,60,100,200,300,400,500};
+		
+		/*Default Values:
+		 * 
+		 * Number of Nodes = 250
+		 * % sensing holes = 0.15
+		 * sparsity		   = 20
+		*/
+		int defaultNodes = 400;
+		double defaultHoles = 0.2;
+		double defaultSparsity = 0; //We don't care about sparsity by default
+		
+		int[] numberOfNodes = new int[]{10,15,20,25,30,35,40,45,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,225,250,275,300,
+				325,350,375,400,425,450,475,500,525,550,575,600,625,650,675,700,750,800,850,900,950,1000}; //50 Entries
+		String directory = directoryRoot + "/numNodes";
 
 		for (int n = 0; n < numberOfNodes.length; n++) {
-			for (int q = 1; q <= maxCapacity; q++) {
-				for (int fileNo = 1; fileNo <= filesPerTuple; fileNo++) {
-					try {
-						generateInstance(areaSizeMin, areaSizeMax, numberOfNodes[n], q, fileNo, deliveryPerPickup, directory, sensingRadius, communicationRadius);
-					} catch (FileNotFoundException e) {
-						System.out.println("Directory not found");
-						System.exit(0);
-					}
-				}
+			try {
+				generateInstance(areaSizeMin, areaSizeMax, numberOfNodes[n], defaultSparsity, defaultHoles, directory, sensingRadius, communicationRadius);
+			} catch (FileNotFoundException e) {
+				System.out.println("Directory not found");
+				System.exit(0);
+			}
+		}
+		
+		directory = directoryRoot + "/percentHoles";
+
+		for (int n = 1; n <= 50; n++) {
+			try {
+				generateInstance(areaSizeMin, areaSizeMax, n/100, defaultSparsity, defaultHoles, directory, sensingRadius, communicationRadius);
+			} catch (FileNotFoundException e) {
+				System.out.println("Directory not found");
+				System.exit(0);
+			}
+		}
+		directory = directoryRoot + "/sparsity";
+
+		for (int n = 0; n <= 25; n+=0.5) {
+			try {
+				generateInstance(areaSizeMin, areaSizeMax, defaultNodes, n, defaultHoles, directory, sensingRadius, communicationRadius);
+			} catch (FileNotFoundException e) {
+				System.out.println("Directory not found");
+				System.exit(0);
 			}
 		}
 
 		System.out.println("Done!");		
 	}
 
-	private static void generateInstance(int areaSizeMin, int areaSizeMax, int n, int q, int fileNo, double deliveryPerPickup, String directory, int sensingRadius, int communicationRadius) 
+	private static void generateInstance(int areaSizeMin, int areaSizeMax, int n, double sparcity, double deliveryPerPickup, String directory, int sensingRadius, int communicationRadius) 
 			throws FileNotFoundException{
 		
-		String fileName = directory + "/" + n + "_" + q + "_instance" + fileNo + ".tsp";
+		String fileName = directory + "/" + n + "n_" + (int) sparcity + "s_" + (int) deliveryPerPickup*100 + "d_instance.tsp";
 		File instance = new File(fileName);
 
 		PrintWriter writer = new PrintWriter(instance);
@@ -48,7 +74,8 @@ public class InstanceGenerator {
 		writer.println("NAME: " + fileName);
 		writer.println("COMMENT: Ben Desjardins (bdesj038@uottawa.ca)");
 		writer.println("DIMENSION: " + n);
-		writer.println("CAPACITY: " + q);
+		writer.println("SPARCITY: " + sparcity);
+		writer.println("%HOLES: " + deliveryPerPickup*100 + "%");
 		writer.println("EDGE_WEIGHT_TYPE: EUC_2D");
 		
 		writer.println();
