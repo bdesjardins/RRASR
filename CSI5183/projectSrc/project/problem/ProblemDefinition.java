@@ -14,7 +14,6 @@ import org.moeaframework.problem.AbstractProblem;
 
 import project.problem.types.Coordinate;
 import project.problem.types.NodeInfo;
-import project.problem.types.SpecialPermutation;
 
 public class ProblemDefinition extends AbstractProblem {
 
@@ -127,10 +126,10 @@ public class ProblemDefinition extends AbstractProblem {
 		
 		int[] perm = ((Permutation) solution.getVariable(0)).toArray();
 		
-//		if (!Permutation.isPermutation(perm)) {
-//			((Permutation) solution.getVariable(0)).repair();
-//			perm = ((Permutation) solution.getVariable(0)).toArray();
-//		}
+		if (!Permutation.isPermutation(perm)) {
+			((Permutation) solution.getVariable(0)).repair();
+			perm = ((Permutation) solution.getVariable(0)).toArray();
+		}
 		
 		vector.add(0);
 				

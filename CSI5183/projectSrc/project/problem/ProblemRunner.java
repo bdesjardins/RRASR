@@ -50,20 +50,20 @@ public class ProblemRunner {
 		// solve using a Genetic Algorithm
 		final NondominatedPopulation result = new Executor()
 				.withProblemClass(ProblemDefinition.class, nodeList)
-				.withAlgorithm("NSGAII")
+				.withAlgorithm("PAES")
 				.withMaxEvaluations(evaluations)
 				.withProperty("populationSize", popSize)
 				.withProperty("swap.rate", 0.25) // mutation
 				.withProperty("insertion.rate", 0.25) // mutation
 				.withProperty("pmx.rate", 0.75) // crossover
-				.withEpsilon(5)
+//				.withEpsilon(5)
 				.distributeOnAllCores()
 				.withInstrumenter(instrumenter)
 				.run();
 		
 		long afterTime = System.currentTimeMillis();
 		accumulator = instrumenter.getLastAccumulator();
-		
+				
 		System.out.println("Time Elapsed: " + (afterTime-beforeTime)/1000 + "s");
 		System.out.println();
 				

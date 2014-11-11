@@ -13,7 +13,7 @@ public class InstanceGenerator {
 		int areaSizeMin = -500;
 		int areaSizeMax = 500;
 		
-		int sensingRadius = 25;
+		int sensingRadius = 20;
 		int communicationRadius = 2*sensingRadius;
 		
 		/*Default Values:
@@ -23,12 +23,12 @@ public class InstanceGenerator {
 		 * sparsity		   = 20
 		*/
 		int defaultNodes = 400;
-		double defaultHoles = 0.2;
-		double defaultSparsity = 0; //We don't care about sparsity by default
+		double defaultHoles = 0.15;
+		int defaultSparsity = 0; //We don't care about sparsity by default
 		
 		int[] numberOfNodes = new int[]{10,15,20,25,30,35,40,45,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,225,250,275,300,
 				325,350,375,400,425,450,475,500,525,550,575,600,625,650,675,700,750,800,850,900,950,1000}; //50 Entries
-		String directory = directoryRoot + "/numNodes";
+		String directory = directoryRoot + "/Nodes";
 
 		for (int n = 0; n < numberOfNodes.length; n++) {
 			try {
@@ -39,7 +39,7 @@ public class InstanceGenerator {
 			}
 		}
 		
-		directory = directoryRoot + "/percentHoles";
+		directory = directoryRoot + "/Distribution";
 
 		for (int n = 1; n <= 50; n++) {
 			try {
@@ -49,9 +49,9 @@ public class InstanceGenerator {
 				System.exit(0);
 			}
 		}
-		directory = directoryRoot + "/sparsity";
+		directory = directoryRoot + "/Sparsity";
 
-		for (int n = 0; n <= 25; n+=0.5) {
+		for (int n = 1; n <= 10; n++) {
 			try {
 				generateInstance(areaSizeMin, areaSizeMax, defaultNodes, n, defaultHoles, directory, sensingRadius, communicationRadius);
 			} catch (FileNotFoundException e) {
@@ -63,10 +63,10 @@ public class InstanceGenerator {
 		System.out.println("Done!");		
 	}
 
-	private static void generateInstance(int areaSizeMin, int areaSizeMax, int n, double sparcity, double deliveryPerPickup, String directory, int sensingRadius, int communicationRadius) 
+	private static void generateInstance(int areaSizeMin, int areaSizeMax, int n, int sparcity, double deliveryPerPickup, String directory, int sensingRadius, int communicationRadius) 
 			throws FileNotFoundException{
 		
-		String fileName = directory + "/" + n + "n_" + (int) sparcity + "s_" + (int) deliveryPerPickup*100 + "d_instance.tsp";
+		String fileName = directory + "/" + n + "n_" + sparcity + "s_" + (int) deliveryPerPickup*100 + "d_instance.tsp";
 		File instance = new File(fileName);
 
 		PrintWriter writer = new PrintWriter(instance);
@@ -85,7 +85,7 @@ public class InstanceGenerator {
 		writer.println("DATASTART");
 		writer.println("0\t0\t0\t0\t0");
 		
-		InstanceNode[] nodes = generateNodes2(areaSizeMin, areaSizeMax, n, deliveryPerPickup);
+		InstanceNode[] nodes = generateNodes2(areaSizeMin, areaSizeMax, n, deliveryPerPickup, sparcity);
 		
 		for (int i = 0; i < nodes.length; i++) {
 			writer.println(nodes[i].toString());
@@ -141,10 +141,17 @@ public class InstanceGenerator {
 		return nodes;
 	}
 	
-	private static InstanceNode[] generateNodes2(int areaSizeMin, int areaSizeMax, int n, double deliveryPerPickup) {		
+	private static InstanceNode[] generateNodes2(int areaSizeMin, int areaSizeMax, int n, double deliveryPerPickup, int sparsity) {		
 		int pickups = Math.round(Math.round(n - n*deliveryPerPickup));
 		
 		InstanceNode[] nodes = new InstanceNode[pickups-1];
+		
+		//Pick a random drop location, if #inCommunicationDistance > sparsity, record#, record distance to closest other node. 
+		//Repeat X times. If no suitable location has been found after X times, place at the best chosen location
+		
+		//Is this minimum sparsity, maximum sparsity, or absolute sparsity?
+		
+		
 		
 		for (int i = 0; i < nodes.length; i++) {
 			int x = (int) (Math.random() * (areaSizeMax - areaSizeMin) + areaSizeMin);
