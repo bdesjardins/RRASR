@@ -3,6 +3,7 @@ package project.experiments;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Set;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -10,11 +11,14 @@ import org.moeaframework.Executor;
 import org.moeaframework.Instrumenter;
 import org.moeaframework.analysis.collector.Accumulator;
 import org.moeaframework.core.NondominatedPopulation;
+
 import project.problem.ProblemDefinition;
 
 public class ExperimentRunner {
 
 	public static void main(String[] args) {
+		long beforeTime = System.currentTimeMillis();
+		
 		File results = new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/Files/results.csv");
 
 		try {
@@ -43,6 +47,9 @@ public class ExperimentRunner {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		long afterTime = System.currentTimeMillis();
+
+		System.out.println("Time Elapsed: " + (afterTime-beforeTime)/1000 + "s");
 	}
 	
 	private static void doTheThing(File instanceFile, File referenceSet, CSVPrinter printer, String algorithm) {
@@ -76,6 +83,24 @@ public class ExperimentRunner {
 		Accumulator accumulator = instrumenter.getLastAccumulator();
 		
 		//#nodes,sparsity,distribution,HYPERVOLUME,CONTRIBUTION,GENDISTANCE,MPFERROR,RUNTIME,algorithm
+		
+		Set<String> keys = accumulator.keySet();
+		
+		String key = "";
+		try {
+			printer.print(""); //#nodes
+			printer.print(""); //sparsity
+			printer.print(""); // distribution
+			printer.print(accumulator.get("Hypervolume", accumulator.size(key)-1));
+			printer.print(accumulator.get("Contribution", accumulator.size(key)-1));
+			printer.print(accumulator.get("Generational Distance", accumulator.size(key)-1));
+			printer.print(accumulator.get("", accumulator.size(key)-1));
+			printer.print(accumulator.get("Elapsed Time", accumulator.size(key)-1));
+			printer.print(algorithm);
+			printer.println();
+		}catch (IOException e) {
+			
+		}
 		
 	}
 

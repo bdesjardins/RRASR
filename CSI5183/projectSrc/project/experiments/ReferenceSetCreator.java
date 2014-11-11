@@ -19,6 +19,8 @@ import project.problem.ProblemDefinition;
 public class ReferenceSetCreator {
 
 	public static void main(String[] args) {
+		long beforeTime = System.currentTimeMillis();
+		
 		String directory = "C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances";
 		
 		String[] problems = new String[]{"Nodes", "Sparsity", "Distribution"};
@@ -40,6 +42,9 @@ public class ReferenceSetCreator {
 				System.out.println("Created reference set for: " + listOfFiles[j].getName());
 			}
 		}
+		long afterTime = System.currentTimeMillis();
+
+		System.out.println("Time Elapsed: " + (afterTime-beforeTime)/1000 + "s");
 	}
 	
 	private static void createApproximationSets (File instanceFile) {

@@ -31,7 +31,7 @@ public class ProblemRunner {
 
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		String directory = "C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances/";
+		String directory = "C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances/Old/";
 		File nodeList = new File(directory + "30_1_instance1.tsp");
 		
 		int popSize = 100;
@@ -50,7 +50,7 @@ public class ProblemRunner {
 		// solve using a Genetic Algorithm
 		final NondominatedPopulation result = new Executor()
 				.withProblemClass(ProblemDefinition.class, nodeList)
-				.withAlgorithm("PAES")
+				.withAlgorithm("NSGAII")
 				.withMaxEvaluations(evaluations)
 				.withProperty("populationSize", popSize)
 				.withProperty("swap.rate", 0.25) // mutation
@@ -67,31 +67,31 @@ public class ProblemRunner {
 		System.out.println("Time Elapsed: " + (afterTime-beforeTime)/1000 + "s");
 		System.out.println();
 				
-		for (int i = 0; i < result.size(); i++) {
-			Solution solution = result.get(i);
-			double[] objectives = solution.getObjectives();
-
-			System.out.println("Solution " + (i + 1) + ":");
-			int[] permutation = EncodingUtils.getPermutation(solution
-					.getVariable(0));
-
-			System.out.print("  Path: ");
-			for (int j = 0; j < permutation.length; j++) {
-				System.out.print(permutation[j] + " ");
-			}
-			System.out.println();
-
-			System.out.println("  length = " + objectives[2]);
-			System.out.println("  robust = " + -objectives[1]);
-			System.out.println("  lifeti = " + -objectives[0]);
-		}
-//		
-//		SwingUtilities.invokeLater(new Runnable() {
+//		for (int i = 0; i < result.size(); i++) {
+//			Solution solution = result.get(i);
+//			double[] objectives = solution.getObjectives();
 //
-//			public void run() {
-//				testSomething(generations);
+//			System.out.println("Solution " + (i + 1) + ":");
+//			int[] permutation = EncodingUtils.getPermutation(solution
+//					.getVariable(0));
+//
+//			System.out.print("  Path: ");
+//			for (int j = 0; j < permutation.length; j++) {
+//				System.out.print(permutation[j] + " ");
 //			}
-//		});
+//			System.out.println();
+//
+//			System.out.println("  length = " + objectives[2]);
+//			System.out.println("  robust = " + -objectives[1]);
+//			System.out.println("  lifeti = " + -objectives[0]);
+//		}
+//		
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				testSomething(generations);
+			}
+		});
 	}
 
 	public static void testSomething(final int generations) {
