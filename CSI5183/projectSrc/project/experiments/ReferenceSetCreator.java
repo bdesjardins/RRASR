@@ -33,11 +33,11 @@ public class ReferenceSetCreator {
 				createApproximationSets(listOfFiles[j]);
 				mergeApproximationSets(directory + "/temp", directory + "/" + problems[i] + "/References/" + listOfFiles[j].getName() + ".ref");
 				
-				try {
-					FileUtils.delete(new File(directory + "/temp"));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+//				try {
+//					FileUtils.delete(new File(directory + "/temp"));
+//				} catch (IOException e) {
+//					e.printStackTrace();
+//				}
 				
 				System.out.println("Created reference set for: " + listOfFiles[j].getName());
 			}
@@ -57,7 +57,7 @@ public class ReferenceSetCreator {
 
 		// solve using Genetic Algorithms
 		for (int j = 0; j < algorithms.length; j++) {
-			final List<NondominatedPopulation> result = new Executor()
+			final NondominatedPopulation result = new Executor()
 			.withProblemClass(ProblemDefinition.class, instanceFile)
 			.withAlgorithm(algorithms[j])
 			.withMaxEvaluations(evaluations)
@@ -66,19 +66,19 @@ public class ReferenceSetCreator {
 			.withProperty("insertion.rate", 0.25) // mutation
 			.withProperty("pmx.rate", 0.75) // crossover
 //			.withEpsilon(5)
-			.distributeOnAllCores()
-			.runSeeds(5);
-//			.run();
+//			.distributeOnAllCores()
+//			.runSeeds(5);
+			.run();
 
 
 			try {
-				for (int i = 0; i < result.size(); i++) {
+//				for (int i = 0; i < result.size(); i++) {
 					Analyzer analyzer = new Analyzer()
-					.add("RRASR", result.get(i))
-					.saveReferenceSet(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances/temp/" + algorithms[j] + i + ".set"));
-				}
+					.add("RRASR", result)
+					.saveReferenceSet(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances/temp/" + algorithms[j] /*+ i */+ ".set"));
+//				}
 
-				System.out.println("Created a reference set");
+//				System.out.println("Created a reference set");
 			} catch (IOException e) {
 				//do nothing
 			} 
@@ -89,13 +89,13 @@ public class ReferenceSetCreator {
 		File folder = new File(folderLocation);
 		File[] listOfFiles = folder.listFiles();
 
-		    for (int i = 0; i < listOfFiles.length; i++) {
-		      if (listOfFiles[i].isFile()) {
-		        System.out.println("File " + listOfFiles[i].getName());
-		      } else if (listOfFiles[i].isDirectory()) {
-		        System.out.println("Directory " + listOfFiles[i].getName());
-		      }
-		    }		
+//		    for (int i = 0; i < listOfFiles.length; i++) {
+//		      if (listOfFiles[i].isFile()) {
+//		        System.out.println("File " + listOfFiles[i].getName());
+//		      } else if (listOfFiles[i].isDirectory()) {
+//		        System.out.println("Directory " + listOfFiles[i].getName());
+//		      }
+//		    }		
 		
 		Problem problem = new ProblemDefinition();
 		NondominatedPopulation mergedSet = null;
@@ -103,14 +103,14 @@ public class ReferenceSetCreator {
 		
 		String destination = destinationName;
 		
-		double[] epsilon = null;
+//		double[] epsilon = null;
 
 		// setup the merged non-dominated population
-		if (epsilon != null) {
-			mergedSet = new EpsilonBoxDominanceArchive(epsilon);
-		} else {
+//		if (epsilon != null) {
+//			mergedSet = new EpsilonBoxDominanceArchive(epsilon);
+//		} else {
 			mergedSet = new NondominatedPopulation();
-		}
+//		}
 
 		try {
 			// read in result files
@@ -137,7 +137,7 @@ public class ReferenceSetCreator {
 		
 		try {
 			//delete the file to avoid appending
-			FileUtils.delete(output);
+//			FileUtils.delete(output);
 
 			writer = new ResultFileWriter(problem, output);
 			writer.append(new ResultEntry(mergedSet));

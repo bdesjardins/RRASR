@@ -94,10 +94,12 @@ public class ExperimentRunner {
 			printer.print(accumulator.get("Hypervolume", accumulator.size(key)-1));
 			printer.print(accumulator.get("Contribution", accumulator.size(key)-1));
 			printer.print(accumulator.get("Generational Distance", accumulator.size(key)-1));
-			printer.print(accumulator.get("", accumulator.size(key)-1));
+//			printer.print(accumulator.get("", accumulator.size(key)-1));
 			printer.print(accumulator.get("Elapsed Time", accumulator.size(key)-1));
 			printer.print(algorithm);
 			printer.println();
+			
+			printer.flush();
 		}catch (IOException e) {
 			
 		}
