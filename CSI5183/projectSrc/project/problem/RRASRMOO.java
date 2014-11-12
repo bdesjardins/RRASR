@@ -11,11 +11,12 @@ import java.util.Stack;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.Permutation;
 import org.moeaframework.problem.AbstractProblem;
+import org.moeaframework.problem.CustomProblem;
 
 import project.problem.types.Coordinate;
 import project.problem.types.NodeInfo;
 
-public class ProblemDefinition extends AbstractProblem {
+public class RRASRMOO extends CustomProblem {
 
 	final static Charset ENCODING = StandardCharsets.UTF_8;
 	
@@ -25,11 +26,11 @@ public class ProblemDefinition extends AbstractProblem {
 	
 	private static int initCounter = 0;
 		
-	public ProblemDefinition() {
+	public RRASRMOO() {
 		super(1,3);
 	}
 	
-	public ProblemDefinition(File nodeList) {
+	public RRASRMOO(File nodeList) {
 		//Populate the nodes and activeNodes arrays so we can evaluate the solutions
 		//This will be done from generated instance files
 		super(1,3);
@@ -165,6 +166,55 @@ public class ProblemDefinition extends AbstractProblem {
 		solution.setObjective(0, -Math.round(Math.round(pathLifetime)));		
 	}
 
+	public void evaluateJmetal(jmetal.core.Solution solution) {
+		ArrayList<Integer> vector = new ArrayList<Integer>();
+		
+		double tourLength = 0;
+		double pathRobustness = 0;
+		double pathLifetime = 100;
+		
+		int[] perm = ((jmetal.encodings.variable.Permutation) solution.getDecisionVariables()[0]).vector_;
+		
+		if (!Permutation.isPermutation(perm)) {
+			perm = (new Permutation(perm)).toArray();
+			jmetal.encodings.variable.Permutation sol = new jmetal.encodings.variable.Permutation(perm);
+			solution.setDecisionVariables(new jmetal.core.Variable[]{ sol });
+		}
+		
+		vector.add(0);
+				
+		for (int i = 0; i < perm.length; i++) {
+			if (perm[i] > 0) {
+				vector.add(perm[i]);
+			}
+		}		
+		vector.add(0);
+		
+		Stack<Double> batteries = new Stack<Double>();
+		
+		for (int j = 0; j < vector.size() - 1; j++) {
+			NodeInfo nodeA = nodes[vector.get(j)];
+			
+			if (nodeA.getDemand() == 1) {
+				batteries.push(nodeA.getBattery());
+				
+				if (batteries.peek() < pathLifetime) {
+					pathLifetime = batteries.peek();
+				}
+			}
+			if (nodes[vector.get(j)].getDemand() == -1) {
+				pathRobustness += batteries.pop()/nodeA.getDegree();
+			}
+			
+			tourLength += distances[vector.get(j)][vector.get(j+1)];
+		}
+		
+		solution.setObjective(2, tourLength);
+		//MOEA only minimizes, therefore change maximization problems to minimization problems
+		solution.setObjective(1, -Math.round(Math.round(pathRobustness))); 
+		solution.setObjective(0, -Math.round(Math.round(pathLifetime)));	
+	}
+	
 	@Override
 	public Solution newSolution() {
 		Solution solution = new Solution(1,3);

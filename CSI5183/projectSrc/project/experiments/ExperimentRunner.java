@@ -12,7 +12,7 @@ import org.moeaframework.Instrumenter;
 import org.moeaframework.analysis.collector.Accumulator;
 import org.moeaframework.core.NondominatedPopulation;
 
-import project.problem.ProblemDefinition;
+import project.problem.RRASRMOO;
 
 public class ExperimentRunner {
 
@@ -59,7 +59,7 @@ public class ExperimentRunner {
 		int evaluations = popSize * generations;
 
 		Instrumenter instrumenter = new Instrumenter()
-		.withProblemClass(ProblemDefinition.class, instanceFile)
+		.withProblemClass(RRASRMOO.class, instanceFile)
 //		.attachElapsedTimeCollector()
 //		.attachApproximationSetCollector()
 		.withReferenceSet(referenceSet)
@@ -68,7 +68,7 @@ public class ExperimentRunner {
 
 		// solve using a Genetic Algorithm
 		final NondominatedPopulation result = new Executor()
-				.withProblemClass(ProblemDefinition.class, instanceFile)
+				.withProblemClass(RRASRMOO.class, instanceFile)
 				.withAlgorithm(algorithm)
 				.withMaxEvaluations(evaluations)
 				.withProperty("populationSize", popSize)

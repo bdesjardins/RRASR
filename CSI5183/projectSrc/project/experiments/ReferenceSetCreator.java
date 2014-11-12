@@ -14,7 +14,7 @@ import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.Problem;
 import org.moeaframework.util.io.FileUtils;
 
-import project.problem.ProblemDefinition;
+import project.problem.RRASRMOO;
 
 public class ReferenceSetCreator {
 
@@ -30,6 +30,10 @@ public class ReferenceSetCreator {
 			File[] listOfFiles = folder.listFiles();
 			
 			for (int j = 0; j < listOfFiles.length; j++) {
+				if (!listOfFiles[j].isFile()) {
+					continue;
+				}
+				
 				createApproximationSets(listOfFiles[j]);
 				mergeApproximationSets(directory + "/temp", directory + "/" + problems[i] + "/References/" + listOfFiles[j].getName() + ".ref");
 				
@@ -57,8 +61,8 @@ public class ReferenceSetCreator {
 
 		// solve using Genetic Algorithms
 		for (int j = 0; j < algorithms.length; j++) {
-			final NondominatedPopulation result = new Executor()
-			.withProblemClass(ProblemDefinition.class, instanceFile)
+			final List<NondominatedPopulation> result = new Executor()
+			.withProblemClass(RRASRMOO.class, instanceFile)
 			.withAlgorithm(algorithms[j])
 			.withMaxEvaluations(evaluations)
 			.withProperty("populationSize", popSize)
@@ -67,16 +71,16 @@ public class ReferenceSetCreator {
 			.withProperty("pmx.rate", 0.75) // crossover
 //			.withEpsilon(5)
 //			.distributeOnAllCores()
-//			.runSeeds(5);
-			.run();
+			.runSeeds(2);
+//			.run();
 
 
 			try {
-//				for (int i = 0; i < result.size(); i++) {
+				for (int i = 0; i < result.size(); i++) {
 					Analyzer analyzer = new Analyzer()
-					.add("RRASR", result)
-					.saveReferenceSet(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances/temp/" + algorithms[j] /*+ i */+ ".set"));
-//				}
+					.add("RRASR", result.get(i))
+					.saveReferenceSet(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances/temp/" + algorithms[j] + i + ".set"));
+				}
 
 //				System.out.println("Created a reference set");
 			} catch (IOException e) {
@@ -97,7 +101,7 @@ public class ReferenceSetCreator {
 //		      }
 //		    }		
 		
-		Problem problem = new ProblemDefinition();
+		Problem problem = new RRASRMOO();
 		NondominatedPopulation mergedSet = null;
 		ResultFileReader reader = null;
 		
@@ -137,14 +141,17 @@ public class ReferenceSetCreator {
 		
 		try {
 			//delete the file to avoid appending
-//			FileUtils.delete(output);
-
+			FileUtils.delete(output);
+		} catch (IOException e) {
+			//Do nothing
+		}
+		try {
 			writer = new ResultFileWriter(problem, output);
 			writer.append(new ResultEntry(mergedSet));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} finally {
+		}
+		finally {
 			if (writer != null) {
 				writer.close();
 			}

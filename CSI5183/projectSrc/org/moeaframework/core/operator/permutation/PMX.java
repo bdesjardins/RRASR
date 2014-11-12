@@ -96,8 +96,8 @@ public class PMX implements Variation {
 		int[] replacement1 = new int[n];
 		int[] replacement2 = new int[n];
 
-		Arrays.fill(replacement1, -999);
-		Arrays.fill(replacement2, -999);
+		Arrays.fill(replacement1, -999999);
+		Arrays.fill(replacement2, -999999);
 
 		for (int i = cuttingPoint1; i <= cuttingPoint2; i++) {
 			offspring1[i] = parent2[i];
@@ -116,12 +116,12 @@ public class PMX implements Variation {
 				int n2 = parent2[i];
 				int m2 = replacement2[Math.abs(n2)];
 
-				while (m1 != -999) {
+				while (m1 != -999999) {
 					n1 = m1;
 					m1 = replacement1[Math.abs(m1)];
 				}
 
-				while (m2 != -999) {
+				while (m2 != -999999) {
 					n2 = m2;
 					m2 = replacement2[Math.abs(m2)];
 				}

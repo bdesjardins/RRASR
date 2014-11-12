@@ -1,4 +1,4 @@
-package project.problem;
+package project.experiments;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -22,6 +22,8 @@ import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.EncodingUtils;
 
+import project.problem.RRASRMOO;
+
 
 public class ProblemRunner {
 	
@@ -31,8 +33,8 @@ public class ProblemRunner {
 
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		String directory = "C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances/Old/";
-		File nodeList = new File(directory + "30_1_instance1.tsp");
+		String directory = "C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances/Nodes/";
+		File nodeList = new File(directory + "15n_3s_15d_instance.tsp");
 		
 		int popSize = 100;
 		final int generations = 500;
@@ -40,7 +42,7 @@ public class ProblemRunner {
 		int evaluations = popSize * generations;
 
 		Instrumenter instrumenter = new Instrumenter()
-		.withProblemClass(ProblemDefinition.class, nodeList)
+		.withProblemClass(RRASRMOO.class, nodeList)
 		.attachElapsedTimeCollector()
 		.attachApproximationSetCollector()
 		.withFrequency(100);
@@ -49,15 +51,15 @@ public class ProblemRunner {
 
 		// solve using a Genetic Algorithm
 		final NondominatedPopulation result = new Executor()
-				.withProblemClass(ProblemDefinition.class, nodeList)
-				.withAlgorithm("NSGAII")
+				.withProblemClass(RRASRMOO.class, nodeList)
+				.withAlgorithm("SPEA2")
 				.withMaxEvaluations(evaluations)
 				.withProperty("populationSize", popSize)
 				.withProperty("swap.rate", 0.25) // mutation
 				.withProperty("insertion.rate", 0.25) // mutation
 				.withProperty("pmx.rate", 0.75) // crossover
 //				.withEpsilon(5)
-				.distributeOnAllCores()
+//				.distributeOnAllCores()
 				.withInstrumenter(instrumenter)
 				.run();
 		
