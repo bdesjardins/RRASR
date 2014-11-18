@@ -2,6 +2,7 @@ package project.experiments;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 import org.moeaframework.Analyzer;
@@ -9,7 +10,6 @@ import org.moeaframework.Executor;
 import org.moeaframework.analysis.sensitivity.ResultEntry;
 import org.moeaframework.analysis.sensitivity.ResultFileReader;
 import org.moeaframework.analysis.sensitivity.ResultFileWriter;
-import org.moeaframework.core.EpsilonBoxDominanceArchive;
 import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.Problem;
 import org.moeaframework.util.io.FileUtils;
@@ -43,7 +43,7 @@ public class ReferenceSetCreator {
 //					e.printStackTrace();
 //				}
 				
-				System.out.println("Created reference set for: " + listOfFiles[j].getName());
+				System.out.println("Created reference set for: " + listOfFiles[j].getName() + " " + (new Date(System.currentTimeMillis())).toString());
 			}
 		}
 		long afterTime = System.currentTimeMillis();
@@ -52,7 +52,7 @@ public class ReferenceSetCreator {
 	}
 	
 	private static void createApproximationSets (File instanceFile) {
-		int popSize = 100;
+		int popSize = 500;
 		int generations = 500;
 
 		int evaluations = popSize * generations;
