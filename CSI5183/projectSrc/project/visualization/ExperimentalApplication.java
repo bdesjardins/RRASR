@@ -18,6 +18,12 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import org.eclipse.wb.swing.FocusTraversalOnArray;
+import org.moeaframework.Executor;
+import org.moeaframework.Instrumenter;
+import org.moeaframework.analysis.collector.Accumulator;
+import org.moeaframework.core.NondominatedPopulation;
+
+import project.problem.RRASRMOO;
 
 import java.awt.Component;
 
@@ -39,6 +45,15 @@ import javax.swing.tree.TreeSelectionModel;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeEvent;
 
+import javax.swing.JList;
+import javax.swing.AbstractListModel;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
+
 public class ExperimentalApplication {
 
 	//UI Components
@@ -54,10 +69,17 @@ public class ExperimentalApplication {
 	private FileTreeModel model;
 	
 	
+	
+	
 	//Execution variables
-	private File instance;
-	private int population = 200;
-	private int generations = 500;
+	private static File instance;
+	private static int population = 200;
+	private static int generations = 500;
+	private static String algorithm = "NSGAII";
+	private static int selectedGeneration = 1;
+	
+	//Where we hold the results of our run
+	private static Accumulator accumulator = null;
 
 	/**
 	 * Launch the application.
@@ -90,7 +112,7 @@ public class ExperimentalApplication {
 	private void initialize() {
 		frmCsiProject = new JFrame();
 		frmCsiProject.setTitle("CSI5183 - Project");
-		frmCsiProject.setBounds(100, 100, 1112, 700);
+		frmCsiProject.setBounds(100, 100, 1160, 700);
 		frmCsiProject.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -100,7 +122,12 @@ public class ExperimentalApplication {
 		
 		JPanel parametersPanel = new JPanel();
 		
-		JComboBox algorithmSpinner = new JComboBox();
+		final JComboBox algorithmSpinner = new JComboBox();
+		algorithmSpinner.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				algorithm = algorithmSpinner.getSelectedItem().toString();
+			}
+		});
 		algorithmSpinner.setModel(new DefaultComboBoxModel(new String[] {"NSGAII", "NSGAIII", "SPEA2", "IBEA"}));
 		
 		JLabel lblAlgorithm = new JLabel("Algorithm");
@@ -130,7 +157,7 @@ public class ExperimentalApplication {
 								"Error: Please enter number bigger than 0", "Error Message",
 								JOptionPane.ERROR_MESSAGE);
 					} else {
-						setPopulation(Integer.parseInt(populationField.getText()));
+						population = (Integer.parseInt(populationField.getText()));
 					}
 				} catch (NumberFormatException e) {
 					JOptionPane.showMessageDialog(null,
@@ -169,7 +196,7 @@ public class ExperimentalApplication {
 								"Error: Please enter number bigger than 0", "Error Message",
 								JOptionPane.ERROR_MESSAGE);
 					} else {
-						setGenerations(Integer.parseInt(generationsField.getText()));
+						generations = (Integer.parseInt(generationsField.getText()));
 					}
 				} catch (NumberFormatException e) {
 					JOptionPane.showMessageDialog(null,
@@ -180,6 +207,33 @@ public class ExperimentalApplication {
 		});
 		generationsField.setText("500");
 		generationsField.setColumns(10);
+		
+		final JLabel genNumberLabel = new JLabel("NaN");
+		
+		final JSlider genSlider = new JSlider();
+		genSlider.setMajorTickSpacing(25);
+		genSlider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				selectedGeneration = genSlider.getValue();
+				genNumberLabel.setText(Integer.toString(selectedGeneration));
+			}
+		});
+		genSlider.setMinimum(1);
+		genSlider.setMaximum(generations);
+		genSlider.setValue((int) generations/2);
+		
+		
+		final JButton runButton = new JButton("Run");
+		runButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				genSlider.setMinimum(1);
+				genSlider.setMaximum(generations);
+				genSlider.setValue(generations);
+				runExperiment();
+			}
+		});
+		runButton.setEnabled(false);
+		runButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 				
 		JScrollPane scrollPane = new JScrollPane();
 		
@@ -187,7 +241,16 @@ public class ExperimentalApplication {
 		tree.setRootVisible(false);
 		
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		tree.addTreeSelectionListener(new SelectionListener());
+		tree.addTreeSelectionListener(new SelectionListener() {
+			public void valueChanged(TreeSelectionEvent se) {
+				JTree tree = (JTree) se.getSource();
+				File selectedNode = (File) tree.getLastSelectedPathComponent();
+				if (selectedNode.isFile()) {
+					instance = ((File) selectedNode);
+					runButton.setEnabled(true);
+				}				
+			}			
+		});
 		
 		scrollPane.setViewportView(tree);
 		
@@ -239,19 +302,31 @@ public class ExperimentalApplication {
 		
 		runtimeField = new JTextField();
 		runtimeField.setEditable(false);
-		runtimeField.setColumns(10);
+		runtimeField.setColumns(10);		
 		
 		JButton lastGenButton = new JButton("Last Generation");
+		lastGenButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				selectedGeneration = generations;
+				genSlider.setValue(generations);
+				genNumberLabel.setText(Integer.toString(generations));
+			}
+		});
 		
 		JButton firstGenButton = new JButton("First Generation");
-		
-		JSlider genSlider = new JSlider();
+		firstGenButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				selectedGeneration = 1;
+				genSlider.setValue(1);
+				genNumberLabel.setText(Integer.toString(1));
+			}
+		});
 		
 		JLabel genSliderLabel = new JLabel("Generation Selector");
 		genSliderLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		genSliderLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
 		
-		JLabel genNumberLabel = new JLabel("NaN");
+
 		genNumberLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		GroupLayout gl_resultsPanel = new GroupLayout(resultsPanel);
 		gl_resultsPanel.setHorizontalGroup(
@@ -362,59 +437,61 @@ public class ExperimentalApplication {
 		tabbedPane.addTab("Solution Viewer", null, tourTab, null);
 		tourTab.setLayout(null);
 		
-//		TourVisualizer tourPane = new TourVisualizer();
-//		tourPane.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-//		tourPane.setBounds(10, 11, 500, 500);
-//		tourTab.add(tourPane);
+		JLabel solutionSelectLabel = new JLabel("Solution:");
+		solutionSelectLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
+		solutionSelectLabel.setBounds(10, 520, 56, 21);
+		tourTab.add(solutionSelectLabel);
 		
-		JLabel lblNewLabel_5 = new JLabel("Solution:");
-		lblNewLabel_5.setFont(new Font("Tahoma", Font.BOLD, 12));
-//		lblNewLabel_5.setBounds(10, 527, 66, 14);
-		tourTab.add(lblNewLabel_5);
+		JComboBox list = new JComboBox();
+		list.setModel(new DefaultComboBoxModel(new String[] {"Test1", "Test2", "Test3", "Test4", "Test5"}));
+		list.setBounds(76, 521, 301, 20);
+		tourTab.add(list);
 		
-		JComboBox solutionSelection = new JComboBox();
-//		solutionSelection.setBounds(86, 522, 424, 20);
-		tourTab.add(solutionSelection);
+		JButton btnNewButton = new JButton("Show Selected");
+		btnNewButton.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnNewButton.setBounds(387, 520, 123, 21);
+		tourTab.add(btnNewButton);
+		
+
 		GroupLayout gl_parametersPanel = new GroupLayout(parametersPanel);
 		gl_parametersPanel.setHorizontalGroup(
 			gl_parametersPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_parametersPanel.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(12, Short.MAX_VALUE))
 				.addComponent(lblProblemInstance, GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
 				.addGroup(gl_parametersPanel.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(lblAlgorithm, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)
+					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.TRAILING)
+						.addComponent(lblAlgorithm, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)
+						.addComponent(lblPopulationSize, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)
+						.addComponent(lblOfGenerations, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE))
 					.addContainerGap())
 				.addGroup(gl_parametersPanel.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(lblPopulationSize, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)
-					.addContainerGap())
-				.addGroup(Alignment.TRAILING, gl_parametersPanel.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(lblOfGenerations, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)
-					.addContainerGap())
+					.addGap(153)
+					.addComponent(runButton)
+					.addContainerGap(152, Short.MAX_VALUE))
 				.addGroup(gl_parametersPanel.createSequentialGroup()
-					.addGap(99)
-					.addComponent(populationField, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(111, Short.MAX_VALUE))
-				.addGroup(gl_parametersPanel.createSequentialGroup()
-					.addGap(98)
+					.addGap(105)
 					.addComponent(generationsField, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(112, Short.MAX_VALUE))
+					.addContainerGap(105, Short.MAX_VALUE))
 				.addGroup(gl_parametersPanel.createSequentialGroup()
-					.addGap(101)
+					.addGap(105)
+					.addComponent(populationField, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(105, Short.MAX_VALUE))
+				.addGroup(gl_parametersPanel.createSequentialGroup()
+					.addGap(105)
 					.addComponent(algorithmSpinner, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(109, Short.MAX_VALUE))
+					.addContainerGap(105, Short.MAX_VALUE))
+				.addGroup(gl_parametersPanel.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 332, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(20, Short.MAX_VALUE))
 		);
 		gl_parametersPanel.setVerticalGroup(
 			gl_parametersPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_parametersPanel.createSequentialGroup()
 					.addComponent(lblProblemInstance, GroupLayout.PREFERRED_SIZE, 14, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 389, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 313, GroupLayout.PREFERRED_SIZE)
+					.addGap(18)
 					.addComponent(lblAlgorithm, GroupLayout.PREFERRED_SIZE, 14, GroupLayout.PREFERRED_SIZE)
 					.addGap(2)
 					.addComponent(algorithmSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
@@ -426,59 +503,78 @@ public class ExperimentalApplication {
 					.addComponent(lblOfGenerations)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(generationsField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addGap(41)
+					.addComponent(runButton)
 					.addContainerGap())
 		);
 		parametersPanel.setLayout(gl_parametersPanel);
 		GroupLayout groupLayout = new GroupLayout(frmCsiProject.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
+				.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(parametersPanel, GroupLayout.PREFERRED_SIZE, 362, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
+					.addComponent(tabbedPane, GroupLayout.PREFERRED_SIZE, 525, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(resultsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addGap(19))
 				.addGroup(groupLayout.createSequentialGroup()
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addGroup(groupLayout.createSequentialGroup()
-							.addGap(343)
-							.addComponent(lblExperimentalRunner))
-						.addGroup(groupLayout.createSequentialGroup()
-							.addContainerGap()
-							.addComponent(parametersPanel, GroupLayout.PREFERRED_SIZE, 362, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(tabbedPane, GroupLayout.PREFERRED_SIZE, 525, GroupLayout.PREFERRED_SIZE)
-							.addGap(6)
-							.addComponent(resultsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
-					.addGap(99))
+					.addGap(435)
+					.addComponent(lblExperimentalRunner)
+					.addContainerGap(482, Short.MAX_VALUE))
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
+					.addContainerGap()
 					.addComponent(lblExperimentalRunner)
 					.addGap(13)
 					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addComponent(resultsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(parametersPanel, GroupLayout.PREFERRED_SIZE, 580, GroupLayout.PREFERRED_SIZE)
+						.addComponent(resultsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(tabbedPane, GroupLayout.PREFERRED_SIZE, 580, GroupLayout.PREFERRED_SIZE))
-					.addGap(46))
+					.addGap(35))
 		);
 		frmCsiProject.getContentPane().setLayout(groupLayout);
 		frmCsiProject.getContentPane().setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{tabbedPane, lblExperimentalRunner}));
 	}
 
+	private void runExperiment() {
+		int evaluations = population * generations;
+
+		Instrumenter instrumenter = new Instrumenter()
+		.withProblemClass(RRASRMOO.class, instance)
+		.attachElapsedTimeCollector()
+		.attachApproximationSetCollector()
+		.withFrequency(population);
+		
+		// solve using a Genetic Algorithm
+		final NondominatedPopulation result = new Executor()
+			.withProblemClass(RRASRMOO.class, instance)
+			.withAlgorithm(algorithm)
+			.withMaxEvaluations(evaluations)
+			.withProperty("populationSize", population)
+			.withProperty("swap.rate", 0.25) // mutation
+			.withProperty("insertion.rate", 0.25) // mutation
+			.withProperty("pmx.rate", 0.75) // crossover
+//			.withEpsilon(5)
+//			.distributeOnAllCores()
+			.withInstrumenter(instrumenter)
+			.run();
+
+		accumulator = instrumenter.getLastAccumulator();
+	}
+	
+	
 	private class SelectionListener implements TreeSelectionListener {
 		@Override
 		public void valueChanged(TreeSelectionEvent se) {
 			JTree tree = (JTree) se.getSource();
 			File selectedNode = (File) tree.getLastSelectedPathComponent();
 			if (selectedNode.isFile()) {
-				setInstance((File) selectedNode);
+				instance = ((File) selectedNode);
 			}
 		}
-	}
-	
-	private void setInstance(File newInstance) {
-		this.instance = newInstance;
-	}
-	private void setPopulation(int newPop) {
-		this.population = newPop;
-	}
-	private void setGenerations(int newGen) {
-		this.generations = newGen;
 	}
 }

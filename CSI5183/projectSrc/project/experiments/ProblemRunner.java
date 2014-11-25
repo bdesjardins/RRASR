@@ -34,7 +34,7 @@ public class ProblemRunner {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		String directory = "C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances/Nodes/";
-		File nodeList = new File(directory + "15n_3s_15d_instance.tsp");
+		File nodeList = new File(directory + "500n_3s_15d_instance.tsp");
 		
 		int popSize = 100;
 		final int generations = 500;
@@ -44,8 +44,8 @@ public class ProblemRunner {
 		Instrumenter instrumenter = new Instrumenter()
 		.withProblemClass(RRASRMOO.class, nodeList)
 		.attachElapsedTimeCollector()
-		.attachApproximationSetCollector()
-		.withFrequency(100);
+		.attachApproximationSetCollector();
+//		.withFrequency(100);
 		
 		long beforeTime = System.currentTimeMillis();
 

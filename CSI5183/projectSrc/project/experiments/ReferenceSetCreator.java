@@ -37,12 +37,6 @@ public class ReferenceSetCreator {
 				createApproximationSets(listOfFiles[j]);
 				mergeApproximationSets(directory + "/temp", directory + "/" + problems[i] + "/References/" + listOfFiles[j].getName() + ".ref");
 				
-//				try {
-//					FileUtils.delete(new File(directory + "/temp"));
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-				
 				System.out.println("Created reference set for: " + listOfFiles[j].getName() + " " + (new Date(System.currentTimeMillis())).toString());
 			}
 		}
@@ -52,7 +46,7 @@ public class ReferenceSetCreator {
 	}
 	
 	private static void createApproximationSets (File instanceFile) {
-		int popSize = 500;
+		int popSize = 200;
 		int generations = 500;
 
 		int evaluations = popSize * generations;
@@ -71,7 +65,7 @@ public class ReferenceSetCreator {
 			.withProperty("pmx.rate", 0.75) // crossover
 //			.withEpsilon(5)
 //			.distributeOnAllCores()
-			.runSeeds(2);
+			.runSeeds(20);
 //			.run();
 
 
@@ -92,14 +86,6 @@ public class ReferenceSetCreator {
 	private static void mergeApproximationSets(String folderLocation, String destinationName) {
 		File folder = new File(folderLocation);
 		File[] listOfFiles = folder.listFiles();
-
-//		    for (int i = 0; i < listOfFiles.length; i++) {
-//		      if (listOfFiles[i].isFile()) {
-//		        System.out.println("File " + listOfFiles[i].getName());
-//		      } else if (listOfFiles[i].isDirectory()) {
-//		        System.out.println("Directory " + listOfFiles[i].getName());
-//		      }
-//		    }		
 		
 		Problem problem = new RRASRMOO();
 		NondominatedPopulation mergedSet = null;
@@ -107,14 +93,7 @@ public class ReferenceSetCreator {
 		
 		String destination = destinationName;
 		
-//		double[] epsilon = null;
-
-		// setup the merged non-dominated population
-//		if (epsilon != null) {
-//			mergedSet = new EpsilonBoxDominanceArchive(epsilon);
-//		} else {
-			mergedSet = new NondominatedPopulation();
-//		}
+		mergedSet = new NondominatedPopulation();
 
 		try {
 			// read in result files

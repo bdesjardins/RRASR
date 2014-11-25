@@ -26,7 +26,7 @@ public class ExperimentRunner {
 			
 			String directory = "C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances";
 
-			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2", "IBEA"};
+			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2", "PAES"};
 			String[] problems = new String[]{"Nodes", "Sparsity", "Distribution"};
 
 			for (int k = 0; k < algorithms.length; k++) {
@@ -60,8 +60,6 @@ public class ExperimentRunner {
 
 		Instrumenter instrumenter = new Instrumenter()
 		.withProblemClass(RRASRMOO.class, instanceFile)
-//		.attachElapsedTimeCollector()
-//		.attachApproximationSetCollector()
 		.withReferenceSet(referenceSet)
 		.attachAll()
 		.withFrequency(popSize);
@@ -88,6 +86,8 @@ public class ExperimentRunner {
 		
 		String key = "";
 		try {
+			//TODO Look at key set!
+			
 			printer.print(""); //#nodes
 			printer.print(""); //sparsity
 			printer.print(""); // distribution
