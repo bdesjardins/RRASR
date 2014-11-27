@@ -210,7 +210,7 @@ public class Permutation implements Variable {
 	 */
 	public static boolean isPermutation(int[] permutation) {
 		int sensors = startingSensors;
-		
+				
 		for (int i = 0; i < permutation.length; i++) {
 			for (int j = i+1; j < permutation.length; j++) {
 				if (permutation[j] == permutation[i]) {
@@ -259,7 +259,7 @@ public class Permutation implements Variable {
 		int dropoffs = this.sensingHoles.size();
 		
 		int[] permutation = this.toArray();
-		
+				
 		//Make sure that all dropoffs are included
 		for (int i = 0; i < permutation.length; i++) {
 			if (sensingHoles.contains(Math.abs(permutation[i])) && permutation[i] < 0) {
@@ -276,7 +276,7 @@ public class Permutation implements Variable {
 				break;
 			}
 
-			if (permutation[i] > 0 && !sensingHoles.contains(permutation[i])) {
+			if (permutation[i] > 0 && !sensingHoles.contains(Math.abs(permutation[i]))) {
 				permutation[i] = -permutation[i];
 				pickups--;
 			}
@@ -300,7 +300,7 @@ public class Permutation implements Variable {
 			int sensors = startingSensors;
 			
 			for (int i = 0; i < permutation.length; i++) {
-				if (permutation[i] > 0 && !sensingHoles.contains(permutation[i])) {
+				if (permutation[i] > 0 && !sensingHoles.contains(Math.abs(permutation[i]))) {
 					sensors++;
 					
 					if (sensors > this.maxSensors) {
@@ -315,7 +315,7 @@ public class Permutation implements Variable {
 						i--;
 						continue;
 					}
-				} else if (permutation[i] > 0 && sensingHoles.contains(permutation[i])) {
+				} else if (permutation[i] > 0 && sensingHoles.contains(Math.abs(permutation[i]))) {
 					sensors--;
 					
 					if (sensors < 0) {
@@ -343,7 +343,7 @@ public class Permutation implements Variable {
 	
 	private int findNextHole(int[] permutation, int startingPoint) {
 		for (int i = startingPoint; i < permutation.length; i++) {
-			if (sensingHoles.contains(permutation[i])) {
+			if (sensingHoles.contains(Math.abs(permutation[i]))) {
 				return i;
 			}
 		}
@@ -353,7 +353,7 @@ public class Permutation implements Variable {
 	
 	private int findNextSensor(int[] permutation, int startingPoint) {
 		for (int i = startingPoint; i < permutation.length; i++) {
-			if (permutation[i] > 0 && !sensingHoles.contains(permutation[i])) {
+			if (permutation[i] > 0 && !sensingHoles.contains(Math.abs(permutation[i]))) {
 				return i;
 			}
 		}
