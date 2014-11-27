@@ -1,9 +1,7 @@
 package project;
 
 import org.moeaframework.core.Solution;
-import org.moeaframework.core.variable.EncodingUtils;
 import org.moeaframework.core.variable.Permutation;
-import org.moeaframework.core.variable.RealVariable;
 import org.moeaframework.problem.AbstractProblem;
 
 public class ToyProblem2 extends AbstractProblem {

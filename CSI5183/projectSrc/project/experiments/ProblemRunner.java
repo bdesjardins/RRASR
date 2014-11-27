@@ -13,11 +13,7 @@ import project.problem.RRASRMOO;
 
 
 public class ProblemRunner {
-	
-	private static Accumulator accumulator = null;
-	private static int current = 1;
 
-	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		String directory = "Instances/Nodes/";
 		File nodeList = new File(directory + "200n_3s_15d_instance.tsp");
@@ -50,7 +46,7 @@ public class ProblemRunner {
 				.run();
 		
 		long afterTime = System.currentTimeMillis();
-		accumulator = instrumenter.getLastAccumulator();
+		Accumulator accumulator = instrumenter.getLastAccumulator();
 				
 		System.out.println("Time Elapsed: " + (afterTime-beforeTime)/1000 + "s");
 		System.out.println();

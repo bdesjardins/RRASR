@@ -10,7 +10,6 @@ import java.util.Stack;
 
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.Permutation;
-import org.moeaframework.problem.AbstractProblem;
 import org.moeaframework.problem.CustomProblem;
 
 import project.problem.types.Coordinate;

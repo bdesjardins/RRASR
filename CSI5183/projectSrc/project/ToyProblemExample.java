@@ -5,8 +5,6 @@ import java.io.IOException;
 
 import org.moeaframework.Analyzer;
 import org.moeaframework.Executor;
-import org.moeaframework.Instrumenter;
-import org.moeaframework.analysis.collector.Accumulator;
 import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.EncodingUtils;

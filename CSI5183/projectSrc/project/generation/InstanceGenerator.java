@@ -188,7 +188,6 @@ public class InstanceGenerator {
 
 	private static InstanceNode[] max_dpa(int numNodes, int degree, int maxValue, int maxDegree, int minDistance, int communicationRadius) {
 		double r = Math.sqrt((degree * Math.pow((maxValue*2), 2))/((numNodes-1)*Math.PI)) + 15;		
-		boolean connected = false;
 
 		InstanceNode[] nodes = new InstanceNode[0];
 
