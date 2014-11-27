@@ -19,6 +19,8 @@ import project.problem.RRASRMOO;
 public class ReferenceSetCreator {
 
 	public static void main(String[] args) {
+		System.out.println("Starting!");
+		
 		long beforeTime = System.currentTimeMillis();
 		
 		String directory = "Instances";
@@ -51,7 +53,7 @@ public class ReferenceSetCreator {
 
 		int evaluations = popSize * generations;
 
-		String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2", "PAES"};
+		String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2"};
 
 		// solve using Genetic Algorithms
 		for (int j = 0; j < algorithms.length; j++) {
@@ -65,20 +67,22 @@ public class ReferenceSetCreator {
 			.withProperty("pmx.rate", 0.75) // crossover
 //			.withEpsilon(5)
 //			.distributeOnAllCores()
-			.runSeeds(20);
+			.runSeeds(25);
 //			.run();
-
-
+				
 			try {
 				for (int i = 0; i < result.size(); i++) {
 					Analyzer analyzer = new Analyzer()
 					.add("RRASR", result.get(i))
-					.saveReferenceSet(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances/temp/" + algorithms[j] + i + ".set"));
+					.saveReferenceSet(new File("Instances/temp/" + algorithms[j] + i + ".set"));
 				}
+				
+				System.out.println("Created " + algorithms[j] + " set for " + instanceFile.getName());
 
 //				System.out.println("Created a reference set");
 			} catch (IOException e) {
-				//do nothing
+				e.printStackTrace();
+				continue;
 			} 
 		}
 	}
