@@ -5,7 +5,6 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JLabel;
@@ -22,8 +21,12 @@ import org.moeaframework.Executor;
 import org.moeaframework.Instrumenter;
 import org.moeaframework.analysis.collector.Accumulator;
 import org.moeaframework.core.NondominatedPopulation;
+import org.moeaframework.core.Solution;
+import org.moeaframework.core.variable.Permutation;
 
 import project.problem.RRASRMOO;
+import project.problem.types.Coordinate;
+import project.problem.types.NodeInfo;
 
 import java.awt.Component;
 
@@ -33,20 +36,17 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 import javax.swing.JScrollPane;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeSelectionModel;
-
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeEvent;
-
-import javax.swing.JList;
-import javax.swing.AbstractListModel;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -54,29 +54,40 @@ import java.awt.event.ActionEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
+import org.math.plot.Plot3DPanel;
+
+import javax.swing.border.LineBorder;
+
+import java.awt.Color;
+import org.math.plot.Plot2DPanel;
+
 public class ExperimentalApplication {
 
 	//UI Components
 	private JFrame frmCsiProject;
 	private JTextField populationField;
 	private JTextField generationsField;
-	private JTextField hypervolumeField;
-	private JTextField spacingField;
-	private JTextField contributionField;
-	private JTextField genDistField;
-	private JTextField paretoErrorField;
-	private JTextField runtimeField;
+	private static JTextField hypervolumeField;
+	private static JTextField spacingField;
+	private static JTextField contributionField;
+	private static JTextField genDistField;
+	private static JTextField paretoErrorField;
+	private static JTextField runtimeField;
+	private static JComboBox list;
 	private FileTreeModel model;
+	private static TourVisualizer tourVisualizer;
+	private static JTabbedPane tabbedPane;
 	
-	
-	
+	public static Plot3DPanel paretoViewer;
+
 	
 	//Execution variables
 	private static File instance;
 	private static int population = 200;
-	private static int generations = 500;
+	private static int generations = 1;
 	private static String algorithm = "NSGAII";
 	private static int selectedGeneration = 1;
+	private static boolean withReferenceSet = false;
 	
 	//Where we hold the results of our run
 	private static Accumulator accumulator = null;
@@ -101,7 +112,7 @@ public class ExperimentalApplication {
 	 * Create the application.
 	 */
 	public ExperimentalApplication() {
-		model = new FileTreeModel(new File("C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances"));
+		model = new FileTreeModel(new File("Instances"));
 		
 		initialize();
 	}
@@ -114,21 +125,14 @@ public class ExperimentalApplication {
 		frmCsiProject.setTitle("CSI5183 - Project");
 		frmCsiProject.setBounds(100, 100, 1160, 700);
 		frmCsiProject.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		
+				
 		JLabel lblExperimentalRunner = new JLabel("RRASR Experiment Runner");
 		lblExperimentalRunner.setFont(new Font("Tahoma", Font.PLAIN, 19));
 		
 		JPanel parametersPanel = new JPanel();
 		
 		final JComboBox algorithmSpinner = new JComboBox();
-		algorithmSpinner.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				algorithm = algorithmSpinner.getSelectedItem().toString();
-			}
-		});
-		algorithmSpinner.setModel(new DefaultComboBoxModel(new String[] {"NSGAII", "NSGAIII", "SPEA2", "IBEA"}));
+		algorithmSpinner.setModel(new DefaultComboBoxModel(new String[] {"NSGAII", "NSGAIII", "SPEA2", "PAES"}));
 		
 		JLabel lblAlgorithm = new JLabel("Algorithm");
 		lblAlgorithm.setHorizontalAlignment(SwingConstants.CENTER);
@@ -139,33 +143,6 @@ public class ExperimentalApplication {
 		lblProblemInstance.setFont(new Font("Tahoma", Font.BOLD, 12));
 		
 		populationField = new JTextField();
-		populationField.getDocument().addDocumentListener(new DocumentListener() {
-			public void changedUpdate(DocumentEvent e) {
-				warn();
-			}
-			public void removeUpdate(DocumentEvent e) {
-				warn();
-			}
-			public void insertUpdate(DocumentEvent e) {
-				warn();
-			}
-
-			public void warn() {
-				try {
-					if (Integer.parseInt(populationField.getText())<=0){
-						JOptionPane.showMessageDialog(null,
-								"Error: Please enter number bigger than 0", "Error Message",
-								JOptionPane.ERROR_MESSAGE);
-					} else {
-						population = (Integer.parseInt(populationField.getText()));
-					}
-				} catch (NumberFormatException e) {
-					JOptionPane.showMessageDialog(null,
-							"Error: Please enter number bigger than 0", "Error Message",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		});
 		populationField.setText("200");
 		populationField.setColumns(10);
 		
@@ -178,33 +155,6 @@ public class ExperimentalApplication {
 		lblOfGenerations.setFont(new Font("Tahoma", Font.BOLD, 12));
 		
 		generationsField = new JTextField();
-		generationsField.getDocument().addDocumentListener(new DocumentListener() {
-			public void changedUpdate(DocumentEvent e) {
-				warn();
-			}
-			public void removeUpdate(DocumentEvent e) {
-				warn();
-			}
-			public void insertUpdate(DocumentEvent e) {
-				warn();
-			}
-
-			public void warn() {
-				try {
-					if (Integer.parseInt(generationsField.getText())<=0){
-						JOptionPane.showMessageDialog(null,
-								"Error: Please enter number bigger than 0", "Error Message",
-								JOptionPane.ERROR_MESSAGE);
-					} else {
-						generations = (Integer.parseInt(generationsField.getText()));
-					}
-				} catch (NumberFormatException e) {
-					JOptionPane.showMessageDialog(null,
-							"Error: Please enter number bigger than 0", "Error Message",
-							JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		});
 		generationsField.setText("500");
 		generationsField.setColumns(10);
 		
@@ -212,26 +162,12 @@ public class ExperimentalApplication {
 		
 		final JSlider genSlider = new JSlider();
 		genSlider.setMajorTickSpacing(25);
-		genSlider.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
-				selectedGeneration = genSlider.getValue();
-				genNumberLabel.setText(Integer.toString(selectedGeneration));
-			}
-		});
 		genSlider.setMinimum(1);
-		genSlider.setMaximum(generations);
-		genSlider.setValue((int) generations/2);
+		genSlider.setMaximum(1);
+		genSlider.setValue(1);
 		
 		
 		final JButton runButton = new JButton("Run");
-		runButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				genSlider.setMinimum(1);
-				genSlider.setMaximum(generations);
-				genSlider.setValue(generations);
-				runExperiment();
-			}
-		});
 		runButton.setEnabled(false);
 		runButton.setFont(new Font("Tahoma", Font.BOLD, 12));
 				
@@ -241,16 +177,6 @@ public class ExperimentalApplication {
 		tree.setRootVisible(false);
 		
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		tree.addTreeSelectionListener(new SelectionListener() {
-			public void valueChanged(TreeSelectionEvent se) {
-				JTree tree = (JTree) se.getSource();
-				File selectedNode = (File) tree.getLastSelectedPathComponent();
-				if (selectedNode.isFile()) {
-					instance = ((File) selectedNode);
-					runButton.setEnabled(true);
-				}				
-			}			
-		});
 		
 		scrollPane.setViewportView(tree);
 		
@@ -304,23 +230,8 @@ public class ExperimentalApplication {
 		runtimeField.setEditable(false);
 		runtimeField.setColumns(10);		
 		
-		JButton lastGenButton = new JButton("Last Generation");
-		lastGenButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				selectedGeneration = generations;
-				genSlider.setValue(generations);
-				genNumberLabel.setText(Integer.toString(generations));
-			}
-		});
-		
+		JButton lastGenButton = new JButton("Last Generation");		
 		JButton firstGenButton = new JButton("First Generation");
-		firstGenButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				selectedGeneration = 1;
-				genSlider.setValue(1);
-				genNumberLabel.setText(Integer.toString(1));
-			}
-		});
 		
 		JLabel genSliderLabel = new JLabel("Generation Selector");
 		genSliderLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -430,29 +341,35 @@ public class ExperimentalApplication {
 		);
 		resultsPanel.setLayout(gl_resultsPanel);
 		
-		JPanel graphTab = new JPanel();
-		tabbedPane.addTab("Pareto Set Viewer", null, graphTab, null);
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+
+		
+		paretoViewer = new Plot3DPanel();
+		tabbedPane.addTab("Pareto Set Viewer", null, paretoViewer, null);
 		
 		JPanel tourTab = new JPanel();
 		tabbedPane.addTab("Solution Viewer", null, tourTab, null);
 		tourTab.setLayout(null);
+		
+		JPanel graphPanel = new JPanel();
+		tabbedPane.addTab("Metric Graphs", null, graphPanel, null);
+		tabbedPane.setEnabledAt(2, false);
 		
 		JLabel solutionSelectLabel = new JLabel("Solution:");
 		solutionSelectLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
 		solutionSelectLabel.setBounds(10, 520, 56, 21);
 		tourTab.add(solutionSelectLabel);
 		
-		JComboBox list = new JComboBox();
-		list.setModel(new DefaultComboBoxModel(new String[] {"Test1", "Test2", "Test3", "Test4", "Test5"}));
-		list.setBounds(76, 521, 301, 20);
+		list = new JComboBox();
+		list.setModel(new DefaultComboBoxModel(new String[] {}));
+		list.setBounds(76, 521, 434, 20);
 		tourTab.add(list);
 		
-		JButton btnNewButton = new JButton("Show Selected");
-		btnNewButton.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnNewButton.setBounds(387, 520, 123, 21);
-		tourTab.add(btnNewButton);
+		tourVisualizer = new TourVisualizer();
+		tourVisualizer.setBorder(new LineBorder(new Color(0, 0, 0)));
+		tourVisualizer.setBounds(10, 10, 500, 500);
+		tourTab.add(tourVisualizer);
 		
-
 		GroupLayout gl_parametersPanel = new GroupLayout(parametersPanel);
 		gl_parametersPanel.setHorizontalGroup(
 			gl_parametersPanel.createParallelGroup(Alignment.LEADING)
@@ -536,36 +453,329 @@ public class ExperimentalApplication {
 						.addComponent(tabbedPane, GroupLayout.PREFERRED_SIZE, 580, GroupLayout.PREFERRED_SIZE))
 					.addGap(35))
 		);
+		
+		Plot2DPanel plot2DPanel = new Plot2DPanel();
+		tabbedPane.addTab("New tab", null, plot2DPanel, null);
+		
+
 		frmCsiProject.getContentPane().setLayout(groupLayout);
 		frmCsiProject.getContentPane().setFocusTraversalPolicy(new FocusTraversalOnArray(new Component[]{tabbedPane, lblExperimentalRunner}));
+		
+		//ACTION LISTENERS -------------------------------------------------------------------------------------------------------------------------
+		runButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				population = (Integer.parseInt(populationField.getText()));
+				generations = (Integer.parseInt(generationsField.getText()));				
+				runExperiment();
+				
+				genSlider.setMinimum(1);
+				genSlider.setMaximum(accumulator.size("Approximation Set"));
+				genSlider.setValue(generations);
+				
+				//Enable the metrics graph if we have a reference set
+				if (withReferenceSet) {
+					tabbedPane.setEnabledAt(2, true);
+				}
+				
+				displayGenerationInfo();
+			}
+		});
+		
+		genSlider.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				selectedGeneration = genSlider.getValue();
+				genNumberLabel.setText(Integer.toString(selectedGeneration));
+				displayGenerationInfo();
+			}
+		});
+		
+		algorithmSpinner.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				algorithm = algorithmSpinner.getSelectedItem().toString();
+			}
+		});
+		
+		firstGenButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				selectedGeneration = 1;
+				genSlider.setValue(1);
+				genNumberLabel.setText(Integer.toString(1));
+				displayGenerationInfo();
+			}
+		});
+		
+		lastGenButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				selectedGeneration = generations;
+				genSlider.setValue(generations);
+				genNumberLabel.setText(Integer.toString(generations));
+				displayGenerationInfo();
+			}
+		});
+		
+		list.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				printROI();
+				printSolutionPath(list.getSelectedIndex());
+			}
+		});
+		
+		tree.addTreeSelectionListener(new SelectionListener() {
+			public void valueChanged(TreeSelectionEvent se) {
+				JTree tree = (JTree) se.getSource();
+				File selectedNode = (File) tree.getLastSelectedPathComponent();
+				if (selectedNode.isFile()) {
+					instance = ((File) selectedNode);
+					tourVisualizer.reset();
+					accumulator = null;
+					
+					if (tabbedPane.getSelectedIndex() == 1) {
+						loadInstanceInformation();
+						printROI();
+					}
+					runButton.setEnabled(true);
+				}				
+			}			
+		});
+		
+		tabbedPane.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				int selected = tabbedPane.getSelectedIndex();
+				//0 is Pareto Set Viewer
+				//1 is Solution Viewer
+				//2 is Metric Graphs
+				
+				if (selected == 1 && instance != null) {
+					loadInstanceInformation();
+					printROI();
+				} 
+			}
+		});
+		
+		//END ACTION LISTENERS -------------------------------------------------------------------------------------------------------------------------
 	}
 
-	private void runExperiment() {
-		int evaluations = population * generations;
-
-		Instrumenter instrumenter = new Instrumenter()
-		.withProblemClass(RRASRMOO.class, instance)
-		.attachElapsedTimeCollector()
-		.attachApproximationSetCollector()
-		.withFrequency(population);
+	private void runExperiment() {		
+		File referenceFile = null;
 		
-		// solve using a Genetic Algorithm
-		final NondominatedPopulation result = new Executor()
+		try {
+			String temp = instance.getCanonicalPath().replace('\\', '/');			
+			String[] fileString = temp.split("/");
+			
+			String refFilePath = "";
+			
+			for (int i = 0; i < fileString.length; i++) {
+				if (i == fileString.length-1) {
+					refFilePath += "Reference\\" + fileString[i];
+				} else {
+					refFilePath += fileString[i] + "\\";
+				}
+			}			
+			referenceFile =  new File(refFilePath);
+			
+			if (referenceFile.exists() && referenceFile.isFile()) {
+				withReferenceSet = true;
+			} else {
+				withReferenceSet = false;
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		int evaluations = population * generations;
+		Instrumenter instrumenter;
+		
+		if (withReferenceSet) {
+			instrumenter = new Instrumenter()
 			.withProblemClass(RRASRMOO.class, instance)
-			.withAlgorithm(algorithm)
-			.withMaxEvaluations(evaluations)
-			.withProperty("populationSize", population)
-			.withProperty("swap.rate", 0.25) // mutation
-			.withProperty("insertion.rate", 0.25) // mutation
-			.withProperty("pmx.rate", 0.75) // crossover
-//			.withEpsilon(5)
-//			.distributeOnAllCores()
-			.withInstrumenter(instrumenter)
-			.run();
+			.withReferenceSet(referenceFile)
+			.attachAll()
+			.withFrequency(population);
 
+			// solve using a Genetic Algorithm
+			final NondominatedPopulation result = new Executor()
+					.withProblemClass(RRASRMOO.class, instance)
+					.withAlgorithm(algorithm)
+					.withMaxEvaluations(evaluations)
+					.withProperty("populationSize", population)
+					.withProperty("swap.rate", 0.25) // swap mutation
+					.withProperty("insertion.rate", 0.25) // insertion mutation
+					.withProperty("pmx.rate", 0.75) // partially mapped crossover
+					.withInstrumenter(instrumenter)
+					.run();
+			
+		} else {
+			instrumenter = new Instrumenter()
+			.withProblemClass(RRASRMOO.class, instance)
+			.attachElapsedTimeCollector()
+			.attachApproximationSetCollector()
+			.withFrequency(population);
+			
+			// solve using a Genetic Algorithm
+			final NondominatedPopulation result = new Executor()
+				.withProblemClass(RRASRMOO.class, instance)
+				.withAlgorithm(algorithm)
+				.withMaxEvaluations(evaluations)
+				.withProperty("populationSize", population)
+				.withProperty("swap.rate", 0.25) // swap mutation
+				.withProperty("insertion.rate", 0.25) // insertion mutation
+				.withProperty("pmx.rate", 0.75) // partially mapped crossover
+//				.withEpsilon(5)
+//				.distributeOnAllCores()
+				.withInstrumenter(instrumenter)
+				.run();
+
+			
+		}
 		accumulator = instrumenter.getLastAccumulator();
 	}
 	
+	public void displayGenerationInfo() {
+		if (accumulator != null) {
+			updateMetricFields();
+			updateParetoViewer();
+			if (tabbedPane.getSelectedIndex() == 1) {
+				updatePathSelector();
+				printROI();
+			}
+		}
+	}
+	
+	private void updateMetricFields() {
+		if (withReferenceSet) {
+			hypervolumeField.setText("" + accumulator.get("Hypervolume", selectedGeneration-1));
+			spacingField.setText("" + accumulator.get("Spacing", selectedGeneration-1));
+			contributionField.setText("" + accumulator.get("Contribution", selectedGeneration-1));
+			genDistField.setText("" + accumulator.get("Generational Distance", selectedGeneration-1));
+			paretoErrorField.setText("" + accumulator.get("Maximum Pareto Front Error", selectedGeneration-1));
+		} else {
+			hypervolumeField.setText("No Reference Set");
+			spacingField.setText("No Reference Set");
+			contributionField.setText("No Reference Set");
+			genDistField.setText("No Reference Set");
+			paretoErrorField.setText("No Reference Set");		
+		}
+		DecimalFormat df = new DecimalFormat("#.###");
+		
+		runtimeField.setText(df.format(((Double) accumulator.get("Elapsed Time", selectedGeneration-1))));
+	}
+	
+	private void updateParetoViewer() {
+		ArrayList<Solution> result = (ArrayList<Solution>) accumulator.get("Approximation Set", selectedGeneration-1);
+		
+		paretoViewer.removeAllPlots();
+		
+		double[] X = new double[result.size()];
+		double[] Y = new double[result.size()];
+		double[] Z = new double[result.size()];
+		
+		for (int i = 0; i < result.size(); i++) {
+			X[i] = -result.get(i).getObjective(0); //Lifetime
+			Y[i] = -result.get(i).getObjective(1); //Robustness
+			Z[i] = result.get(i).getObjective(2); //Length
+		}
+		
+		paretoViewer.addScatterPlot("Non-Dominated Solution Set", X, Y, Z);
+		paretoViewer.setAxisLabels("Path Lifetime","Path Robustness","Path Length");
+		paretoViewer.setAutoBounds();		
+	}
+	
+	private void updatePathSelector() {
+		ArrayList<Solution> result = (ArrayList<Solution>) accumulator.get("Approximation Set", selectedGeneration-1);
+		
+		String[] solutionStrings = new String[result.size()];
+		
+		DecimalFormat df = new DecimalFormat("#.##");
+		
+		for (int i = 0; i < result.size(); i++) {
+			solutionStrings[i] = "Length: " + df.format(result.get(i).getObjective(2)) + " Robustness: " + -result.get(i).getObjective(1) + " Lifetime: " + -result.get(i).getObjective(0);
+		}
+		
+		list.setModel(new DefaultComboBoxModel(solutionStrings));
+	}
+	
+	private void printSolutionPath(int solutionIndex) {
+		ArrayList<Solution> result = (ArrayList<Solution>) accumulator.get("Approximation Set", selectedGeneration-1);
+		Solution selected = result.get(solutionIndex);
+		tourVisualizer.updateSelection(((Permutation) selected.getVariable(0)).toArray());
+		tourVisualizer.paintNodes(tourVisualizer.getGraphics());
+		tourVisualizer.paintSolution(tourVisualizer.getGraphics());
+	}
+	
+	private void printROI(){
+		tourVisualizer.paintNodes(tourVisualizer.getGraphics());
+	}
+	
+	private void loadInstanceInformation() {
+		try {
+			ArrayList<Integer> sensingHoles = new ArrayList<Integer>();
+
+			Scanner scanner;
+			scanner = new Scanner(instance, StandardCharsets.UTF_8.name());
+
+			while(!scanner.nextLine().equals("DATASTART")) {}
+
+			//NODE	X_LOC	Y_LOC	DEMAND	BATTERY
+			String[] nodeString = scanner.nextLine().split("\t");
+
+			int demand = Integer.parseInt(nodeString[3]);
+			double battery = Double.parseDouble(nodeString[4]);
+			Coordinate location = new Coordinate(Double.parseDouble(nodeString[1]), Double.parseDouble(nodeString[2]));
+
+			ArrayList<NodeInfo> tempNodes = new ArrayList<NodeInfo>();			
+			tempNodes.add(new NodeInfo(demand, location, battery));
+
+			int nodeCounter = 1;
+
+			while(!scanner.next().equals("EODATA")) {
+				nodeString = scanner.nextLine().split("\t");
+
+				demand = Integer.parseInt(nodeString[3]);
+				battery = Double.parseDouble(nodeString[4]);
+				location = new Coordinate(Double.parseDouble(nodeString[1]), Double.parseDouble(nodeString[2]));
+
+				tempNodes.add(new NodeInfo(demand, location, battery));
+
+				nodeCounter++;
+
+				if (demand == -1) {
+					sensingHoles.add(Integer.parseInt(nodeString[0]));
+				}
+			}
+
+			while(!scanner.nextLine().equals("HOLESTART")) {}
+
+			int degree = 0;
+			while(!scanner.next().equals("EOHOLE")) {
+				//NODE	X_LOC	Y_LOC	DEMAND	DEGREE
+				nodeString = scanner.nextLine().split("\t");
+
+				demand = Integer.parseInt(nodeString[3]);
+				degree = Integer.parseInt(nodeString[4]);
+				location = new Coordinate(Double.parseDouble(nodeString[1]), Double.parseDouble(nodeString[2]));
+
+				tempNodes.add(new NodeInfo(demand, location, 0, degree));
+
+
+
+				if (demand == -1) {
+					sensingHoles.add(nodeCounter);
+				}
+				nodeCounter++;
+			}
+
+			scanner.close();
+
+			NodeInfo[] nodeList = tempNodes.toArray(new NodeInfo[0]);
+			
+			tourVisualizer.updateContent(nodeList, sensingHoles);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
+	}
 	
 	private class SelectionListener implements TreeSelectionListener {
 		@Override

@@ -21,9 +21,9 @@ public class ReferenceSetCreator {
 	public static void main(String[] args) {
 		long beforeTime = System.currentTimeMillis();
 		
-		String directory = "C:/Users/ben/git/CSI5183_F2014/CSI5183/Instances";
+		String directory = "Instances";
 		
-		String[] problems = new String[]{"Nodes", "Sparsity", "Distribution"};
+		String[] problems = new String[]{"Distribution", "Sparsity", "Nodes"};
 		
 		for (int i = 0; i <problems.length; i++) {
 			File folder = new File(directory + "/" + problems[i]);
