@@ -24,6 +24,7 @@ import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.Permutation;
 
+import project.generation.InstanceGenerator;
 import project.problem.RRASRMOO;
 import project.problem.types.Coordinate;
 import project.problem.types.NodeInfo;
@@ -59,8 +60,10 @@ import org.math.plot.Plot3DPanel;
 import javax.swing.border.LineBorder;
 
 import java.awt.Color;
+
 import org.math.plot.Plot2DPanel;
 
+@SuppressWarnings(value = { "rawtypes", "unchecked" })
 public class ExperimentalApplication {
 
 	//UI Components
@@ -79,6 +82,7 @@ public class ExperimentalApplication {
 	private static JTabbedPane tabbedPane;
 	
 	public static Plot3DPanel paretoViewer;
+	public static Plot2DPanel metricGraphViewer;
 
 	
 	//Execution variables
@@ -91,6 +95,9 @@ public class ExperimentalApplication {
 	
 	//Where we hold the results of our run
 	private static Accumulator accumulator = null;
+	private JTextField numNodesField;
+	private JTextField distributionField;
+	private JTextField sparsityField;
 
 	/**
 	 * Launch the application.
@@ -161,7 +168,6 @@ public class ExperimentalApplication {
 		final JLabel genNumberLabel = new JLabel("NaN");
 		
 		final JSlider genSlider = new JSlider();
-		genSlider.setMajorTickSpacing(25);
 		genSlider.setMinimum(1);
 		genSlider.setMaximum(1);
 		genSlider.setValue(1);
@@ -170,15 +176,6 @@ public class ExperimentalApplication {
 		final JButton runButton = new JButton("Run");
 		runButton.setEnabled(false);
 		runButton.setFont(new Font("Tahoma", Font.BOLD, 12));
-				
-		JScrollPane scrollPane = new JScrollPane();
-		
-		JTree tree = new JTree(model);
-		tree.setRootVisible(false);
-		
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		
-		scrollPane.setViewportView(tree);
 		
 		JPanel resultsPanel = new JPanel();
 		
@@ -241,7 +238,7 @@ public class ExperimentalApplication {
 		genNumberLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		GroupLayout gl_resultsPanel = new GroupLayout(resultsPanel);
 		gl_resultsPanel.setHorizontalGroup(
-			gl_resultsPanel.createParallelGroup(Alignment.TRAILING)
+			gl_resultsPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_resultsPanel.createSequentialGroup()
 					.addGroup(gl_resultsPanel.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_resultsPanel.createSequentialGroup()
@@ -295,7 +292,7 @@ public class ExperimentalApplication {
 					.addContainerGap()
 					.addComponent(genNumberLabel, GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
 					.addContainerGap())
-				.addGroup(Alignment.LEADING, gl_resultsPanel.createSequentialGroup()
+				.addGroup(gl_resultsPanel.createSequentialGroup()
 					.addContainerGap()
 					.addComponent(genSlider, GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE)
 					.addContainerGap())
@@ -351,10 +348,6 @@ public class ExperimentalApplication {
 		tabbedPane.addTab("Solution Viewer", null, tourTab, null);
 		tourTab.setLayout(null);
 		
-		JPanel graphPanel = new JPanel();
-		tabbedPane.addTab("Metric Graphs", null, graphPanel, null);
-		tabbedPane.setEnabledAt(2, false);
-		
 		JLabel solutionSelectLabel = new JLabel("Solution:");
 		solutionSelectLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
 		solutionSelectLabel.setBounds(10, 520, 56, 21);
@@ -370,17 +363,12 @@ public class ExperimentalApplication {
 		tourVisualizer.setBounds(10, 10, 500, 500);
 		tourTab.add(tourVisualizer);
 		
+		JTabbedPane instanceTabs = new JTabbedPane(JTabbedPane.TOP);
+		
 		GroupLayout gl_parametersPanel = new GroupLayout(parametersPanel);
 		gl_parametersPanel.setHorizontalGroup(
 			gl_parametersPanel.createParallelGroup(Alignment.LEADING)
 				.addComponent(lblProblemInstance, GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
-				.addGroup(gl_parametersPanel.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.TRAILING)
-						.addComponent(lblAlgorithm, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)
-						.addComponent(lblPopulationSize, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)
-						.addComponent(lblOfGenerations, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE))
-					.addContainerGap())
 				.addGroup(gl_parametersPanel.createSequentialGroup()
 					.addGap(153)
 					.addComponent(runButton)
@@ -397,18 +385,25 @@ public class ExperimentalApplication {
 					.addGap(105)
 					.addComponent(algorithmSpinner, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
 					.addContainerGap(105, Short.MAX_VALUE))
-				.addGroup(gl_parametersPanel.createSequentialGroup()
+				.addGroup(Alignment.TRAILING, gl_parametersPanel.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 332, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(20, Short.MAX_VALUE))
+					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.TRAILING)
+						.addComponent(instanceTabs, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)
+						.addComponent(lblPopulationSize, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)
+						.addComponent(lblOfGenerations, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE))
+					.addContainerGap())
+				.addGroup(gl_parametersPanel.createSequentialGroup()
+					.addGap(15)
+					.addComponent(lblAlgorithm, GroupLayout.DEFAULT_SIZE, 332, Short.MAX_VALUE)
+					.addGap(15))
 		);
 		gl_parametersPanel.setVerticalGroup(
 			gl_parametersPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_parametersPanel.createSequentialGroup()
 					.addComponent(lblProblemInstance, GroupLayout.PREFERRED_SIZE, 14, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(scrollPane, GroupLayout.PREFERRED_SIZE, 313, GroupLayout.PREFERRED_SIZE)
-					.addGap(18)
+					.addComponent(instanceTabs, GroupLayout.PREFERRED_SIZE, 311, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(lblAlgorithm, GroupLayout.PREFERRED_SIZE, 14, GroupLayout.PREFERRED_SIZE)
 					.addGap(2)
 					.addComponent(algorithmSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
@@ -424,6 +419,92 @@ public class ExperimentalApplication {
 					.addComponent(runButton)
 					.addContainerGap())
 		);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		instanceTabs.addTab("Pre-Generated Instances", null, scrollPane, null);
+		
+		JTree tree_1 = new JTree(model);
+		scrollPane.setViewportView(tree_1);
+		tree_1.setRootVisible(false);
+		
+		JPanel customInstancePanel = new JPanel();
+		instanceTabs.addTab("Custom Instance", null, customInstancePanel, null);
+		
+		JLabel lblNewLabel_5 = new JLabel("Number of Nodes");
+		lblNewLabel_5.setFont(new Font("Tahoma", Font.BOLD, 12));
+		
+		JLabel lblNumberOfSensing = new JLabel("Number of Sensing Holes (% of nodes)");
+		lblNumberOfSensing.setFont(new Font("Tahoma", Font.BOLD, 12));
+		
+		JLabel lblSparcityOfNodes = new JLabel("Sparsity of Passive Nodes (Higher is sparser)");
+		lblSparcityOfNodes.setFont(new Font("Tahoma", Font.BOLD, 12));
+		
+		JButton genInstanceButton = new JButton("Generate Instance");
+		genInstanceButton.setFont(new Font("Tahoma", Font.BOLD, 12));
+		
+		numNodesField = new JTextField();
+		numNodesField.setText("200");
+		numNodesField.setColumns(10);
+		
+		distributionField = new JTextField();
+		distributionField.setText("15");
+		distributionField.setColumns(10);
+		
+		sparsityField = new JTextField();
+		sparsityField.setText("10");
+		sparsityField.setColumns(10);
+		GroupLayout gl_customInstancePanel = new GroupLayout(customInstancePanel);
+		gl_customInstancePanel.setHorizontalGroup(
+			gl_customInstancePanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_customInstancePanel.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_customInstancePanel.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_customInstancePanel.createSequentialGroup()
+							.addGroup(gl_customInstancePanel.createParallelGroup(Alignment.LEADING)
+								.addComponent(lblNewLabel_5)
+								.addGroup(gl_customInstancePanel.createSequentialGroup()
+									.addGap(93)
+									.addComponent(genInstanceButton)))
+							.addContainerGap(89, Short.MAX_VALUE))
+						.addGroup(gl_customInstancePanel.createSequentialGroup()
+							.addComponent(lblNumberOfSensing, GroupLayout.DEFAULT_SIZE, 258, Short.MAX_VALUE)
+							.addGap(69))
+						.addGroup(gl_customInstancePanel.createSequentialGroup()
+							.addComponent(numNodesField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addContainerGap(241, Short.MAX_VALUE))
+						.addGroup(gl_customInstancePanel.createSequentialGroup()
+							.addComponent(distributionField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addContainerGap(241, Short.MAX_VALUE))
+						.addGroup(gl_customInstancePanel.createSequentialGroup()
+							.addComponent(sparsityField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+							.addContainerGap(241, Short.MAX_VALUE))
+						.addGroup(gl_customInstancePanel.createSequentialGroup()
+							.addComponent(lblSparcityOfNodes, GroupLayout.PREFERRED_SIZE, 284, GroupLayout.PREFERRED_SIZE)
+							.addContainerGap())))
+		);
+		gl_customInstancePanel.setVerticalGroup(
+			gl_customInstancePanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_customInstancePanel.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(lblNewLabel_5)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(numNodesField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addGap(20)
+					.addComponent(lblNumberOfSensing, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(distributionField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addGap(19)
+					.addComponent(lblSparcityOfNodes, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(sparsityField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED, 76, Short.MAX_VALUE)
+					.addComponent(genInstanceButton)
+					.addContainerGap())
+		);
+		customInstancePanel.setLayout(gl_customInstancePanel);
+		
+		tree_1.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		
 		parametersPanel.setLayout(gl_parametersPanel);
 		GroupLayout groupLayout = new GroupLayout(frmCsiProject.getContentPane());
 		groupLayout.setHorizontalGroup(
@@ -454,8 +535,8 @@ public class ExperimentalApplication {
 					.addGap(35))
 		);
 		
-		Plot2DPanel plot2DPanel = new Plot2DPanel();
-		tabbedPane.addTab("New tab", null, plot2DPanel, null);
+		metricGraphViewer = new Plot2DPanel();
+		tabbedPane.addTab("Metric Graphs", null, metricGraphViewer, null);
 		
 
 		frmCsiProject.getContentPane().setLayout(groupLayout);
@@ -478,7 +559,33 @@ public class ExperimentalApplication {
 				}
 				
 				displayGenerationInfo();
+				updateMetricGraphs();
 			}
+		});
+		
+		tree_1.addTreeSelectionListener(new SelectionListener() {
+			public void valueChanged(TreeSelectionEvent se) {
+				JTree tree = (JTree) se.getSource();
+				File selectedNode = (File) tree.getLastSelectedPathComponent();
+				if (selectedNode.isFile()) {
+					//Reset all items
+					reset();
+					genNumberLabel.setText("NaN");
+					genSlider.setMinimum(1);
+					genSlider.setMaximum(1);
+					genSlider.setValue(1);
+					tourVisualizer.reset();
+					accumulator = null;
+					//End of item reset
+					
+					instance = ((File) selectedNode);					
+					if (tabbedPane.getSelectedIndex() == 1) {
+						loadInstanceInformation();
+						printROI();
+					}
+					runButton.setEnabled(true);
+				}				
+			}			
 		});
 		
 		genSlider.addChangeListener(new ChangeListener() {
@@ -520,24 +627,6 @@ public class ExperimentalApplication {
 			}
 		});
 		
-		tree.addTreeSelectionListener(new SelectionListener() {
-			public void valueChanged(TreeSelectionEvent se) {
-				JTree tree = (JTree) se.getSource();
-				File selectedNode = (File) tree.getLastSelectedPathComponent();
-				if (selectedNode.isFile()) {
-					instance = ((File) selectedNode);
-					tourVisualizer.reset();
-					accumulator = null;
-					
-					if (tabbedPane.getSelectedIndex() == 1) {
-						loadInstanceInformation();
-						printROI();
-					}
-					runButton.setEnabled(true);
-				}				
-			}			
-		});
-		
 		tabbedPane.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent arg0) {
 				int selected = tabbedPane.getSelectedIndex();
@@ -552,9 +641,35 @@ public class ExperimentalApplication {
 			}
 		});
 		
+		genInstanceButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int numNodes = Integer.parseInt(numNodesField.getText());
+				int sparsity = Integer.parseInt(sparsityField.getText());
+				int distribution = Integer.parseInt(distributionField.getText());
+				
+				//Reset all items
+				reset();
+				genNumberLabel.setText("NaN");
+				genSlider.setMinimum(1);
+				genSlider.setMaximum(1);
+				genSlider.setValue(1);
+				tourVisualizer.reset();
+				accumulator = null;
+				//End of item reset
+				
+				generateCustomInstance(numNodes, sparsity, distribution); 					
+				if (tabbedPane.getSelectedIndex() == 1) {
+					loadInstanceInformation();
+					printROI();
+				}
+				runButton.setEnabled(true);		
+			}
+		});
+		
 		//END ACTION LISTENERS -------------------------------------------------------------------------------------------------------------------------
 	}
 
+	@SuppressWarnings("unused")
 	private void runExperiment() {		
 		File referenceFile = null;
 		
@@ -580,7 +695,6 @@ public class ExperimentalApplication {
 			}
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -679,7 +793,7 @@ public class ExperimentalApplication {
 		
 		paretoViewer.addScatterPlot("Non-Dominated Solution Set", X, Y, Z);
 		paretoViewer.setAxisLabels("Path Lifetime","Path Robustness","Path Length");
-		paretoViewer.setAutoBounds();		
+		paretoViewer.setAutoBounds();	
 	}
 	
 	private void updatePathSelector() {
@@ -694,6 +808,62 @@ public class ExperimentalApplication {
 		}
 		
 		list.setModel(new DefaultComboBoxModel(solutionStrings));
+	}
+	
+	private void updateMetricGraphs() {		
+		accumulator.size("NFE");
+		
+		double[] X = new double[accumulator.size("NFE")];
+		
+		for (int i = 0; i < accumulator.size("NFE"); i++) {
+			X[i] = ((Integer)accumulator.get("NFE", i))/population;
+		}
+		
+		String name = "Elapsed Time";
+		double[] Y = new double[accumulator.size("Elapsed Time")];		
+		for (int i = 0; i<accumulator.size("Elapsed Time"); i++) {
+			Y[i] = (Double) accumulator.get("Elapsed Time", i);
+		}
+		metricGraphViewer.addScatterPlot(name, X, Y);
+		
+		if (withReferenceSet) {
+			name = "Hypervolume";
+			Y = new double[accumulator.size(name)];		
+			for (int i = 0; i<accumulator.size(name); i++) {
+				Y[i] = (Double) accumulator.get(name, i);
+			}
+			metricGraphViewer.addScatterPlot(name, X, Y);
+			
+			name = "Spacing";
+			Y = new double[accumulator.size(name)];		
+			for (int i = 0; i<accumulator.size(name); i++) {
+				Y[i] = (Double) accumulator.get(name, i);
+			}
+			metricGraphViewer.addScatterPlot(name, X, Y);
+			
+			name = "Contribution";
+			Y = new double[accumulator.size(name)];		
+			for (int i = 0; i<accumulator.size(name); i++) {
+				Y[i] = (Double) accumulator.get(name, i);
+			}
+			metricGraphViewer.addScatterPlot(name, X, Y);
+			
+			name = "Generational Distance";
+			Y = new double[accumulator.size(name)];		
+			for (int i = 0; i<accumulator.size(name); i++) {
+				Y[i] = (Double) accumulator.get(name, i);
+			}
+			metricGraphViewer.addScatterPlot(name, X, Y);
+			
+			name = "Maximum Pareto Front Error";
+			Y = new double[accumulator.size(name)];		
+			for (int i = 0; i<accumulator.size(name); i++) {
+				Y[i] = (Double) accumulator.get(name, i);
+			}
+			metricGraphViewer.addScatterPlot(name, X, Y);
+		}
+		
+		metricGraphViewer.setAxisLabels("Generation","Metric");
 	}
 	
 	private void printSolutionPath(int solutionIndex) {
@@ -772,9 +942,22 @@ public class ExperimentalApplication {
 			
 			tourVisualizer.updateContent(nodeList, sensingHoles);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}	
+	}
+	
+	private void reset() {
+		hypervolumeField.setText("");
+		spacingField.setText("");
+		contributionField.setText("");
+		genDistField.setText("");
+		paretoErrorField.setText("");
+		runtimeField.setText("");
+		list.setModel(new DefaultComboBoxModel(new String[0]));
+	}
+	
+	private void generateCustomInstance(int numNodes, int sparsity, int distribution) {
+		instance = InstanceGenerator.generateCustomInstance(numNodes, sparsity, distribution);
 	}
 	
 	private class SelectionListener implements TreeSelectionListener {

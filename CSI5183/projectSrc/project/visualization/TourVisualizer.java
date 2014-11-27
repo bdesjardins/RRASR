@@ -16,6 +16,10 @@ import project.problem.types.NodeInfo;
 public class TourVisualizer extends JPanel {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7638177912182237231L;
+	/**
 	 * Create the panel.
 	 */
 	private NodeInfo[] nodes;	
