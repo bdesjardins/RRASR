@@ -58,17 +58,34 @@ X.-L. Liao and C.-K. Ting, ``Evolutionary algorithms using adaptive mutation
   for the selective pickup and delivery problem,'' in {\em Evolutionary
   Computation (CEC), 2012 IEEE Congress on}, pp.~1--8, IEEE, 2012.
 
+\bibitem{bruck2012hybrid}
+B.~P. Bruck, A.~G. dos Santos, and J.~E.~C. Arroyo, ``Hybrid metaheuristic for
+  the single vehicle routing problem with deliveries and selective pickups,''
+  in {\em Evolutionary Computation (CEC), 2012 IEEE Congress on}, pp.~1--8,
+  IEEE, 2012.
+
+\bibitem{6421345}
+B.~Bruck and A.~dos Santos, ``Hybrid approach for the multiple vehicle routing
+  problem with deliveries and selective pickups,'' in {\em Hybrid Intelligent
+  Systems (HIS), 2012 12th International Conference on}, pp.~265--270, Dec
+  2012.
+
+\bibitem{5949836}
+Y.-H. Huang and C.-K. Ting, ``Genetic algorithm with path relinking for the
+  multi-vehicle selective pickup and delivery problem,'' in {\em Evolutionary
+  Computation (CEC), 2011 IEEE Congress on}, pp.~1818--1825, June 2011.
+
+\bibitem{bruck2012evolutionary}
+B.~P. Bruck, A.~Santos, and J.~Arroyo, ``An evolutionary algorithm and a
+  variable neighborhood descent algorithm for the single vehicle problem with
+  deliveries and selective pickups,'' {\em Proceedings of the 2012 CLAIO/SBPO
+  (Rio de Janeiro, Brazil}, 2012.
+
 \bibitem{goldberg1985alleles}
 D.~E. Goldberg and R.~Lingle, ``Alleles, loci, and the traveling salesman
   problem,'' in {\em Proceedings of an International Conference on Genetic
   Algorithms and Their Applications}, vol.~154, Lawrence Erlbaum, Hillsdale,
   NJ, 1985.
-
-\bibitem{onat2008generating}
-F.~A. Onat, I.~Stojmenovic, and H.~Yanikomeroglu, ``Generating random graphs
-  for the simulation of wireless ad hoc, actuator, sensor, and internet
-  networks,'' {\em Pervasive and Mobile Computing}, vol.~4, no.~5,
-  pp.~597--615, 2008.
 
 \bibitem{Deb2002:NSGA-II}
 K.~Deb, A.~Pratap, S.~Agarwal, and T.~Meyarivan, ``A fast and elitist
