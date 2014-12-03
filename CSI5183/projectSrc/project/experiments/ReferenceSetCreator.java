@@ -25,7 +25,7 @@ public class ReferenceSetCreator {
 		
 		String directory = "Instances";
 		
-		String[] problems = new String[]{"Distribution", "Sparsity", "Nodes"};
+		String[] problems = new String[]{"Nodes"};
 		
 		for (int i = 0; i <problems.length; i++) {
 			File folder = new File(directory + "/" + problems[i]);
@@ -53,7 +53,7 @@ public class ReferenceSetCreator {
 
 		int evaluations = popSize * generations;
 
-		String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2"};
+		String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2","PAES"};
 
 		// solve using Genetic Algorithms
 		for (int j = 0; j < algorithms.length; j++) {

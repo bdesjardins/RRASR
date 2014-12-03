@@ -43,6 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Set;
 
 import javax.swing.JScrollPane;
 import javax.swing.event.TreeSelectionEvent;
@@ -62,6 +63,7 @@ import javax.swing.border.LineBorder;
 import java.awt.Color;
 
 import org.math.plot.Plot2DPanel;
+
 import javax.swing.JCheckBox;
 
 @SuppressWarnings(value = { "rawtypes", "unchecked" })
@@ -836,7 +838,7 @@ public class ExperimentalApplication {
 
 			for (int i = 0; i < fileString.length; i++) {
 				if (i == fileString.length-1) {
-					refFilePath += "Reference\\" + fileString[i];
+					refFilePath += "References\\" + fileString[i] + ".ref";
 				} else {
 					refFilePath += fileString[i] + "\\";
 				}
@@ -862,7 +864,13 @@ public class ExperimentalApplication {
 				instrumenter = new Instrumenter()
 				.withProblemClass(RRASRMOO.class, instance)
 				.withReferenceSet(referenceFile)
-				.attachAll()
+				.attachContributionCollector()
+				.attachGenerationalDistanceCollector()
+				.attachHypervolumeCollector()
+				.attachApproximationSetCollector()
+				.attachElapsedTimeCollector()
+				.attachSpacingCollector()
+				.attachAllMetricCollectors()
 				.withFrequency(population);
 
 				// solve using a Genetic Algorithm
@@ -932,11 +940,14 @@ public class ExperimentalApplication {
 			
 			return;
 		} else if (withReferenceSet) {
-			hypervolumeField.setText("" + selectedAccumulator.get("Hypervolume", gen));
-			spacingField.setText("" + selectedAccumulator.get("Spacing", gen));
-			contributionField.setText("" + selectedAccumulator.get("Contribution", gen));
-			genDistField.setText("" + selectedAccumulator.get("Generational Distance", gen));
-			paretoErrorField.setText("" + selectedAccumulator.get("Maximum Pareto Front Error", gen));
+			DecimalFormat df = new DecimalFormat("#.########");
+			Set<String> keys = selectedAccumulator.keySet();
+			
+			hypervolumeField.setText((df.format(((Double) selectedAccumulator.get("Hypervolume", gen)))));
+			spacingField.setText((df.format(((Double) selectedAccumulator.get("Spacing", gen)))));
+			contributionField.setText((df.format(((Double) selectedAccumulator.get("Contribution", gen)))));
+			genDistField.setText((df.format(((Double) selectedAccumulator.get("GenerationalDistance", gen)))));
+//			paretoErrorField.setText("" + selectedAccumulator.get("Maximum Pareto Front Error", gen));
 		} else {
 			hypervolumeField.setText("No Reference Set");
 			spacingField.setText("No Reference Set");
@@ -1046,19 +1057,19 @@ public class ExperimentalApplication {
 			}
 			metricGraphViewer.addScatterPlot(name, X, Y);
 
-			name = "Generational Distance";
+			name = "GenerationalDistance";
 			Y = new double[selectedAccumulator.size(name)];		
 			for (int i = 0; i<selectedAccumulator.size(name); i++) {
 				Y[i] = (Double) selectedAccumulator.get(name, i);
 			}
 			metricGraphViewer.addScatterPlot(name, X, Y);
 
-			name = "Maximum Pareto Front Error";
-			Y = new double[selectedAccumulator.size(name)];		
-			for (int i = 0; i<selectedAccumulator.size(name); i++) {
-				Y[i] = (Double) selectedAccumulator.get(name, i);
-			}
-			metricGraphViewer.addScatterPlot(name, X, Y);
+//			name = "Maximum Pareto Front Error";
+//			Y = new double[selectedAccumulator.size(name)];		
+//			for (int i = 0; i<selectedAccumulator.size(name); i++) {
+//				Y[i] = (Double) selectedAccumulator.get(name, i);
+//			}
+//			metricGraphViewer.addScatterPlot(name, X, Y);
 		}
 
 		metricGraphViewer.setAxisLabels("Generation","Metric");
