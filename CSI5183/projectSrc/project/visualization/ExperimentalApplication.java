@@ -17,11 +17,14 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import org.eclipse.wb.swing.FocusTraversalOnArray;
+import org.moeaframework.Analyzer;
 import org.moeaframework.Executor;
 import org.moeaframework.Instrumenter;
 import org.moeaframework.analysis.collector.Accumulator;
+import org.moeaframework.analysis.collector.IndicatorCollector;
 import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.Solution;
+import org.moeaframework.core.indicator.MaximumParetoFrontError;
 import org.moeaframework.core.variable.Permutation;
 
 import project.generation.InstanceGenerator;
@@ -364,7 +367,7 @@ public class ExperimentalApplication {
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		
 				JPanel tourTab = new JPanel();
-				tabbedPane.addTab("Solution Viewer", null, tourTab, null);
+				tabbedPane.addTab("Instance Viewer", null, tourTab, null);
 				tourTab.setLayout(null);
 				
 						JLabel solutionSelectLabel = new JLabel("Solution:");
@@ -422,96 +425,96 @@ public class ExperimentalApplication {
 
 		final JCheckBox checkPAES = new JCheckBox("PAES");
 		checkPAES.setFont(new Font("Tahoma", Font.BOLD, 12));
+		
+		final JCheckBox checkIBEA = new JCheckBox("IBEA (Requires reference set)");
+		checkIBEA.setEnabled(false);
+		checkIBEA.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		GroupLayout gl_parametersPanel = new GroupLayout(parametersPanel);
 		gl_parametersPanel.setHorizontalGroup(
-				gl_parametersPanel.createParallelGroup(Alignment.TRAILING)
+			gl_parametersPanel.createParallelGroup(Alignment.LEADING)
 				.addComponent(lblProblemInstance, GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
-				.addGroup(Alignment.LEADING, gl_parametersPanel.createSequentialGroup()
-						.addGap(152)
-						.addComponent(runButton)
-						.addContainerGap(153, Short.MAX_VALUE))
-						.addGroup(Alignment.LEADING, gl_parametersPanel.createSequentialGroup()
-								.addContainerGap()
-								.addComponent(lblCrossoverRate, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
-								.addComponent(lblMutationRate, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
-								.addContainerGap())
-								.addGroup(Alignment.LEADING, gl_parametersPanel.createSequentialGroup()
-										.addContainerGap()
-										.addComponent(xoverField, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
-										.addComponent(mutationField, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
-										.addContainerGap())
-										.addGroup(Alignment.LEADING, gl_parametersPanel.createSequentialGroup()
-												.addGroup(gl_parametersPanel.createParallelGroup(Alignment.LEADING)
-														.addGroup(gl_parametersPanel.createSequentialGroup()
-																.addContainerGap()
-																.addGroup(gl_parametersPanel.createParallelGroup(Alignment.LEADING, false)
-																		.addComponent(lblPopulationSize, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-																		.addComponent(populationField, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE))
-																		.addGap(38))
-																		.addGroup(gl_parametersPanel.createSequentialGroup()
-																				.addGap(15)
-																				.addGroup(gl_parametersPanel.createParallelGroup(Alignment.LEADING)
-																						.addGroup(gl_parametersPanel.createSequentialGroup()
-																								.addComponent(checkNSGAIII, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
-																								.addPreferredGap(ComponentPlacement.RELATED))
-																								.addGroup(gl_parametersPanel.createSequentialGroup()
-																										.addComponent(checkNSGAII)
-																										.addPreferredGap(ComponentPlacement.RELATED)))
-																										.addPreferredGap(ComponentPlacement.RELATED)))
-																										.addGroup(gl_parametersPanel.createParallelGroup(Alignment.LEADING)
-																												.addComponent(checkSPEA2, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
-																												.addGroup(gl_parametersPanel.createParallelGroup(Alignment.TRAILING, false)
-																														.addComponent(lblOfGenerations, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-																														.addComponent(generationsField, GroupLayout.DEFAULT_SIZE, 152, Short.MAX_VALUE))
-																														.addComponent(checkPAES, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE))
-																														.addContainerGap())
-																														.addGroup(gl_parametersPanel.createSequentialGroup()
-																																.addGroup(gl_parametersPanel.createParallelGroup(Alignment.TRAILING)
-																																		.addComponent(lblAlgorithm, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
-																																		.addGroup(gl_parametersPanel.createSequentialGroup()
-																																				.addContainerGap()
-																																				.addComponent(instanceTabs, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)))
-																																				.addContainerGap())
-				);
-		gl_parametersPanel.setVerticalGroup(
-				gl_parametersPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_parametersPanel.createSequentialGroup()
-						.addComponent(lblProblemInstance, GroupLayout.PREFERRED_SIZE, 14, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addComponent(instanceTabs, GroupLayout.PREFERRED_SIZE, 311, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.RELATED)
-						.addComponent(lblAlgorithm, GroupLayout.PREFERRED_SIZE, 14, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.UNRELATED)
-						.addGroup(gl_parametersPanel.createParallelGroup(Alignment.BASELINE)
-								.addComponent(checkNSGAII)
-								.addComponent(checkSPEA2))
-								.addPreferredGap(ComponentPlacement.UNRELATED)
-								.addGroup(gl_parametersPanel.createParallelGroup(Alignment.BASELINE)
-										.addComponent(checkNSGAIII)
-										.addComponent(checkPAES))
-										.addGap(28)
-										.addGroup(gl_parametersPanel.createParallelGroup(Alignment.BASELINE)
-												.addComponent(lblPopulationSize)
-												.addComponent(lblOfGenerations, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE))
-												.addPreferredGap(ComponentPlacement.RELATED)
-												.addGroup(gl_parametersPanel.createParallelGroup(Alignment.BASELINE)
-														.addComponent(populationField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-														.addComponent(generationsField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-														.addPreferredGap(ComponentPlacement.UNRELATED)
-														.addGroup(gl_parametersPanel.createParallelGroup(Alignment.BASELINE)
-																.addComponent(lblCrossoverRate, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE)
-																.addComponent(lblMutationRate, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE))
-																.addPreferredGap(ComponentPlacement.RELATED)
-																.addGroup(gl_parametersPanel.createParallelGroup(Alignment.BASELINE)
-																		.addComponent(xoverField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-																		.addComponent(mutationField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-																		.addGap(18)
-																		.addComponent(runButton)
-																		.addContainerGap())
-				);
+					.addGap(152)
+					.addComponent(runButton)
+					.addContainerGap(153, Short.MAX_VALUE))
+				.addGroup(gl_parametersPanel.createSequentialGroup()
+					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.TRAILING)
+						.addComponent(lblAlgorithm, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 352, Short.MAX_VALUE)
+						.addGroup(gl_parametersPanel.createSequentialGroup()
+							.addContainerGap()
+							.addComponent(instanceTabs, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)))
+					.addContainerGap())
+				.addGroup(Alignment.TRAILING, gl_parametersPanel.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_parametersPanel.createSequentialGroup()
+							.addComponent(lblCrossoverRate, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+							.addComponent(lblMutationRate, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_parametersPanel.createSequentialGroup()
+							.addComponent(xoverField, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+							.addComponent(mutationField, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_parametersPanel.createSequentialGroup()
+							.addGroup(gl_parametersPanel.createParallelGroup(Alignment.LEADING, false)
+								.addComponent(lblPopulationSize, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(populationField, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE))
+							.addGap(38)
+							.addGroup(gl_parametersPanel.createParallelGroup(Alignment.TRAILING, false)
+								.addComponent(lblOfGenerations, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(generationsField, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
+								.addComponent(checkSPEA2, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
+								.addComponent(checkPAES, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE))))
+					.addContainerGap())
+				.addGroup(gl_parametersPanel.createSequentialGroup()
+					.addGap(15)
+					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.LEADING)
+						.addComponent(checkNSGAIII, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
+						.addComponent(checkNSGAII)
+						.addComponent(checkIBEA, GroupLayout.PREFERRED_SIZE, 216, GroupLayout.PREFERRED_SIZE))
+					.addGap(131))
+		);
+		gl_parametersPanel.setVerticalGroup(
+			gl_parametersPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_parametersPanel.createSequentialGroup()
+					.addComponent(lblProblemInstance, GroupLayout.PREFERRED_SIZE, 14, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(instanceTabs, GroupLayout.PREFERRED_SIZE, 311, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(lblAlgorithm, GroupLayout.PREFERRED_SIZE, 14, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_parametersPanel.createSequentialGroup()
+							.addComponent(checkNSGAII)
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(checkNSGAIII))
+						.addGroup(gl_parametersPanel.createSequentialGroup()
+							.addComponent(checkSPEA2)
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(checkPAES)))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(checkIBEA)
+					.addGap(14)
+					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblPopulationSize)
+						.addComponent(lblOfGenerations, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(populationField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(generationsField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblCrossoverRate, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE)
+						.addComponent(lblMutationRate, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(xoverField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(mutationField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(runButton)
+					.addContainerGap())
+		);
 
 		JScrollPane scrollPane = new JScrollPane();
 		instanceTabs.addTab("Pre-Generated Instances", null, scrollPane, null);
@@ -675,6 +678,9 @@ public class ExperimentalApplication {
 					accumulators = new ArrayList<Accumulator>();
 					selectedAccumulator = null;
 					paretoViewer.removeAllPlots();
+					withReferenceSet = false;
+					checkIBEA.setEnabled(false);
+					checkIBEA.setSelected(false);
 					//End of item reset
 
 					instance = ((File) selectedNode);					
@@ -682,6 +688,8 @@ public class ExperimentalApplication {
 						loadInstanceInformation();
 						printROI();
 					}
+					
+					loadReference();
 					
 					runButton.setEnabled(checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected());
 				}				
@@ -762,7 +770,8 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("NSGAII");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()) 
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()
+						|| checkIBEA.isSelected()) 
 						&& instance != null);
 			}
 		});
@@ -775,7 +784,8 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("NSGAIII");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()) 
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()
+						|| checkIBEA.isSelected()) 
 						&& instance != null);
 			}
 		});
@@ -788,7 +798,8 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("SPEA2");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()) 
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()
+						|| checkIBEA.isSelected()) 
 						&& instance != null);
 			}
 		});
@@ -801,7 +812,22 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("PAES");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()) 
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()
+						|| checkIBEA.isSelected()) 
+						&& instance != null);
+			}
+		});
+		
+		checkIBEA.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (checkIBEA.isSelected()) {
+					algorithmsToRun.add("IBEA");
+				} else {
+					algorithmsToRun.remove("IBEA");
+				}
+				
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected() 
+						|| checkIBEA.isSelected()) 
 						&& instance != null);
 			}
 		});
@@ -857,10 +883,15 @@ public class ExperimentalApplication {
 
 		int evaluations = population * generations;
 		Instrumenter instrumenter;
-
+		
 		for (int i = 0; i < algorithmsToRun.size(); i++) {
 
 			if (withReferenceSet) {
+				//TODO Some tricksy metrics are here
+				Analyzer test = new Analyzer();	
+				test.withReferenceSet(referenceFile).withProblemClass(RRASRMOO.class, instance);
+				
+				
 				instrumenter = new Instrumenter()
 				.withProblemClass(RRASRMOO.class, instance)
 				.withReferenceSet(referenceFile)
@@ -871,6 +902,7 @@ public class ExperimentalApplication {
 				.attachElapsedTimeCollector()
 				.attachSpacingCollector()
 				.attachAllMetricCollectors()
+				.attach(new IndicatorCollector(new MaximumParetoFrontError(new RRASRMOO(), test.getReferenceSet())))
 				.withFrequency(population);
 
 				// solve using a Genetic Algorithm
@@ -947,7 +979,7 @@ public class ExperimentalApplication {
 			spacingField.setText((df.format(((Double) selectedAccumulator.get("Spacing", gen)))));
 			contributionField.setText((df.format(((Double) selectedAccumulator.get("Contribution", gen)))));
 			genDistField.setText((df.format(((Double) selectedAccumulator.get("GenerationalDistance", gen)))));
-//			paretoErrorField.setText("" + selectedAccumulator.get("Maximum Pareto Front Error", gen));
+			paretoErrorField.setText((df.format(((Double) selectedAccumulator.get("MaximumParetoFrontError", gen)))));
 		} else {
 			hypervolumeField.setText("No Reference Set");
 			spacingField.setText("No Reference Set");
@@ -1064,12 +1096,12 @@ public class ExperimentalApplication {
 			}
 			metricGraphViewer.addScatterPlot(name, X, Y);
 
-//			name = "Maximum Pareto Front Error";
-//			Y = new double[selectedAccumulator.size(name)];		
-//			for (int i = 0; i<selectedAccumulator.size(name); i++) {
-//				Y[i] = (Double) selectedAccumulator.get(name, i);
-//			}
-//			metricGraphViewer.addScatterPlot(name, X, Y);
+			name = "MaximumParetoFrontError";
+			Y = new double[selectedAccumulator.size(name)];		
+			for (int i = 0; i<selectedAccumulator.size(name); i++) {
+				Y[i] = (Double) selectedAccumulator.get(name, i);
+			}
+			metricGraphViewer.addScatterPlot(name, X, Y);
 		}
 
 		metricGraphViewer.setAxisLabels("Generation","Metric");
@@ -1179,6 +1211,35 @@ public class ExperimentalApplication {
 		instance = InstanceGenerator.generateCustomInstance(numNodes, sparsity, distribution);
 	}
 
+	private void loadReference() {
+		File referenceFile = null;
+
+		try {
+			String temp = instance.getCanonicalPath().replace('\\', '/');			
+			String[] fileString = temp.split("/");
+
+			String refFilePath = "";
+
+			for (int i = 0; i < fileString.length; i++) {
+				if (i == fileString.length-1) {
+					refFilePath += "References\\" + fileString[i] + ".ref";
+				} else {
+					refFilePath += fileString[i] + "\\";
+				}
+			}			
+			referenceFile =  new File(refFilePath);
+
+			if (referenceFile.exists() && referenceFile.isFile()) {
+				withReferenceSet = true;
+			} else {
+				withReferenceSet = false;
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private class SelectionListener implements TreeSelectionListener {
 		@Override
 		public void valueChanged(TreeSelectionEvent se) {
