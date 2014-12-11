@@ -16,7 +16,7 @@ public class ProblemRunner {
 
 	public static void main(String[] args) {
 		String directory = "Instances/Nodes/";
-		File nodeList = new File(directory + "200n_3s_15d_instance.tsp");
+		File nodeList = new File(directory + "200n_10s_15d_instance.tsp");
 		
 		int popSize = 200;
 		final int generations = 500;
@@ -34,7 +34,7 @@ public class ProblemRunner {
 		// solve using a Genetic Algorithm
 		final NondominatedPopulation result = new Executor()
 				.withProblemClass(RRASRMOO.class, nodeList)
-				.withAlgorithm("NSGAIII")
+				.withAlgorithm("SPEA2")
 				.withMaxEvaluations(evaluations)
 				.withProperty("populationSize", popSize)
 				.withProperty("swap.rate", 0.25) // mutation
