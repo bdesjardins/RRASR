@@ -184,23 +184,24 @@ public class Spea2Fitness {
 			double minDistance = Double.MAX_VALUE;            
 			int toRemove = 0;
 			i = 0;
-			for (List<DistanceNode> dn : distanceList) {
+			for (List<DistanceNode> dn : distanceList) {				
 				if (dn.get(0).getDistance() < minDistance) {
 					toRemove = i;
 					minDistance = dn.get(0).getDistance();
+										
 					//i y toRemove have the same distance to the first solution
 				} else if (dn.get(0).getDistance() == minDistance) {
 					int k = 0;
-					while ((dn.get(k).getDistance() ==
-							distanceList.get(toRemove).get(k).getDistance()) &&
-							k < (distanceList.get(i).size() - 1)) {
+					while (k < (distanceList.get(i).size() - 1) && 
+							(dn.get(k).getDistance() ==	distanceList.get(toRemove).get(k).getDistance()) ) {
 						k++;
 					}
 
-					if (dn.get(k).getDistance() <
-							distanceList.get(toRemove).get(k).getDistance()) {
-						toRemove = i;
-					} // if
+					if (k < distanceList.get(toRemove).size() &&  k < dn.size()) {
+						if (dn.get(k).getDistance() < distanceList.get(toRemove).get(k).getDistance()) {
+							toRemove = i;
+						} // if
+					}
 				} // if
 				i++;
 			} // while

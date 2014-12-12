@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 import org.moeaframework.Analyzer;
 import org.moeaframework.Executor;
@@ -19,16 +20,25 @@ import project.problem.RRASRMOO;
 public class ReferenceSetCreator {
 
 	public static void main(String[] args) {
+		Scanner input = new Scanner(System.in);
+		
+		System.out.println("Please input the desired number of runs:");		
+		int runs = input.nextInt();				
 		System.out.println("Starting!");
 		
 		long beforeTime = System.currentTimeMillis();
 		
 		String directory = "Instances";
 		
-		String[] problems = new String[]{"Nodes"};
+		String[] problems = new String[]{"Nodes","Distribution","Sparsity"};
 		
 		for (int i = 0; i <problems.length; i++) {
 			File folder = new File(directory + "/" + problems[i]);
+			
+			if (!folder.exists()) {
+				continue;
+			}
+			
 			File[] listOfFiles = folder.listFiles();
 			
 			for (int j = 0; j < listOfFiles.length; j++) {
@@ -36,7 +46,7 @@ public class ReferenceSetCreator {
 					continue;
 				}
 				
-				createApproximationSets(listOfFiles[j]);
+				createApproximationSets(listOfFiles[j], runs);
 				mergeApproximationSets(directory + "/temp", directory + "/" + problems[i] + "/References/" + listOfFiles[j].getName() + ".ref");
 				
 				System.out.println("Created reference set for: " + listOfFiles[j].getName() + " " + (new Date(System.currentTimeMillis())).toString());
@@ -47,7 +57,7 @@ public class ReferenceSetCreator {
 		System.out.println("Time Elapsed: " + (afterTime-beforeTime)/1000 + "s");
 	}
 	
-	private static void createApproximationSets (File instanceFile) {
+	private static void createApproximationSets (File instanceFile, int runs) {
 		int popSize = 200;
 		int generations = 500;
 
@@ -67,7 +77,7 @@ public class ReferenceSetCreator {
 			.withProperty("pmx.rate", 0.75) // crossover
 //			.withEpsilon(5)
 //			.distributeOnAllCores()
-			.runSeeds(25);
+			.runSeeds(runs);
 //			.run();
 				
 			try {

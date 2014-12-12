@@ -26,9 +26,8 @@ public class ExperimentRunner {
 	public static void main(String[] args) {
 		Scanner input = new Scanner(System.in);
 		
-		System.out.println("Press enter to start");
-		input.nextLine();
-		System.out.println("Starting!");
+		System.out.println("Input desired number of runs");
+		int runs = input.nextInt();
 		
 		long beforeTime = System.currentTimeMillis();
 
@@ -52,13 +51,13 @@ public class ExperimentRunner {
 
 			String directory = "Instances";
 
-			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2"};
+//			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2"};
 			String[] problems = new String[]{"Nodes", "Sparsity", "Distribution"};
 			
-//			String[] algorithms = new String[]{"NSGAII","SPEA2"};
+			String[] algorithms = new String[]{"SPEA2"};
 //			String[] problems = new String[]{"TESTS", "Sparsity"};
 
-			for (int counter = 1; counter <= 1; counter++) {
+			for (int counter = 1; counter <= runs; counter++) {
 				for (int k = 0; k < algorithms.length; k++) {
 					for (int i = 0; i <problems.length; i++) {
 						File folder = new File(directory + "/" + problems[i]);
@@ -80,9 +79,12 @@ public class ExperimentRunner {
 							
 							File referenceSet = new File(directory + "/" + problems[i] + "/References/" + listOfFiles[j].getName() + ".ref");
 
+							System.out.print("Starting: " + listOfFiles[j].getName() + " - " + algorithms[k] + "...");
+							
 							doTheThing(listOfFiles[j], referenceSet, printer, algorithms[k], newFolder, counter);
 							
-							System.out.println("Done: " + listOfFiles[j].getName() + " - " + algorithms[k]);
+							System.out.println("Done!");
+														
 						}
 					}
 				}
