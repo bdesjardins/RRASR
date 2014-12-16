@@ -425,14 +425,10 @@ public class ExperimentalApplication {
 
 		final JCheckBox checkPAES = new JCheckBox("PAES");
 		checkPAES.setFont(new Font("Tahoma", Font.BOLD, 12));
-		
-		final JCheckBox checkIBEA = new JCheckBox("IBEA (Requires reference set)");
-		checkIBEA.setEnabled(false);
-		checkIBEA.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		GroupLayout gl_parametersPanel = new GroupLayout(parametersPanel);
 		gl_parametersPanel.setHorizontalGroup(
-			gl_parametersPanel.createParallelGroup(Alignment.LEADING)
+			gl_parametersPanel.createParallelGroup(Alignment.TRAILING)
 				.addComponent(lblProblemInstance, GroupLayout.DEFAULT_SIZE, 362, Short.MAX_VALUE)
 				.addGroup(gl_parametersPanel.createSequentialGroup()
 					.addGap(152)
@@ -445,7 +441,7 @@ public class ExperimentalApplication {
 							.addContainerGap()
 							.addComponent(instanceTabs, GroupLayout.DEFAULT_SIZE, 342, Short.MAX_VALUE)))
 					.addContainerGap())
-				.addGroup(Alignment.TRAILING, gl_parametersPanel.createSequentialGroup()
+				.addGroup(gl_parametersPanel.createSequentialGroup()
 					.addContainerGap()
 					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_parametersPanel.createSequentialGroup()
@@ -471,9 +467,8 @@ public class ExperimentalApplication {
 					.addGap(15)
 					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.LEADING)
 						.addComponent(checkNSGAIII, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
-						.addComponent(checkNSGAII)
-						.addComponent(checkIBEA, GroupLayout.PREFERRED_SIZE, 216, GroupLayout.PREFERRED_SIZE))
-					.addGap(131))
+						.addComponent(checkNSGAII))
+					.addGap(263))
 		);
 		gl_parametersPanel.setVerticalGroup(
 			gl_parametersPanel.createParallelGroup(Alignment.LEADING)
@@ -493,9 +488,7 @@ public class ExperimentalApplication {
 							.addComponent(checkSPEA2)
 							.addPreferredGap(ComponentPlacement.UNRELATED)
 							.addComponent(checkPAES)))
-					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(checkIBEA)
-					.addGap(14)
+					.addGap(40)
 					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblPopulationSize)
 						.addComponent(lblOfGenerations, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE))
@@ -679,8 +672,6 @@ public class ExperimentalApplication {
 					selectedAccumulator = null;
 					paretoViewer.removeAllPlots();
 					withReferenceSet = false;
-					checkIBEA.setEnabled(false);
-					checkIBEA.setSelected(false);
 					//End of item reset
 
 					instance = ((File) selectedNode);					
@@ -754,7 +745,7 @@ public class ExperimentalApplication {
 				//End of item reset
 
 				generateCustomInstance(numNodes, sparsity, distribution); 					
-				if (tabbedPane.getSelectedIndex() == 1) {
+				if (tabbedPane.getSelectedIndex() == 0) {
 					loadInstanceInformation();
 					printROI();
 				}
@@ -770,8 +761,7 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("NSGAII");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()
-						|| checkIBEA.isSelected()) 
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()) 
 						&& instance != null);
 			}
 		});
@@ -784,8 +774,7 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("NSGAIII");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()
-						|| checkIBEA.isSelected()) 
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()) 
 						&& instance != null);
 			}
 		});
@@ -798,8 +787,7 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("SPEA2");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()
-						|| checkIBEA.isSelected()) 
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()) 
 						&& instance != null);
 			}
 		});
@@ -812,22 +800,7 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("PAES");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()
-						|| checkIBEA.isSelected()) 
-						&& instance != null);
-			}
-		});
-		
-		checkIBEA.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if (checkIBEA.isSelected()) {
-					algorithmsToRun.add("IBEA");
-				} else {
-					algorithmsToRun.remove("IBEA");
-				}
-				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected() 
-						|| checkIBEA.isSelected()) 
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()) 
 						&& instance != null);
 			}
 		});

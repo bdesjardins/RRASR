@@ -146,6 +146,10 @@ public class TourVisualizer extends JPanel {
 		for (int i = 0; i < solutionVector.length; i++) {
 			NodeInfo node1 = nodes[solutionVector[i]];
 			NodeInfo node2;
+			if (i == 0) {
+				g2.setPaint(Color.GREEN);
+			}
+			
 			if (i == solutionVector.length-1) {
 				node2 = nodes[solutionVector[0]];
 			} else {
@@ -161,6 +165,9 @@ public class TourVisualizer extends JPanel {
 					displayHeight - (offsetY + scale * (position2[1] - bottom) + insets.bottom));
 
 			g2.draw(line);
+			if (i == 0) {
+				g2.setPaint(Color.BLUE);
+			}
 		}
 	}
 	
