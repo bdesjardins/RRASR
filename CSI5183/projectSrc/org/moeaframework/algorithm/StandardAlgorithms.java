@@ -20,6 +20,7 @@ package org.moeaframework.algorithm;
 import java.util.Properties;
 
 import org.moeaframework.analysis.sensitivity.EpsilonHelper;
+import org.moeaframework.core.AdaptiveGridArchive;
 import org.moeaframework.core.Algorithm;
 import org.moeaframework.core.EpsilonBoxDominanceArchive;
 import org.moeaframework.core.FrameworkException;
@@ -131,7 +132,7 @@ public class StandardAlgorithms extends AlgorithmProvider {
 				return newNSGAII(typedProperties, problem);
 			} else if (name.equalsIgnoreCase("SPEA2")){
 				return newSPEA2(typedProperties, problem);			
-			}else if (name.equalsIgnoreCase("NSGAIII") ||
+			} else if (name.equalsIgnoreCase("NSGAIII") ||
 					name.equalsIgnoreCase("NSGA-III") ||
 					name.equalsIgnoreCase("NSGA3")) {
 				return newNSGAIII(typedProperties, problem);
@@ -142,6 +143,8 @@ public class StandardAlgorithms extends AlgorithmProvider {
 				return neweMOEA(typedProperties, problem);
 			} else if (name.equalsIgnoreCase("Random")) {
 				return newRandomSearch(typedProperties, problem);
+			} else if (name.equalsIgnoreCase("PESA2")){
+				return newPESA2(typedProperties, problem);
 			} else {
 				return null;
 			}
@@ -226,6 +229,34 @@ public class StandardAlgorithms extends AlgorithmProvider {
 				properties, problem);
 
 		return new SPEA2_2(problem, population, null, selection, variation, initialization);
+	}
+	
+	/**
+	 * Returns a new {@link SPEA2} instance.
+	 * 
+	 * @param properties the properties for customizing the new {@code NSGAII}
+	 *        instance
+	 * @param problem the problem
+	 * @return a new {@code SPEA2} instance
+	 */
+	private Algorithm newPESA2(TypedProperties properties, Problem problem) {
+		int populationSize = (int)properties.getDouble("populationSize", 100);
+
+		Initialization initialization = new RandomInitialization(problem,populationSize);
+
+		NondominatedSortingPopulation population = new NondominatedSortingPopulation();
+
+		TournamentSelection selection = new TournamentSelection(2, new FitnessComparator());
+
+		Variation variation = OperatorFactory.getInstance().getVariation(null, 
+				properties, problem);
+		
+		int capacity = 100;
+		int numberOfDivisions = 5;
+		
+		NondominatedPopulation archive = new AdaptiveGridArchive(capacity, problem, numberOfDivisions);
+
+		return new SPEA2_2(problem, population, archive, selection, variation, initialization);
 	}
 
 	/**

@@ -425,6 +425,9 @@ public class ExperimentalApplication {
 
 		final JCheckBox checkPAES = new JCheckBox("PAES");
 		checkPAES.setFont(new Font("Tahoma", Font.BOLD, 12));
+		
+		final JCheckBox checkPESA2 = new JCheckBox("PESA2");
+		checkPESA2.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		GroupLayout gl_parametersPanel = new GroupLayout(parametersPanel);
 		gl_parametersPanel.setHorizontalGroup(
@@ -466,6 +469,7 @@ public class ExperimentalApplication {
 				.addGroup(gl_parametersPanel.createSequentialGroup()
 					.addGap(15)
 					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.LEADING)
+						.addComponent(checkPESA2, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
 						.addComponent(checkNSGAIII, GroupLayout.PREFERRED_SIZE, 84, GroupLayout.PREFERRED_SIZE)
 						.addComponent(checkNSGAII))
 					.addGap(263))
@@ -488,7 +492,9 @@ public class ExperimentalApplication {
 							.addComponent(checkSPEA2)
 							.addPreferredGap(ComponentPlacement.UNRELATED)
 							.addComponent(checkPAES)))
-					.addGap(40)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(checkPESA2)
+					.addGap(14)
 					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblPopulationSize)
 						.addComponent(lblOfGenerations, GroupLayout.PREFERRED_SIZE, 15, GroupLayout.PREFERRED_SIZE))
@@ -682,7 +688,8 @@ public class ExperimentalApplication {
 					
 					loadReference();
 					
-					runButton.setEnabled(checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected());
+					runButton.setEnabled(checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() 
+							|| checkPAES.isSelected() || checkPESA2.isSelected());
 				}				
 			}			
 		});
@@ -761,8 +768,8 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("NSGAII");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()) 
-						&& instance != null);
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected() 
+						|| checkPESA2.isSelected())	&& instance != null);
 			}
 		});
 		
@@ -774,8 +781,8 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("NSGAIII");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()) 
-						&& instance != null);
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected() 
+						|| checkPESA2.isSelected())	&& instance != null);
 			}
 		});
 
@@ -787,8 +794,8 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("SPEA2");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()) 
-						&& instance != null);
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected() 
+						|| checkPESA2.isSelected())	&& instance != null);
 			}
 		});
 
@@ -800,8 +807,21 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("PAES");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected()) 
-						&& instance != null);
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected() 
+						|| checkPESA2.isSelected())	&& instance != null);
+			}
+		});
+		
+		checkPESA2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (checkPESA2.isSelected()) {
+					algorithmsToRun.add("PESA2");
+				} else {
+					algorithmsToRun.remove("PESA2");
+				}
+				
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected() 
+						|| checkPESA2.isSelected())	&& instance != null);
 			}
 		});
 		

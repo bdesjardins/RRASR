@@ -51,10 +51,10 @@ public class ExperimentRunner {
 
 			String directory = "Instances";
 
-//			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2"};
+			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2"};
 			String[] problems = new String[]{"Nodes", "Sparsity", "Distribution"};
 			
-			String[] algorithms = new String[]{"SPEA2"};
+//			String[] algorithms = new String[]{"SPEA2"};
 //			String[] problems = new String[]{"TESTS", "Sparsity"};
 
 			for (int counter = 1; counter <= runs; counter++) {
@@ -81,7 +81,7 @@ public class ExperimentRunner {
 
 							System.out.print("Starting: " + listOfFiles[j].getName() + " - " + algorithms[k] + "...");
 							
-							doTheThing(listOfFiles[j], referenceSet, printer, algorithms[k], newFolder, counter);
+							doTheThing(listOfFiles[j], referenceSet, printer, algorithms[k], newFolder, counter, problems[i]);
 							
 							System.out.println("Done!");
 														
@@ -100,7 +100,7 @@ public class ExperimentRunner {
 		System.out.println("Time Elapsed: " + (afterTime-beforeTime)/1000 + "s");
 	}
 
-	private static void doTheThing(File instanceFile, File referenceSet, CSVPrinter printer, String algorithm, File folder, int run) {
+	private static void doTheThing(File instanceFile, File referenceSet, CSVPrinter printer, String algorithm, File folder, int run, String problem) {
 		int popSize = 200;
 		final int generations = 500;
 
@@ -146,7 +146,8 @@ public class ExperimentRunner {
 			writer.println();
 
 			for (int i = 0; i < accumulator.size("NFE"); i++) {
-				printer.print(instanceFile.getName()); //#File
+				printer.print(instanceFile.getName().replaceFirst("_instance.tsp", "")); //#File
+				printer.print(problem);
 				printer.print(algorithm);
 				printer.print(run); 
 				printer.print(accumulator.get("NFE", i));
