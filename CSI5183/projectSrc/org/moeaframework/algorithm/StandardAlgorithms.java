@@ -19,6 +19,7 @@ package org.moeaframework.algorithm;
 
 import java.util.Properties;
 
+import org.moeaframework.algorithm.util.AdaptiveGridArchive2;
 import org.moeaframework.analysis.sensitivity.EpsilonHelper;
 import org.moeaframework.core.AdaptiveGridArchive;
 import org.moeaframework.core.Algorithm;
@@ -246,17 +247,15 @@ public class StandardAlgorithms extends AlgorithmProvider {
 
 		NondominatedSortingPopulation population = new NondominatedSortingPopulation();
 
-		TournamentSelection selection = new TournamentSelection(2, new FitnessComparator());
-
 		Variation variation = OperatorFactory.getInstance().getVariation(null, 
 				properties, problem);
 		
 		int capacity = 100;
-		int numberOfDivisions = 5;
+		int numberOfDivisions = 6;
 		
-		NondominatedPopulation archive = new AdaptiveGridArchive(capacity, problem, numberOfDivisions);
+		NondominatedPopulation archive = new AdaptiveGridArchive2(capacity, numberOfDivisions, problem.getNumberOfObjectives());
 
-		return new SPEA2_2(problem, population, archive, selection, variation, initialization);
+		return new PESA2(problem, population, archive, variation, initialization);
 	}
 
 	/**

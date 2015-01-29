@@ -51,7 +51,8 @@ public class ExperimentRunner {
 
 			String directory = "Instances";
 
-			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2"};
+//			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2"};
+			String[] algorithms = new String[]{"PESA2"};
 			String[] problems = new String[]{"Nodes", "Sparsity", "Distribution"};
 			
 //			String[] algorithms = new String[]{"SPEA2"};

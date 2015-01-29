@@ -21,11 +21,7 @@
 
 package org.moeaframework.algorithm;
 
-
-
-import java.util.HashMap;
-
-import org.moeaframework.core.AdaptiveGridArchive;
+import org.moeaframework.algorithm.util.AdaptiveGridArchive2;
 import org.moeaframework.core.Initialization;
 import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.NondominatedSortingPopulation;
@@ -36,58 +32,61 @@ import org.moeaframework.core.Solution;
 import org.moeaframework.core.Variation;
 
 /**
- * This class implements the PESA2 algorithm. 
+ * This class implements the PESA2 algorithm.
  */
-public class PESA2 extends AbstractEvolutionaryAlgorithm{
-
+public class PESA2 extends AbstractEvolutionaryAlgorithm {
 
 	private Variation variation;
-	private Selection selection;
-
 
 	public PESA2(Problem problem, NondominatedSortingPopulation population,
-			NondominatedPopulation archive, Selection selection,
-			Variation variation, Initialization initialization) {
+			NondominatedPopulation archive, Variation variation, Initialization initialization) {
 		super(problem, population, archive, initialization);
 		this.variation = variation;
-		this.selection = selection;
 
-//		int capacity = 20;
-//		int numberOfDivisions = 20;
+		getArchive().addAll(getPopulation());
+		
+		// int capacity = 20;
+		// int numberOfDivisions = 20;
 
-//		this.gridArchive = new AdaptiveGridArchive(capacity, problem, numberOfDivisions);
+		// this.gridArchive = new AdaptiveGridArchive(capacity, problem,
+		// numberOfDivisions);
 	}
-    
+
 	@Override
 	protected void iterate() {
 		// TODO Auto-generated method stub
 		Population population = getPopulation();
 		int populationSize = population.size();
-		
-		AdaptiveGridArchive archive = getArchive();
-		
+
+		AdaptiveGridArchive2 archive = getArchive();
+
 		// Clear the solutionSet
 		population.clear();
 
-		// Create a new offspringPopulation   		
-		while (population.size() < populationSize) {
-			Solution[] parents = selection.select(variation.getArity(),	archive);
+		// Create a new offspringPopulation
+		Population offSpringSolutionSet= new Population();
+		while (offSpringSolutionSet.size() < populationSize) {
+			Solution[] parents = archive.getParents(2);
 			Solution[] children = variation.evolve(parents);
 
-			population.addAll(children);
+			offSpringSolutionSet.addAll(children);
 		}
-
-		for (int i = 0; i < population.size(); i++)
-			archive.add(population.get(i));
-
+		
+		evaluateAll(offSpringSolutionSet);
+		
+		for (int i = 0; i < offSpringSolutionSet.size(); i++)
+			archive.add(offSpringSolutionSet.get(i));
+		
+		population.clear();
+		population.addAll(offSpringSolutionSet);
 	}
 
 	public NondominatedSortingPopulation getPopulation() {
-		return (NondominatedSortingPopulation)super.getPopulation();
+		return (NondominatedSortingPopulation) super.getPopulation();
 	}
-	
-	public AdaptiveGridArchive getArchive() {
-		return (AdaptiveGridArchive)super.getArchive();
+
+	public AdaptiveGridArchive2 getArchive() {
+		return (AdaptiveGridArchive2) super.getArchive();
 	}
 
 } // PESA2
