@@ -146,6 +146,8 @@ public class StandardAlgorithms extends AlgorithmProvider {
 				return newRandomSearch(typedProperties, problem);
 			} else if (name.equalsIgnoreCase("PESA2")){
 				return newPESA2(typedProperties, problem);
+			} else if (name.equalsIgnoreCase("AGEII")){
+				return newAGEII(typedProperties, problem);
 			} else {
 				return null;
 			}
@@ -233,12 +235,12 @@ public class StandardAlgorithms extends AlgorithmProvider {
 	}
 	
 	/**
-	 * Returns a new {@link SPEA2} instance.
+	 * Returns a new {@link PESA2} instance.
 	 * 
-	 * @param properties the properties for customizing the new {@code NSGAII}
+	 * @param properties the properties for customizing the new {@code PESA2}
 	 *        instance
 	 * @param problem the problem
-	 * @return a new {@code SPEA2} instance
+	 * @return a new {@code PESA2} instance
 	 */
 	private Algorithm newPESA2(TypedProperties properties, Problem problem) {
 		int populationSize = (int)properties.getDouble("populationSize", 100);
@@ -256,6 +258,30 @@ public class StandardAlgorithms extends AlgorithmProvider {
 		NondominatedPopulation archive = new AdaptiveGridArchive2(capacity, numberOfDivisions, problem.getNumberOfObjectives());
 
 		return new PESA2(problem, population, archive, variation, initialization);
+	}
+	
+	/**
+	 * Returns a new {@link AGEII} instance.
+	 * 
+	 * @param properties the properties for customizing the new {@code AGEII}
+	 *        instance
+	 * @param problem the problem
+	 * @return a new {@code AGEII} instance
+	 */
+	private Algorithm newAGEII(TypedProperties properties, Problem problem) {
+		int populationSize = (int)properties.getDouble("populationSize", 100);
+
+		Initialization initialization = new RandomInitialization(problem,populationSize);
+
+		NondominatedSortingPopulation population = new NondominatedSortingPopulation();
+
+		Variation variation = OperatorFactory.getInstance().getVariation(null, properties, problem);
+		
+		TournamentSelection selection = new TournamentSelection(2, new ParetoDominanceComparator());
+
+		NondominatedPopulation archive = new NondominatedPopulation();
+
+		return new AGE(problem, population, archive, variation, initialization, selection);
 	}
 
 	/**

@@ -52,11 +52,11 @@ public class ExperimentRunner {
 			String directory = "Instances";
 
 //			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2"};
-			String[] algorithms = new String[]{"PESA2"};
-			String[] problems = new String[]{"Nodes", "Sparsity", "Distribution"};
+//			String[] algorithms = new String[]{"AGEII"};
+//			String[] problems = new String[]{"Nodes", "Sparsity", "Distribution"};
 			
-//			String[] algorithms = new String[]{"SPEA2"};
-//			String[] problems = new String[]{"TESTS", "Sparsity"};
+			String[] algorithms = new String[]{"AGEII"};
+			String[] problems = new String[]{"Sparsity"};
 
 			for (int counter = 1; counter <= runs; counter++) {
 				for (int k = 0; k < algorithms.length; k++) {
