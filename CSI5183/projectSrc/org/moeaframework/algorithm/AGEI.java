@@ -7,8 +7,6 @@
  */
 package org.moeaframework.algorithm;
 
-import java.io.File;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -52,73 +50,87 @@ public class AGEI extends AbstractEvolutionaryAlgorithm {
 		this.variation = variation;
 		this.selection = selection;
 	}
- 
+	
+	@Override
+	protected void iterate() {
+		//Read the params
+		Population solutionSet, offSpringSolutionSet;
+		solutionSet = super.getPopulation();
+		int populationSize = solutionSet.size();
+		
+        ParetoObjectiveComparator cNormal = new ParetoObjectiveComparator();
+		
+		if(this.idealPopulationSize == -1){
+			this.idealPopulationSize = populationSize;
+			setupArchive();
+		}
+		
+		 offSpringSolutionSet = new Population();                          // generate mu solutions
+         Population offSpringSolutionSetForArchive = new Population();    // generate mu solutions
+         Solution[] parents = new Solution[2];
+         Solution[] offSpring = null;
+
+         for (int kk = 0; kk<idealPopulationSize; kk++){                     // loop condition: generate lambda inividuals
+
+        	 //make the crossover and generate a single child
+        	 parents = selection.select(variation.getArity(),population);
+        	 offSpring = variation.evolve(parents);
+
+        	 // FITNESS EVALUATION - note: this does not set fitness, just runs the problem functions
+        	 super.evaluate(offSpring[0]);
+//           problem_.evaluateConstraints(offSpring[0]);
+        	 
+        	 /* START check if new offSpring is not (epsilon) dominated by an archive point */
+        	 boolean newPointIsDominatedByOldArchive = false;
+        	 for (int i = 0; i<archive.size(); i++) {
+        		 /*
+        		  * COMPARE: return -1, or 0, or 1 if solution1 dominates solution2, both are
+        		  *          non-dominated, or solution1 is dominated by solution2, respectively.
+        		  */
+        		 int result = cNormal.compare(archive.get(i), offSpring[0]);
+        		 if (result==-1) {
+        			 // break if an archive point dominates the new point
+        			 newPointIsDominatedByOldArchive = true;
+        			 break;
+        		 }
+        		 if (result==1) {
+        			 // remove archive point if new point dominates that one
+        			 archive.remove(i);
+        			 i--;
+        		 }
+        	 }
+        	 /* END check if new offSpring is not epsilon dominated by an archive point */
+
+
+        	 // define behavior: add offspring to archive
+        	 if (newPointIsDominatedByOldArchive) {
+        		 // forget this point
+        		 continue;
+        	 } else {
+        		 offSpringSolutionSet.add(offSpring[0]);
+        		 offSpringSolutionSetForArchive.add(offSpring[0]);
+        	 }
+
+         }
+         /*END generate lambda invididuals*/
+
+           /* technically important: add all non-dominated points to the archive. */
+//         archive = archive.union(offSpringSolutionSetForArchive);
+           archive.addAll(offSpringSolutionSetForArchive);
+           /* merge population with offSpringSolutionSet */
+//         solutionSet = solutionSet.union(offSpringSolutionSet);              // would it be neccessary to take just the first subfront?
+           solutionSet.addAll(offSpringSolutionSet);
+
+
+         /* START select mu auf of mu+lambda */
+         reducePopulationToSize(solutionSet, archive, populationSize);
+         /* END select mu auf of mu+lambda */		
+	}
+
+	
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    /** Compute how well the population approximates the archive
-     *
-     * @param population
-     * @param archive
-     * @return a sorted double[] where the maximal approximation (best approximation of the
-     *   worstly approximated archive point) is in the first field
-     */
-    public static double[] computeApproximation(Population population, Population archive) {
-        Population archiveFront = null;
-        archiveFront = archive;
-        
-        /* store all the "pop app arc" in the following array:
-         * for each archive point it is stored how well a population point approximates it
-         */
-
-        /* store all minimums of approximations per archive point in this array */
-        double[] results = new double[archiveFront.size()];
-
-        // compute approximation for each non-dominated point of the archive
-        // to find out how well it is approximated by the population points
-        for (int i = 0; i < archiveFront.size(); i++) {
-            Solution s = archiveFront.get(i);   // non-dominated archive-point
-
-            double deltaForThisSolution = Double.MAX_VALUE; //minimize this value
-            for (int j = 0; j < population.size(); j++) {
-                Solution p = population.get(j);
-
-                // compute how an element p of the front(population) approximates an element s of the archive in domain and image
-                double deltaForThisSolutionCurrent = computeApproximationSolutionForSolution(p, s); // population element p, archiveFront element s
-
-                if (deltaForThisSolutionCurrent < deltaForThisSolution) {
-                    deltaForThisSolution = deltaForThisSolutionCurrent;
-                }
-
-            }
-            // save the minimal approximation
-            results[i] = deltaForThisSolution;
-        }
-        Arrays.sort(results);        // biggest approximation is now at the end
-        reverse(results);
-
-        return results;              // maximal approximation is now in results[0];
-    }
-
-
-    public static void reverse(double[] b) {
-       int left  = 0;          // index of leftmost element
-       int right = b.length-1; // index of rightmost element
-
-       while (left < right) {
-          // exchange the left and right elements
-          double temp = b[left];
-          b[left]  = b[right];
-          b[right] = temp;
-
-          // move the bounds toward the center
-          left++;
-          right--;
-       }
-    }
-
-
 
     /** Compute how well a solution p approximates a solution s. This is done by
      * determining the approximation for all decision variables and objective
@@ -158,8 +170,6 @@ public class AGEI extends AbstractEvolutionaryAlgorithm {
 
         return delta;
     }
-
-   
 
     /** Returns the objective variables of a solution
      * @param s
@@ -354,82 +364,6 @@ public class AGEI extends AbstractEvolutionaryAlgorithm {
         	if (!pIsInCurrentPop[i]) population.remove(i);
         }
     }
-
-	@Override
-	protected void iterate() {
-		//Read the params
-		Population solutionSet, offSpringSolutionSet;
-		solutionSet = super.getPopulation();
-		int populationSize = solutionSet.size();
-		
-        ParetoObjectiveComparator cNormal = new ParetoObjectiveComparator();
-		
-		if(this.idealPopulationSize == -1){
-			this.idealPopulationSize = populationSize;
-			setupArchive();
-		}
-		
-		 offSpringSolutionSet = new Population();                          // generate mu solutions
-         Population offSpringSolutionSetForArchive = new Population();    // generate mu solutions
-         Solution[] parents = new Solution[2];
-         Solution[] offSpring = null;
-
-         for (int kk = 0; kk<idealPopulationSize; kk++){                     // loop condition: generate lambda inividuals
-
-        	 //make the crossover and generate a single child
-        	 parents = selection.select(variation.getArity(),population);
-        	 offSpring = variation.evolve(parents);
-
-        	 // FITNESS EVALUATION - note: this does not set fitness, just runs the problem functions
-        	 super.evaluate(offSpring[0]);
-//           problem_.evaluateConstraints(offSpring[0]);
-        	 
-        	 /* START check if new offSpring is not (epsilon) dominated by an archive point */
-        	 boolean newPointIsDominatedByOldArchive = false;
-        	 for (int i = 0; i<archive.size(); i++) {
-        		 /*
-        		  * COMPARE: return -1, or 0, or 1 if solution1 dominates solution2, both are
-        		  *          non-dominated, or solution1 is dominated by solution2, respectively.
-        		  */
-        		 int result = cNormal.compare(archive.get(i), offSpring[0]);
-        		 if (result==-1) {
-        			 // break if an archive point dominates the new point
-        			 newPointIsDominatedByOldArchive = true;
-        			 break;
-        		 }
-        		 if (result==1) {
-        			 // remove archive point if new point dominates that one
-        			 archive.remove(i);
-        			 i--;
-        		 }
-        	 }
-        	 /* END check if new offSpring is not epsilon dominated by an archive point */
-
-
-        	 // define behavior: add offspring to archive
-        	 if (newPointIsDominatedByOldArchive) {
-        		 // forget this point
-        		 continue;
-        	 } else {
-        		 offSpringSolutionSet.add(offSpring[0]);
-        		 offSpringSolutionSetForArchive.add(offSpring[0]);
-        	 }
-
-         }
-         /*END generate lambda invididuals*/
-
-           /* technically important: add all non-dominated points to the archive. */
-//         archive = archive.union(offSpringSolutionSetForArchive);
-           archive.addAll(offSpringSolutionSetForArchive);
-           /* merge population with offSpringSolutionSet */
-//         solutionSet = solutionSet.union(offSpringSolutionSet);              // would it be neccessary to take just the first subfront?
-           solutionSet.addAll(offSpringSolutionSet);
-
-
-         /* START select mu auf of mu+lambda */
-         reducePopulationToSize(solutionSet, archive, populationSize);
-         /* END select mu auf of mu+lambda */		
-	}
 	
 	private void setupArchive() {
 		Population solutionSet = super.getPopulation();
