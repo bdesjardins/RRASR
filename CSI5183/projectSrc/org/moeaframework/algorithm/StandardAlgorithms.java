@@ -148,6 +148,8 @@ public class StandardAlgorithms extends AlgorithmProvider {
 				return newPESA2(typedProperties, problem);
 			} else if (name.equalsIgnoreCase("AGEII")){
 				return newAGEII(typedProperties, problem);
+			}  else if (name.equalsIgnoreCase("AGEI")){
+				return newAGEI(typedProperties, problem);
 			} else {
 				return null;
 			}
@@ -281,7 +283,31 @@ public class StandardAlgorithms extends AlgorithmProvider {
 
 		NondominatedPopulation archive = new NondominatedPopulation();
 
-		return new AGE(problem, population, archive, variation, initialization, selection);
+		return new AGEII(problem, population, archive, variation, initialization, selection);
+	}
+	
+	/**
+	 * Returns a new {@link AGEI} instance.
+	 * 
+	 * @param properties the properties for customizing the new {@code AGEI}
+	 *        instance
+	 * @param problem the problem
+	 * @return a new {@code AGEI} instance
+	 */
+	private Algorithm newAGEI(TypedProperties properties, Problem problem) {
+		int populationSize = (int)properties.getDouble("populationSize", 100);
+
+		Initialization initialization = new RandomInitialization(problem,populationSize);
+
+		NondominatedSortingPopulation population = new NondominatedSortingPopulation();
+
+		Variation variation = OperatorFactory.getInstance().getVariation(null, properties, problem);
+		
+		TournamentSelection selection = new TournamentSelection(2, new ParetoDominanceComparator());
+
+		NondominatedPopulation archive = new NondominatedPopulation();
+
+		return new AGEI(problem, population, archive, variation, initialization, selection);
 	}
 
 	/**

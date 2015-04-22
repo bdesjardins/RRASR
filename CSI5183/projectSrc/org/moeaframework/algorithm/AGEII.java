@@ -6,8 +6,6 @@
  */
 package org.moeaframework.algorithm;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -18,7 +16,6 @@ import org.moeaframework.core.Population;
 import org.moeaframework.core.Problem;
 import org.moeaframework.core.Selection;
 import org.moeaframework.core.Solution;
-import org.moeaframework.core.Variable;
 import org.moeaframework.core.Variation;
 import org.moeaframework.core.comparator.ParetoObjectiveComparator;
 
@@ -33,29 +30,20 @@ import org.moeaframework.core.comparator.ParetoObjectiveComparator;
  * Creator: Markus Wagner (wagner@acrocon.com)
  * Feel free to contact me. There are many gems hidden in this code.
  */
-public class AGE extends AbstractEvolutionaryAlgorithm {
-
-	static boolean debugPrintGlobal = !true;
-	boolean debugPrintAGE = !true;
+public class AGEII extends AbstractEvolutionaryAlgorithm {
 
 	Variation variation;
 	Selection selection;
-
-	/**
-	 * Defines the number of tournaments for creating the mating pool
-	 */
-	public static final int TOURNAMENTS_ROUNDS = 1;
-	/**
-	 * Stores the problem to solve
-	 */
-	//    private Problem problem_;
+	
+	double epsilonGridWidth = 0.5;
+	int idealPopulationSize = -1;
 
 	/**
 	 * Constructor.
 	 * Create a new AGE instance
 	 * @param problem Problem to solve
 	 */
-	public AGE(Problem problem, NondominatedSortingPopulation population,
+	public AGEII(Problem problem, NondominatedSortingPopulation population,
 			NondominatedPopulation archive, Variation variation, Initialization initialization, Selection selection) {
 		super(problem, population, archive, initialization);
 		this.variation = variation;
@@ -73,18 +61,7 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 		}
 		return result;
 	}
-	public static Solution convertSolutionToEpsilonGridVectorCEILING(Solution s, double epsilonGridWidth) {
-		Solution result = new Solution(s.getNumberOfVariables(), s.getNumberOfObjectives());
-		for (int i=0; i<s.getNumberOfObjectives(); i++) {
-			double v = s.getObjective(i);
-			result.setObjective(i, epsilonGridWidth*Math.ceil( v/epsilonGridWidth)  );
-		}
-		for (int j=0; j<s.getNumberOfVariables(); j++){
-			result.setVariable(j, s.getVariable(j));
-		}
-		return result;
-	}
-
+	
 	public static Solution moveEpsilonGridVectorOnceFurtherAway(Solution s, double epsilonGridWidth) {
 		Solution result = new Solution(s.getNumberOfVariables(), s.getNumberOfObjectives());
 		for (int i=0; i<s.getNumberOfObjectives(); i++) {
@@ -106,53 +83,46 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 
 //		QualityIndicator indicators = (QualityIndicator) getInputParameter("indicators"); // this line had to be added (mw)
 //		double epsilonGridWidth = ((Double) getInputParameter("epsilonGridWidth")).doubleValue();
-		double epsilonGridWidth = 0.5; //Default used in the experiments
+//		double epsilonGridWidth = 0.5; //Default used in the experiments  ==== class Variable Now
 
-		Population solutionSet, archive, offSpringSolutionSet;
-		int populationSize;
-		
 		//Read the params
+		Population solutionSet, offSpringSolutionSet;
 		solutionSet = super.getPopulation();
-		populationSize = solutionSet.size();
+		int populationSize = solutionSet.size();
 		
-//		evaluateAll(solutionSet);
-
+		if(this.idealPopulationSize == -1){
+			this.idealPopulationSize = populationSize;
+			setupArchive();
+		}
+	
 
 		/* Initialize the archive with the solutionSet. In subsequent iterations, 
 		 * the newly constructed point will first be added to the archive, and then
 		 * the best mu points out of mu+1 are selected that approximate the new 
 		 * archive best.
 		 */
-//		archive = (Population)DeepCopy.copy(solutionSet);
-		
-		this.archive.addAll(solutionSet);
-
 		/* or: initialise with epsilonboxes, where a point is in the box */
 		boolean useEpsilonBoxesArchive;
-
 		if (epsilonGridWidth==0) useEpsilonBoxesArchive = false;
 		else useEpsilonBoxesArchive = true;
 
-		if (useEpsilonBoxesArchive) {
-			archive = new Population();
-			for (int i = 0; i<populationSize; i++) {
-				Solution converted = convertSolutionToEpsilonGridVectorFLOOR(solutionSet.get(i),epsilonGridWidth);
-				archive.add(converted); 
-			}
-		}
+		
+		//Replaced with setupArchive()
+//		if (useEpsilonBoxesArchive) {
+//			archive = new Population();
+//			for (int i = 0; i<populationSize; i++) {
+//				Solution converted = convertSolutionToEpsilonGridVectorFLOOR(solutionSet.get(i),epsilonGridWidth);
+//				archive.add(converted); 
+//			}
+//		} else {
+//			this.archive.addAll(solutionSet);
+//		}
 
 		ParetoObjectiveComparator cNormal = new ParetoObjectiveComparator();
 
 		//TODO everything before this should be initialized once
 
 		/* START AGE block */
-
-		/* AGE 1. step: generate one new solution */
-		offSpringSolutionSet = new Population();                          // generate mu solutions
-//      SolutionSet offSpringSolutionSetForArchive = new SolutionSet(populationSize);    // generate mu solutions
-		Solution[] parents = new Solution[2];
-		Solution[] offSpring = null;
-
 		boolean thinningAndCrowding = true;
 
 		// population reduction
@@ -190,11 +160,17 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 //			}
 //		}    
 
-/*mu+mu*/   for (int kk = 0; kk<populationSize; kk++){                     		// loop condition: generate lambda inividuals
-//				parents[0] = (Solution) selectionOperator.execute(solutionSet); // carefull! the operator may work on the fitness values (which we did not really have in the beginning)
-//				parents[1] = (Solution) selectionOperator.execute(solutionSet);
 
-//				//make the crossover and generate a single child
+		/* AGE 1. step: generate one new solution */
+		offSpringSolutionSet = new Population(); // generate mu solutions
+		Solution[] parents = new Solution[2];
+		Solution[] offSpring = null;
+			
+		
+		for (int kk = 0; kk<this.idealPopulationSize; kk++){  // loop condition: generate lambda inividuals
+			// carefull! the operator may work on the fitness values (which we did not really have in the beginning)
+
+			//make the crossover and generate a single child
 			parents = selection.select(variation.getArity(),population);
 			offSpring = variation.evolve(parents);
 
@@ -271,7 +247,7 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 		solutionSet.addAll(offSpringSolutionSet);
 
 		/* START select mu auf of mu+lambda */
-		reducePopulationToSize(solutionSet, this.archive, populationSize);
+		reducePopulationToSize(solutionSet, this.archive, this.idealPopulationSize);
 
 		/* END select mu auf of mu+lambda */
 //		if (true) { 
@@ -292,7 +268,6 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 	/// Here follow the important AGE functions. For details, contact wagner@acrocon.com ///////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 	/** Compute how well a solution p approximates a solution s. This is done by
 	 * determining the approximation for all decision variables and objective
 	 * variables and then taking the maximum of these approximations (i.e. the worst).
@@ -301,9 +276,6 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 	 * @return max(all approximations "p app s")
 	 */
 	public static double computeApproximationSolutionForSolution(Solution p, Solution s) {
-		boolean debugPrint = true && debugPrintGlobal;
-		if (debugPrint) System.out.print("computeApproximationSolutionForSolution/2: ");
-
 		double delta = 0; // in order to maximize delta
 
 		/* DV = decision variable, O = objective variable */
@@ -317,34 +289,9 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 		for (int i = 0; i < sOV.length; i++) {
 			temp = pOV[i] - sOV[i];
 			if (temp > delta) delta = temp;
-			if (debugPrint) System.out.printf(temp + " ");
 		}
 
-		if (debugPrint) System.out.print(" maxDelta:" + delta + "\n");
-		//      if (debugPrint) System.out.printf(" maxDelta:%8.5f\n",delta);
 		return delta;
-	}
-
-	/** Returns the decision variables of a solution
-	 * @param s
-	 * @return double[]
-	 */
-	public static double[] solutionDecisionVariablesToDoubleArray(Solution s) {
-		Variable[] varsV = new Variable[s.getNumberOfVariables()];
-
-		for (int i=0; i < varsV.length; i++){
-			varsV[i] = s.getVariable(i);
-		}
-		double[] result = new double[varsV.length];
-		for (int j = 0; j < varsV.length; j++) {
-			try {
-				//				result[j] = varsV[j].getValue();
-				result[j] = s.getObjective(2); // Hard coding TODO
-			} catch (Exception ex) {
-				System.out.println("problem in solutionDecisionVariablesToDoubleArray");
-			}
-		}
-		return result;
 	}
 
 	/** Returns the objective variables of a solution
@@ -360,22 +307,7 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 		return result;
 	}
 
-	/** Prints a double[][] on screen.
-	 * @param a
-	 */
-	public static void printDouble2DArray(double[][] a) {
-		for (double[] row : a) {
-			for (double d : row) {
-				System.out.printf("%8.5f ", d);
-			}
-			System.out.println();
-		}
-	}
-
-
-
-
-	// the followin is based on computeFitnesses/2
+	// the following is based on computeFitnesses/2
 	/** Compute how well the population approximates the archive, see Karl's email from 07.12.2010
 	 *
 	 * @param population
@@ -386,11 +318,6 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 
 		if (population.size()==1) return;
 
-		//        boolean debugPrint = true;
-		boolean debugPrint = true && debugPrintGlobal;
-		boolean debugPrintAdditional = false;
-		if (debugPrint) System.out.println("computeFitnesses/2: ");
-
 		// the following array stores the maximum approximations for which a population point is responsible
 		int[] whichPopPointIsResponsible = new int[archive.size()];
 		int[] whichPopPointIsResponsibleSecondBest = new int[archive.size()];
@@ -398,8 +325,6 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 		Population archiveFront = archive;
 
 		double[] results = new double[archiveFront.size()];
-
-		if (debugPrint) System.out.println("population.size=" + population.size() + " archive.size=" + archive.size() + " front.size=" + archiveFront.size());
 
 		/* store all the "pop app arc" in the following array:
 		 * for each archive point it is stored how well a population point approximates it
@@ -442,11 +367,6 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 			results[i] = deltaForThisSolution;
 			eps1[i] = deltaForThisSolution;
 			eps2[i] = deltaForThisSolutionSecondBest;
-
-			if (debugPrint) {
-				System.out.printf("-deltaForThisSolution: %8.5f ", deltaForThisSolution);
-				System.out.println("(=" + deltaForThisSolution + ")"); // same output as line before, just more precise
-			}
 		}
 
 		// keep track whether some point is still in the population
@@ -474,23 +394,9 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 		}
 
 		int popCounter=population.size();
-		if (debugPrintAdditional) System.out.println("popCounter"+popCounter);
 
 		pIsInCurrentPop[minValIndex] = false;
 		popCounter--;
-		if (debugPrintAdditional) System.out.println("popCounter"+popCounter);
-
-		if (debugPrintAdditional) if (true) {
-			System.out.println("unsorted eps1:    " + Arrays.toString(eps1));
-			System.out.println("responsible:      " + Arrays.toString(whichPopPointIsResponsible));
-			System.out.println("unsorted eps2:    " + Arrays.toString(eps2));
-			System.out.println("responsible:      " + Arrays.toString(whichPopPointIsResponsibleSecondBest));
-			System.out.println("val        :      " + Arrays.toString(val));
-			System.out.println("pIsInCurrentPop:  " + Arrays.toString(pIsInCurrentPop));
-			//            System.out.println("pIsP1a     :      " + Arrays.toString(pIsP1a));
-			System.out.println("minVal="+minVal + " index=" +minValIndex + " population.size()now="+ (population.size()));
-			//            System.out.println("maxAppForPopPoint:" + Arrays.toString(maxAppForPopPoint));
-		}
 
 		while (popCounter > targetSize) {
 			//while (population.size() > targetSize) {
@@ -504,10 +410,7 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 			Iterator it = whichEpsToUpdate.iterator();
 			while (it.hasNext()) {
 				int i = (Integer)it.next();
-				if (debugPrintAdditional) System.out.print(i+" ");
 			}
-			if (debugPrintAdditional) System.out.println("");
-
 
 			it = whichEpsToUpdate.iterator();
 			while (it.hasNext()) {
@@ -547,11 +450,6 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 				results[i] = deltaForThisSolution;
 				eps1[i] = deltaForThisSolution;
 				eps2[i] = deltaForThisSolutionSecondBest;
-
-				if (debugPrint) {
-					System.out.printf("-deltaForThisSolution: %8.5f ", deltaForThisSolution);
-					System.out.println("(=" + deltaForThisSolution + ")"); // same output as line before, just more precise
-				}
 			}
 
 			//now determine the val(p)
@@ -575,147 +473,34 @@ public class AGE extends AbstractEvolutionaryAlgorithm {
 			}
 			//        population.remove(minValIndex);
 			popCounter--;
-			if (debugPrintAdditional) System.out.println("popCounter"+popCounter);
 			pIsInCurrentPop[minValIndex] = false;
-
-			if (debugPrintAdditional) if (true) {
-				System.out.println("unsorted eps1:    " + Arrays.toString(eps1));
-				System.out.println("responsible:      " + Arrays.toString(whichPopPointIsResponsible));
-				System.out.println("unsorted eps2:    " + Arrays.toString(eps2));
-				System.out.println("responsible:      " + Arrays.toString(whichPopPointIsResponsibleSecondBest));
-				System.out.println("val        :      " + Arrays.toString(val));
-				System.out.println("pIsInCurrentPop:  " + Arrays.toString(pIsInCurrentPop));
-				//            System.out.println("pIsP1a     :      " + Arrays.toString(pIsP1a));
-				System.out.println("minVal="+minVal + " index=" +minValIndex + " population.size()now="+ (population.size()));
-				//            System.out.println("maxAppForPopPoint:" + Arrays.toString(maxAppForPopPoint));
-			}
 		}
 
 
 		// form new population:
 		for (int i = pIsInCurrentPop.length - 1; i>=0; i--) {
 			if (!pIsInCurrentPop[i]) population.remove(i);
-			if (debugPrintAdditional) System.out.println("population.size()"+population.size());
 		}
 	} //end
+	
+	private void setupArchive() {
+		Population solutionSet = super.getPopulation();
+		
+		/* or: initialise with epsilonboxes, where a point is in the box */
+		boolean useEpsilonBoxesArchive;
 
-	////////////////////////////////// START OF HELPER FUNCTIONS (used not by AGE directly) //////////////////////
+		if (epsilonGridWidth==0) useEpsilonBoxesArchive = false;
+		else useEpsilonBoxesArchive = true;
 
-	//
-	//    public static boolean lexicographicallyLessOrEqual(double[] a, double[] b) {
-	//        int min = Math.min(a.length, b.length);
-	//        boolean debugPrint = false;
-	//        if (debugPrint) System.out.println(Arrays.toString(a));
-	//        if (debugPrint) System.out.println(Arrays.toString(b));
-	//        for (int i = 0; i<min; i++) {
-	//            if (a[i]<b[i]) {
-	////                System.out.println(i);
-	//                if (debugPrint) System.out.println("lex<"+i);
-	//                return true;
-	//            }
-	//            else if (a[i]==b[i]) {
-	//                continue;
-	//            } else {
-	//                if (debugPrint) System.out.println("lex>"+i);
-	//                return false;
-	//            }
-	//        }
-	//        if (debugPrint) System.out.println("lex=");
-	//        return true;
-	//    }
-	//
-	/** Compute how well the population approximates the archive
-	 *
-	 * @param population
-	 * @param archive
-	 * @return a sorted double[] where the maximal approximation (best approximation of the
-	 *   worst approximated archive point) is in the first field
-	 */
-	public static double[] computeApproximation(Population population, Population archive) {
-		boolean debugPrint = true && debugPrintGlobal;
-		if (debugPrint) System.out.println("computeApproximation/2: ");
-
-		Population archiveFront = archive;
-
-		if (debugPrint) System.out.println("population.size=" + population.size() + " archive.size=" + archive.size() + " front.size=" + archiveFront.size());
-
-		/* store all minimums of approximations per archive point in this array */
-		double[] results = new double[archiveFront.size()];
-
-		// compute approximation for each non-dominated point of the archive
-		// to find out how well it is approximated by the population points
-		for (int i = 0; i < archiveFront.size(); i++) {
-			Solution s = archiveFront.get(i);   // non-dominated archive-point
-
-			double deltaForThisSolution = Double.MAX_VALUE; //minimize this value
-			for (int j = 0; j < population.size(); j++) {
-				Solution p = population.get(j);
-
-				// compute how an element p of the front(population) approximates an element s of the archive in domain and image
-				double deltaForThisSolutionCurrent = computeApproximationSolutionForSolution(p, s); // population element p, archiveFront element s
-
-				if (deltaForThisSolutionCurrent < deltaForThisSolution) {
-					deltaForThisSolution = deltaForThisSolutionCurrent;
-				}
-
+		if (useEpsilonBoxesArchive) {
+			for (int i = 0; i<this.idealPopulationSize; i++) {
+				Solution converted = convertSolutionToEpsilonGridVectorFLOOR(solutionSet.get(i),epsilonGridWidth);
+				archive.add(converted); 
 			}
-
-			// save the minimal approximation
-			results[i] = deltaForThisSolution;
-
-			if (debugPrint) {
-				System.out.printf("-deltaForThisSolution: %8.5f ", deltaForThisSolution);
-				System.out.println("(=" + deltaForThisSolution + ")"); // same output as line before, just more precise
-			}
+		} else {
+			this.archive.addAll(solutionSet);
 		}
-
-		if (debugPrint) System.out.println("sorted deltas: " + Arrays.toString(results));
-
-		Arrays.sort(results);        // biggest approximation is now at the end
-		//        ArrayUtils.reverse(results); // biggest approximation is now at the beginning
-		reverse(results);
-
-		if (debugPrint) System.out.println("->deltaForThisSolutionSet(approximation): " + results[0]);
-
-		return results;              // maximal approximation is now in results[0];
+		
 	}
-
-	public static void reverse(double[] b) {
-		int left  = 0;          // index of leftmost element
-		int right = b.length-1; // index of rightmost element
-
-		while (left < right) {
-			// exchange the left and right elements
-			double temp = b[left];
-			b[left]  = b[right];
-			b[right] = temp;
-
-			// move the bounds toward the center
-			left++;
-			right--;
-		}
-	}
-
-
-
-	//
-	//    /** Checks whether two solutions contain identical decision variable values
-	//     *
-	//     * @param a
-	//     * @param b
-	//     * @return
-	//     */
-	//    public static boolean identicalSolutions(Solution a, Solution b) {
-	//        Variable[] aVars = a.getDecisionVariables();
-	//        Variable[] bVars = b.getDecisionVariables();
-	//        /* if at least one variable value is different: stop the checking
-	//         * and return false, else return true
-	//         */
-	//        for (int i = 0; i < aVars.length; i++) {
-	//            if (aVars[i] != bVars[i]) return false;
-	//        }
-	//        return true;
-	//    }
-
-	////////////////////////////////// END OF HELPER FUNCTIONS (used not by AGE directly) //////////////////////
+	
 }

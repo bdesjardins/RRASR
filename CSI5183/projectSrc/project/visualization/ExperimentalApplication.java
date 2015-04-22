@@ -423,11 +423,14 @@ public class ExperimentalApplication {
 		final JCheckBox checkSPEA2 = new JCheckBox("SPEA2");
 		checkSPEA2.setFont(new Font("Tahoma", Font.BOLD, 12));
 
-		final JCheckBox checkPAES = new JCheckBox("PAES");
-		checkPAES.setFont(new Font("Tahoma", Font.BOLD, 12));
+		final JCheckBox checkAGEII = new JCheckBox("AGEII");
+		checkAGEII.setFont(new Font("Tahoma", Font.BOLD, 12));
 		
 		final JCheckBox checkPESA2 = new JCheckBox("PESA2");
 		checkPESA2.setFont(new Font("Tahoma", Font.BOLD, 12));
+		
+		final JCheckBox checkAGEI = new JCheckBox("AGEI");
+		checkAGEI.setFont(new Font("Tahoma", Font.BOLD, 12));
 
 		GroupLayout gl_parametersPanel = new GroupLayout(parametersPanel);
 		gl_parametersPanel.setHorizontalGroup(
@@ -464,7 +467,8 @@ public class ExperimentalApplication {
 								.addComponent(lblOfGenerations, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 								.addComponent(generationsField, GroupLayout.PREFERRED_SIZE, 152, GroupLayout.PREFERRED_SIZE)
 								.addComponent(checkSPEA2, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
-								.addComponent(checkPAES, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE))))
+								.addComponent(checkAGEII, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE)
+								.addComponent(checkAGEI, Alignment.LEADING, GroupLayout.PREFERRED_SIZE, 69, GroupLayout.PREFERRED_SIZE))))
 					.addContainerGap())
 				.addGroup(gl_parametersPanel.createSequentialGroup()
 					.addGap(15)
@@ -491,9 +495,11 @@ public class ExperimentalApplication {
 						.addGroup(gl_parametersPanel.createSequentialGroup()
 							.addComponent(checkSPEA2)
 							.addPreferredGap(ComponentPlacement.UNRELATED)
-							.addComponent(checkPAES)))
+							.addComponent(checkAGEII)))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
-					.addComponent(checkPESA2)
+					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.LEADING)
+						.addComponent(checkPESA2)
+						.addComponent(checkAGEI))
 					.addGap(14)
 					.addGroup(gl_parametersPanel.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblPopulationSize)
@@ -648,6 +654,7 @@ public class ExperimentalApplication {
 				algorithmSpinner.setSelectedIndex(0);
 				selectedAccumulator = accumulators.get(0);
 
+				genSlider.setValue(1);
 				genSlider.setMinimum(1);
 				genSlider.setMaximum(generations);
 				genSlider.setValue(generations);
@@ -689,7 +696,7 @@ public class ExperimentalApplication {
 					loadReference();
 					
 					runButton.setEnabled(checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() 
-							|| checkPAES.isSelected() || checkPESA2.isSelected());
+							|| checkAGEII.isSelected() || checkAGEI.isSelected() || checkPESA2.isSelected());
 				}				
 			}			
 		});
@@ -768,8 +775,8 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("NSGAII");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected() 
-						|| checkPESA2.isSelected())	&& instance != null);
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkAGEII.isSelected()
+						|| checkAGEI.isSelected() || checkPESA2.isSelected())	&& instance != null);
 			}
 		});
 		
@@ -781,8 +788,8 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("NSGAIII");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected() 
-						|| checkPESA2.isSelected())	&& instance != null);
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkAGEII.isSelected() 
+						|| checkAGEI.isSelected() || checkPESA2.isSelected())	&& instance != null);
 			}
 		});
 
@@ -794,21 +801,34 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("SPEA2");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected() 
-						|| checkPESA2.isSelected())	&& instance != null);
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkAGEII.isSelected() 
+						|| checkAGEI.isSelected() || checkPESA2.isSelected())	&& instance != null);
 			}
 		});
 
-		checkPAES.addActionListener(new ActionListener() {
+		checkAGEII.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (checkPAES.isSelected()) {
-					algorithmsToRun.add("PAES");
+				if (checkAGEII.isSelected()) {
+					algorithmsToRun.add("AGEII");
 				} else {
-					algorithmsToRun.remove("PAES");
+					algorithmsToRun.remove("AGEII");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected() 
-						|| checkPESA2.isSelected())	&& instance != null);
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkAGEII.isSelected() 
+						|| checkAGEI.isSelected() || checkPESA2.isSelected())	&& instance != null);
+			}
+		});
+		
+		checkAGEI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (checkAGEI.isSelected()) {
+					algorithmsToRun.add("AGEI");
+				} else {
+					algorithmsToRun.remove("AGEI");
+				}
+				
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkAGEII.isSelected() 
+						|| checkAGEI.isSelected() || checkPESA2.isSelected())	&& instance != null);
 			}
 		});
 		
@@ -820,8 +840,8 @@ public class ExperimentalApplication {
 					algorithmsToRun.remove("PESA2");
 				}
 				
-				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkPAES.isSelected() 
-						|| checkPESA2.isSelected())	&& instance != null);
+				runButton.setEnabled((checkNSGAII.isSelected() || checkNSGAIII.isSelected() || checkSPEA2.isSelected() || checkAGEII.isSelected() 
+						|| checkAGEI.isSelected() || checkPESA2.isSelected())	&& instance != null);
 			}
 		});
 		
@@ -843,7 +863,10 @@ public class ExperimentalApplication {
 	}
 
 	@SuppressWarnings("unused")
-	private void runExperiment() {		
+	private void runExperiment() {
+		accumulators = new ArrayList<Accumulator>();
+		
+		
 		File referenceFile = null;
 
 		double xover = Double.parseDouble(xoverField.getText());
@@ -933,6 +956,8 @@ public class ExperimentalApplication {
 
 
 			}
+			System.out.println(algorithmsToRun.get(i) + " - " + instrumenter.getLastAccumulator().size("NFE"));
+			
 			accumulators.add(instrumenter.getLastAccumulator());
 		}
 	}

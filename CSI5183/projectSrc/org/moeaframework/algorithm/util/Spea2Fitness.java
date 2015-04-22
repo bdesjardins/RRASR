@@ -136,7 +136,7 @@ public class Spea2Fitness {
 			size = solutionSet_.size();
 		}
 
-		// Create a new auxiliar population for no alter the original population
+		// Create a new auxiliary population for no alter the original population
 		Population aux = new Population();
 
 		int i = 0;

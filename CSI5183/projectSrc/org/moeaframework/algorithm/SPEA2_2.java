@@ -1,10 +1,6 @@
 package org.moeaframework.algorithm;
 
-import jmetal.core.SolutionSet;
-import jmetal.metaheuristics.spea2.SPEA2;
-
 import org.moeaframework.algorithm.util.Spea2Fitness;
-import org.moeaframework.core.EpsilonBoxDominanceArchive;
 import org.moeaframework.core.Initialization;
 import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.NondominatedSortingPopulation;
