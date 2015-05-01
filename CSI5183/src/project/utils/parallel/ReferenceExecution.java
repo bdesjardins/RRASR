@@ -1,4 +1,4 @@
-package project.utils;
+package project.utils.parallel;
 
 import java.io.File;
 import java.io.IOException;

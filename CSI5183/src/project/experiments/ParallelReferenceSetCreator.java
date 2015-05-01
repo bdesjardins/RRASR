@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import project.utils.ReferenceExecution;
+import project.utils.parallel.ReferenceExecution;
 
 public class ParallelReferenceSetCreator {
 
@@ -45,10 +45,7 @@ public class ParallelReferenceSetCreator {
 				if (!listOfFiles[j].isFile()) {
 					continue;
 				}
-				counter++;		
-//				createApproximationSets(listOfFiles[j], runs);
-//				mergeApproximationSets(directory + "/temp", directory + "/" + problems[i] + "/References/" + listOfFiles[j].getName() + ".ref");
-				
+				counter++;						
 				cservice.submit(new ReferenceExecution(listOfFiles[j], runs, 
 						(directory + "/temp"), (directory + "/" + problems[i] + "/References/" + listOfFiles[j].getName() + ".ref")));
 			}

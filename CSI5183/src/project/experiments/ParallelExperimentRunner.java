@@ -11,8 +11,8 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import project.utils.ExperimentExecution;
-import project.utils.ParallelCSVPrinter;
+import project.utils.parallel.ExperimentExecution;
+import project.utils.parallel.ParallelCSVPrinter;
 
 public class ParallelExperimentRunner {
 
@@ -74,14 +74,16 @@ public class ParallelExperimentRunner {
 			CompletionService <Object> cservice = new ExecutorCompletionService <Object> (eservice);
 			
 			//TODO after parametric tuning, add specific values for each algorithm
-			int popSize = 200;
-			int generations = 500;
+			int popSize = 300;
+			int generations = 450;
 			double xover = 0.75;
-			double mutation = 0.25;
+			double mutation = 0.15;
 
+			int counter = 0;
 			for (int instCount = 0; instCount < instanceFiles.size(); instCount++) {
 				for (int alg = 0; alg < algorithms.length; alg++) {
 					for(int count = 1; count <= runs; count++){
+						counter++;
 						cservice.submit(new ExperimentExecution(instanceFiles.get(instCount), referenceFiles.get(instCount), 
 								printer, algorithms[alg], count, popSize, generations, xover, mutation));
 					}
@@ -89,7 +91,7 @@ public class ParallelExperimentRunner {
 			}
 			
 			Object taskResult;
-			for(int index = 0; index < instanceFiles.size()* algorithms.length*runs; index++) {
+			for(int index = 0; index < counter; index++) {
 				try {
 					taskResult = cservice.take().get();
 					System.out.println(taskResult);

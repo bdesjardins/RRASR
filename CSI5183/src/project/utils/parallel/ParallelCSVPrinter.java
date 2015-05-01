@@ -1,4 +1,4 @@
-package project.utils;
+package project.utils.parallel;
 
 import java.io.FileWriter;
 import java.io.IOException;

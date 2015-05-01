@@ -1,0 +1,5 @@
+maxEvaluations 10000 200000
+populationSize 50 500
+swap.rate 0.0 1.0
+insertion.rate 0.0 1.0
+pmx.rate 0.0 1.0
