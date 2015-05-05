@@ -681,7 +681,7 @@ public class SobolAnalysis extends CommandLineUtility {
 	 * @throws Exception if an error occurred
 	 */
 	public static void main(String[] args) throws Exception {
-		String input = "Tuning/Results/NSGAII_200n_10s_15d_instance.avg"; //*.average File
+		String input = "Tuning/Results/NSGAIII_200n_10s_15d_instance.avg"; //*.average File
 		args = new String[]{"--parameterFile","Tuning/parameters.txt","--input",input,"--metric","0"};
 		new SobolAnalysis().start(args);
 	}

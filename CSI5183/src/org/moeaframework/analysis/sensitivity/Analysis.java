@@ -454,7 +454,7 @@ public class Analysis extends CommandLineUtility {
 	 * @throws Exception if an error occurred
 	 */
 	public static void main(String[] args) throws Exception {
-		String input = "Tuning/Results/NSGAII_200n_10s_15d_instance.avg"; //*.average File
+		String input = "Tuning/Results/AGEI_200n_10s_15d_instance.avg"; //*.average File
 		args = new String[]{"--parameterFile","Tuning/parameters.txt","--parameters","Tuning/parameterList.txt",
 				"--metric","0","--threshold","0.8","--efficiency",input, "--hypervolume", "0.75"};
 		new Analysis().start(args);
