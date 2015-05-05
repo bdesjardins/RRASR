@@ -40,7 +40,7 @@ public class VectorSelector {
 		loadParameters();
 	}
 	
-	public void getVectors(){
+	public void getVectors(){		
 		for(File file: resultsFiles){
 			if(file.isDirectory()){
 				continue;
@@ -83,10 +83,10 @@ public class VectorSelector {
 				String[] values = line.split(" ");
 				
 				hypervolume.put(counter, Double.parseDouble(values[0]));
-				genDistance.put(counter, Double.parseDouble(values[1]));
-				invGenDistance.put(counter, Double.parseDouble(values[2]));
+				genDistance.put(counter, -1*Double.parseDouble(values[1]));
+				invGenDistance.put(counter, -1*Double.parseDouble(values[2]));
 				spacing.put(counter, Double.parseDouble(values[3]));
-				maxParetoError.put(counter, Double.parseDouble(values[5]));
+				maxParetoError.put(counter, -1*Double.parseDouble(values[5]));
 				counter++;
 			}			
 		} catch (FileNotFoundException e) {
@@ -139,16 +139,20 @@ public class VectorSelector {
 		
 		String[] paramValues = parameterVectors[bestVector].split(" ");
 		
-		String[] info = new String[9];
+		String[] info = new String[12];
 		info[0] = "Vector: " + (bestVector+1);
 		info[1] = "Rank: "+ value;
-		info[2] = "-----------------------------------";
-		info[3] = "Max Evaluations: " + paramValues[0];
-		info[4] = "Population Size: " + paramValues[1];
-		info[5] = "Swap Rate: " + paramValues[2];
-		info[6] = "Insertion Rate: " + paramValues[3];
-		info[7] = "Crossover Rate: " + paramValues[4];
-		info[8] = "-----------------------------------";
+		info[2] = "-------------------------------------";
+		info[3] = "HV	GD	IGD	SPC	MPE";
+		info[4] =  rankArray[bestVector][0] + "	" + rankArray[bestVector][1] + "	" + 
+				rankArray[bestVector][2] + "	" + rankArray[bestVector][3] + "	" + rankArray[bestVector][4];
+		info[5] = "-------------------------------------";
+		info[6] = "Max Evaluations: " + paramValues[0];
+		info[7] = "Population Size: " + paramValues[1];
+		info[8] = "Swap Rate: " + paramValues[2];
+		info[9] = "Insertion Rate: " + paramValues[3];
+		info[10] = "Crossover Rate: " + paramValues[4];
+		info[11] = "-------------------------------------";
 		
 		return info;
 	}
@@ -172,6 +176,7 @@ public class VectorSelector {
 		this.parameterVectors = vectors.toArray(new String[0]);
 	}
 
+	//Sorts descending
 	//Use iterator on KeySet from resulting map
 	
 	public static <K extends Comparable,V extends Comparable> Map<K,V> sortByValues(Map<K,V> map){
@@ -181,7 +186,7 @@ public class VectorSelector {
 
 			@Override
 			public int compare(Entry<K, V> o1, Entry<K, V> o2) {
-				return o1.getValue().compareTo(o2.getValue());
+				return o2.getValue().compareTo(o1.getValue());
 			}
 		});
 
