@@ -52,7 +52,6 @@ public class TuningExecution implements Callable {
 		OutputWriter output = null;
 		PRNG_local random = new PRNG_local();
 		
-		//TODO
 		File referenceFile = new File(instanceFile.getParentFile().getPath() + "/References/" + instanceFile.getName() + ".ref");
 
 		// open the resources and begin processing

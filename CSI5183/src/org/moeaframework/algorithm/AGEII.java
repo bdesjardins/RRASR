@@ -120,8 +120,6 @@ public class AGEII extends AbstractEvolutionaryAlgorithm {
 
 		ParetoObjectiveComparator cNormal = new ParetoObjectiveComparator();
 
-		//TODO everything before this should be initialized once
-
 		/* START AGE block */
 		boolean thinningAndCrowding = true;
 

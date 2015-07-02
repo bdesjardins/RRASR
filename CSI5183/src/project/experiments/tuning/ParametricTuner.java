@@ -17,10 +17,10 @@ import project.utils.parallel.TuningExecution;
 public class ParametricTuner {
 	
 	public static void main(String[] args){
-		String[] algorithms = new String[]{"NSGAII","NSGAIII","SPEA2","PESA2","AGEI","AGEII"}; //TODO
-//		String[] algorithms = new String[]{"NSGAII"};
+		String[] algorithms = new String[]{"NSGAII","NSGAIII","SPEA2","PESA2","AGEI","AGEII"};
+//		String[] algorithms = new String[]{"NSGAII","PESA2"};
 		File tuningDir = new File("Tuning/Instances");
-		int runs = 10;
+		int runs = 15;
 		
 		int nrOfProcessors = Runtime.getRuntime().availableProcessors();
 		ExecutorService eservice = Executors.newFixedThreadPool(nrOfProcessors);
@@ -37,6 +37,8 @@ public class ParametricTuner {
 		} 
 		
 		File inputFile = new File("Tuning/parameterList.txt"); //File containing parameter vectors
+		
+		System.out.println("Starting!");
 		
 		int counter = 0;		
 		for(String algorithm : algorithms){	
@@ -76,10 +78,21 @@ public class ParametricTuner {
 			}
 		}
 		
-		eservice = Executors.newFixedThreadPool(nrOfProcessors);
-		cservice = new ExecutorCompletionService <Object> (eservice);
+		getAvgs(algorithms);
 		
-		counter = 0;
+		long afterTime = System.currentTimeMillis();
+
+		System.out.println();
+		System.out.println("Total Time Elapsed: " + (afterTime-beforeTime)/1000 + "s");
+		System.exit(0);
+	}
+	
+	public static void getAvgs(String[] algorithms){
+		int nrOfProcessors = Runtime.getRuntime().availableProcessors();
+		ExecutorService eservice = Executors.newFixedThreadPool(nrOfProcessors);
+		CompletionService <Object> cservice = new ExecutorCompletionService <Object> (eservice);
+		
+		int counter = 0;
 		for(String algorithm : algorithms){
 			File algFile = new File("Tuning/Results/" + algorithm);
 			
@@ -92,8 +105,9 @@ public class ParametricTuner {
 		//wait for parallel actions to complete	
 		for(int index = 0; index < counter; index++) {
 			try {
-				taskResult = cservice.take().get();
-				System.out.println(taskResult);
+				File dataFile = (File) cservice.take().get();
+				System.out.println("Analyzed: " + dataFile.getName());
+//				org.apache.commons.io.FileUtils.deleteQuietly(dataFile);
 			}
 			catch (InterruptedException e) {
 				e.printStackTrace();
@@ -102,11 +116,5 @@ public class ParametricTuner {
 				e.printStackTrace();
 			}
 		}
-		
-		long afterTime = System.currentTimeMillis();
-
-		System.out.println();
-		System.out.println("Total Time Elapsed: " + (afterTime-beforeTime)/1000 + "s");
-		System.exit(0);
 	}
 }

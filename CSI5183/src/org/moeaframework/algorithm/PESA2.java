@@ -54,7 +54,6 @@ public class PESA2 extends AbstractEvolutionaryAlgorithm {
 
 	@Override
 	protected void iterate() {
-		// TODO Auto-generated method stub
 		Population population = getPopulation();
 		int populationSize = population.size();
 

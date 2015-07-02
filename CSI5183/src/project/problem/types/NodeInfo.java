@@ -4,6 +4,7 @@ public class NodeInfo {
 	
 	private int activeDegree;
 	private int demand;
+	private double score;
 	
 	private Coordinate location;
 	private double battery;
@@ -20,6 +21,13 @@ public class NodeInfo {
 		this.location = location;
 		this.battery = battery;
 		this.activeDegree=degree;
+	}
+	
+	public NodeInfo(int demand, Coordinate location, double battery, double score) {
+		this.demand = demand;
+		this.location = location;
+		this.battery = battery;
+		this.setScore(score);
 	}
 	
 	public int getDegree() {
@@ -40,5 +48,13 @@ public class NodeInfo {
 	
 	public double getBattery() {
 		return this.battery;
+	}
+
+	public double getScore() {
+		return score;
+	}
+
+	public void setScore(double score) {
+		this.score = score;
 	}
 }

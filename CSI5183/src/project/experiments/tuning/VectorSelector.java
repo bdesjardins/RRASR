@@ -57,6 +57,16 @@ public class VectorSelector {
 		}
 	}
 	
+	public Double[] getVectorRanks(){
+		Double[] ranks = new Double[hypervolume.size()];
+		
+		for(int i = 0; i < ranks.length; i++){
+			ranks[i] = rankArray[i][5];
+		}
+		
+		return ranks;
+	}
+	
 	private String[] findBest(File result){
 		hypervolume = new HashMap<Integer, Double>();
 		genDistance = new HashMap<Integer, Double>();
@@ -102,22 +112,56 @@ public class VectorSelector {
 		invGenDistance = sortByValues(invGenDistance);
 		spacing = sortByValues(spacing);
 		maxParetoError = sortByValues(maxParetoError);
-		
-		
-		
+	
 	    Integer[] hypervolume_key = hypervolume.keySet().toArray(new Integer[0]);
 		Integer[] genDistance_key = genDistance.keySet().toArray(new Integer[0]);
 		Integer[] invGenDistance_key = invGenDistance.keySet().toArray(new Integer[0]);
 		Integer[] spacing_key = spacing.keySet().toArray(new Integer[0]);
 		Integer[] maxParetoError_key = maxParetoError.keySet().toArray(new Integer[0]);
 		
+		//These are to handle ties. The rank for all the same value must be the same to ensure fairness
+		int hv_rank = 1;
+		int gd_rank = 1;
+		int igd_rank = 1;
+		int sp_rank = 1;
+		int mpe_rank = 1;
+		
+		double hv_last = hypervolume.get(hypervolume_key[0]);
+		double gd_last = genDistance.get(genDistance_key[0]);
+		double igd_last = invGenDistance.get(invGenDistance_key[0]);
+		double sp_last = spacing.get(spacing_key[0]);
+		double mpe_last = maxParetoError.get(maxParetoError_key[0]);
+		
+		
 		//Fill the ranks
 		for(int i = 0; i < hypervolume_key.length; i++){
-			rankArray[hypervolume_key[i]][0] = i+1;
-			rankArray[genDistance_key[i]][1] = i+1;
-			rankArray[invGenDistance_key[i]][2] = i+1;
-			rankArray[spacing_key[i]][3] = i+1;
-			rankArray[maxParetoError_key[i]][4] = i+1;
+			if (hypervolume.get(hypervolume_key[i]) < hv_last){
+				hv_rank = i+1;
+			}
+			if (genDistance.get(genDistance_key[i]) < gd_last){
+				gd_rank = i+1;
+			}
+			if (invGenDistance.get(invGenDistance_key[i]) < igd_last){
+				igd_rank = i+1;
+			}
+			if (spacing.get(spacing_key[i]) < sp_last){
+				sp_rank = i+1;
+			}
+			if (maxParetoError.get(maxParetoError_key[i]) < mpe_last){
+				mpe_rank = i+1;
+			}			
+			
+			rankArray[hypervolume_key[i]][0] = hv_rank;
+			rankArray[genDistance_key[i]][1] = gd_rank;
+			rankArray[invGenDistance_key[i]][2] = igd_rank;
+			rankArray[spacing_key[i]][3] = sp_rank;
+			rankArray[maxParetoError_key[i]][4] = mpe_rank;
+			
+			hv_last = hypervolume.get(hypervolume_key[i]);
+			gd_last = genDistance.get(genDistance_key[i]);
+			igd_last = invGenDistance.get(invGenDistance_key[i]);
+			sp_last = spacing.get(spacing_key[i]);
+			mpe_last = maxParetoError.get(maxParetoError_key[i]);
 		}
 		
 		//Average the ranks

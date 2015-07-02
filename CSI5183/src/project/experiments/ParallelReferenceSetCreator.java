@@ -15,7 +15,7 @@ public class ParallelReferenceSetCreator {
 	public static void main(String[] args) {
 		Scanner input = new Scanner(System.in);
 		
-		System.out.println("Please input the desired number of runs:");		
+		System.out.println("Please input the desired number of runs:");	//30 runs	
 		int runs = input.nextInt();
 		input.close();
 		System.out.println("Starting!");
@@ -25,6 +25,8 @@ public class ParallelReferenceSetCreator {
 		String directory = "Instances";
 		
 		String[] problems = new String[]{"Nodes","Distribution","Sparsity"};
+//		String[] problems = new String[]{"Nodes","Distribution","Sparsity","Test"};
+//		String[] problems = new String[]{"Test"};
 		
 		int nrOfProcessors = Runtime.getRuntime().availableProcessors();
 		ExecutorService eservice = Executors.newFixedThreadPool(nrOfProcessors);

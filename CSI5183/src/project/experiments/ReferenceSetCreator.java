@@ -125,7 +125,6 @@ public class ReferenceSetCreator {
 				}
 			}
 		} catch (IOException e) {
-			//TODO Do nothing?
 		}
 
 		File output = new File(destination);

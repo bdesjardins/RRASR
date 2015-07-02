@@ -14,7 +14,6 @@ public class InstanceGenerator {
 		int areaSizeMax = 500;
 
 		int sensingRadius = 20;
-		int communicationRadius = 2*sensingRadius;
 
 		/*Default Values:
 		 * 
@@ -33,63 +32,73 @@ public class InstanceGenerator {
 				375,400,425,450,475,500,525,550,575,600,
 				625,650,675,700,750,800,850,900,950,1000
 				}; //50 Entries
+		
+		long before = System.currentTimeMillis();
+		ActiveNetwork activeNet = new ActiveNetwork(areaSizeMin, areaSizeMax, sensingRadius);
+		System.out.println("ActiveNetwork: " + (System.currentTimeMillis()-before)/1000 + "s");
 
+//TESTING
+//		before = System.currentTimeMillis();
+//		try {
+//			String directory = directoryRoot + "/Test";
+//			generateInstance(areaSizeMax, 502, defaultSparsity, defaultHoles, directory, sensingRadius, activeNet);
+//		} catch (FileNotFoundException e1) {
+//			e1.printStackTrace();
+//		} finally {
+//			System.out.println("Done: "+ (System.currentTimeMillis()-before)/1000 + "s");
+//			System.exit(0);
+//		}
+//		--------------------------------------------------
+		
 
-		//TESTING
-		//		try {
-		//			String directory = directoryRoot + "/Old";
-		//			generateInstance(areaSizeMin, areaSizeMax, defaultNodes, defaultSparsity, defaultHoles, directory, sensingRadius, communicationRadius);
-		//		} catch (FileNotFoundException e1) {
-		//			// TODO Auto-generated catch block
-		//			e1.printStackTrace();
-		//		}
-		//--------------------------------------------------
 
 		String directory = directoryRoot + "/Nodes";
-		for (int n = 0; n < numberOfNodes.length; n++) {
-			try {
-				generateInstance(areaSizeMin, areaSizeMax, numberOfNodes[n], defaultSparsity, defaultHoles, directory, sensingRadius, communicationRadius);
-			} catch (FileNotFoundException e) {
-				System.out.println("Directory not found");
-				System.exit(0);
-			}
-		}
+//		for (int n = 0; n < numberOfNodes.length; n++) {
+//			try {
+//				generateInstance(areaSizeMax, numberOfNodes[n], defaultSparsity, defaultHoles, directory, sensingRadius, activeNet);
+//			} catch (FileNotFoundException e) {
+//				System.out.println("Directory not found");
+//				System.exit(0);
+//			}
+//		}
 
 		directory = directoryRoot + "/Distribution";
 
 		for (double n = 1; n <= 50; n++) {
 			try {
-				generateInstance(areaSizeMin, areaSizeMax, defaultNodes, defaultSparsity, n/100, directory, sensingRadius, communicationRadius);
+				generateInstance(areaSizeMax, defaultNodes, defaultSparsity, n/100, directory, sensingRadius, activeNet);
 			} catch (FileNotFoundException e) {
 				System.out.println("Directory not found");
 				System.exit(0);
 			}
 		}
-		directory = directoryRoot + "/Sparsity";
-
-		for (int n = 1; n <= 10; n++) {
-			try {
-				generateInstance(areaSizeMin, areaSizeMax, defaultNodes, n, defaultHoles, directory, sensingRadius, communicationRadius);
-			} catch (FileNotFoundException e) {
-				System.out.println("Directory not found");
-				System.exit(0);
-			}
-		}
+//		directory = directoryRoot + "/Sparsity";
+//
+//		for (int n = 1; n <= 10; n++) {
+//			try {
+//				generateInstance(areaSizeMax, defaultNodes, n, defaultHoles, directory, sensingRadius,  activeNet);
+//			} catch (FileNotFoundException e) {
+//				System.out.println("Directory not found");
+//				System.exit(0);
+//			}
+//		}
 
 		System.out.println("Done!");		
 	}
 
-	private static void generateInstance(int areaSizeMin, int areaSizeMax, int n, int sparsity, double deliveryPerPickup, String directory, int sensingRadius, int communicationRadius) 
+	private static void generateInstance(int areaSizeMax, int numNodes, int sparsity, double deliveryPerPickup, String directory, int sensingRadius, ActiveNetwork activeNet) 
 			throws FileNotFoundException{
-
-		String fileName = directory + "/" + n + "n_" + sparsity + "s_" + (int) (deliveryPerPickup*100) + "d_instance.tsp";
+		
+		String fileName = directory + "/" + numNodes + "n_" + sparsity + "s_" + Math.round((float)deliveryPerPickup*100) + "d_instance.tsp";
 		File instance = new File(fileName);
+		
+		int communicationRadius = sensingRadius * 2;
 
 		PrintWriter writer = new PrintWriter(instance);
 
 		writer.println("NAME: " + fileName);
 		writer.println("COMMENT: Ben Desjardins (bdesj038@uottawa.ca)");
-		writer.println("DIMENSION: " + n);
+		writer.println("DIMENSION: " + numNodes);
 		writer.println("SPARCITY: " + sparsity);
 		writer.println("%HOLES: " + deliveryPerPickup*100 + "%");
 		writer.println("EDGE_WEIGHT_TYPE: EUC_2D");
@@ -103,8 +112,8 @@ public class InstanceGenerator {
 
 		//		InstanceNode[] nodes = generateNodes2(areaSizeMin, areaSizeMax, n, deliveryPerPickup, sparcity);
 
-		InstanceNode[] nodes = max_dpa(Math.round(Math.round(n - n*deliveryPerPickup))-1, sparsity, areaSizeMax, sparsity+3, 1, communicationRadius);
-
+		InstanceNode[] nodes = max_dpa(Math.round(Math.round(numNodes - numNodes*deliveryPerPickup))-1, sparsity, areaSizeMax, sparsity+3, 1, communicationRadius);
+		
 		for (int i = 0; i < nodes.length; i++) {
 			writer.println(nodes[i].toString());
 		}
@@ -112,19 +121,19 @@ public class InstanceGenerator {
 		writer.println("EODATA");
 		writer.println("NODE\tX_LOC\tY_LOC\tDEMAND\tDEGREE");
 		writer.println("HOLESTART");
-
-		InstanceNode[] holes = generateSensingHoles(areaSizeMin, areaSizeMax, Math.round(Math.round(n*deliveryPerPickup)), deliveryPerPickup, sensingRadius, communicationRadius);
+		
+		InstanceNode[] holes = activeNet.getSensingHoles(Math.round(Math.round(numNodes*deliveryPerPickup)));
 
 		for (int i = 0; i < holes.length; i++) {
-			writer.println(holes[i].toString());
+			writer.println(holes[i].toStringHole());
 		}
 		writer.println("EOHOLE");
 		writer.println("EOF");
 		writer.close();
 	}
 
-	private static InstanceNode[] generateSensingHoles(int areaSizeMin, int areaSizeMax, int numHoles, double deliveryPerPickup, int sensingRadius, int communicationRadius) {
-		InstanceNode[] active = ActiveNetworkGenerator.gridGeneration(areaSizeMin, areaSizeMax, sensingRadius);
+	private static InstanceNode[] generateSensingHoles(int areaSizeMin, int areaSizeMax, int numHoles, int sensingRadius, int communicationRadius) {
+		InstanceNode[] active = ActiveNetwork.gridGeneration(areaSizeMin, areaSizeMax, sensingRadius);
 
 		HashMap<Integer, ArrayList<Integer>> adjacencyList = new HashMap<Integer, ArrayList<Integer>>();
 
@@ -266,7 +275,7 @@ public class InstanceGenerator {
 
 		return nodes;
 	}
-
+	
 	public static File generateCustomInstance(int numNodes, int sparsity, int distribution) {
 		int areaSizeMin = -500;
 		int areaSizeMax = 500;
@@ -275,6 +284,8 @@ public class InstanceGenerator {
 		int communicationRadius = 2*sensingRadius;
 
 		double deliveryPerPickup = distribution/100.0;
+		
+		ActiveNetwork activeNet = new ActiveNetwork(areaSizeMin, areaSizeMax, sensingRadius);
 
 		String fileName ="custom.tsp";
 		File instance = new File("Instances/" + fileName);
@@ -309,8 +320,10 @@ public class InstanceGenerator {
 			writer.println("NODE\tX_LOC\tY_LOC\tDEMAND\tDEGREE");
 			writer.println("HOLESTART");
 
-			InstanceNode[] holes = generateSensingHoles(areaSizeMin, areaSizeMax, Math.round(Math.round(numNodes*deliveryPerPickup)), deliveryPerPickup, sensingRadius, communicationRadius);
+//			InstanceNode[] holes = generateSensingHoles(areaSizeMin, areaSizeMax, Math.round(Math.round(numNodes*deliveryPerPickup)), deliveryPerPickup, sensingRadius, communicationRadius);
 
+			InstanceNode[] holes = activeNet.getSensingHolesOld(Math.round(Math.round(numNodes*deliveryPerPickup)));
+			
 			for (int i = 0; i < holes.length; i++) {
 				writer.println(holes[i].toString());
 			}
@@ -318,7 +331,6 @@ public class InstanceGenerator {
 			writer.println("EOF");
 			writer.close();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

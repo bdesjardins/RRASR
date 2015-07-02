@@ -43,7 +43,7 @@ public class ParallelExperimentRunner {
 			printer.print("GenDist");
 			printer.print("Elapsed Time");
 			printer.println();
-		
+			
 			String directory = "Instances";
 			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2", "PESA2", "AGEI", "AGEII"};
 //			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "PESA2", "AGEI", "AGEII"};
@@ -59,7 +59,7 @@ public class ParallelExperimentRunner {
 				File[] instances = instanceFolders[i].listFiles();
 				
 				for (int j = 0; j < instances.length; j++){
-					if(instances[j].getName().equals("References")){
+					if (!instances[j].isFile()) {
 						continue;
 					}
 					
@@ -68,24 +68,18 @@ public class ParallelExperimentRunner {
 				}
 			}
 
-			int nrOfProcessors = Runtime.getRuntime().availableProcessors(); //TODO change before use
-//			int nrOfProcessors = 2;
+			int nrOfProcessors = Runtime.getRuntime().availableProcessors();
 			ExecutorService eservice = Executors.newFixedThreadPool(nrOfProcessors);
 			CompletionService <Object> cservice = new ExecutorCompletionService <Object> (eservice);
 			
-			//TODO after parametric tuning, add specific values for each algorithm
-			int popSize = 300;
-			int generations = 450;
-			double xover = 0.75;
-			double mutation = 0.15;
-
 			int counter = 0;
 			for (int instCount = 0; instCount < instanceFiles.size(); instCount++) {
 				for (int alg = 0; alg < algorithms.length; alg++) {
+					ParameterVector params = new ParameterVector(algorithms[alg]);
 					for(int count = 1; count <= runs; count++){
 						counter++;
 						cservice.submit(new ExperimentExecution(instanceFiles.get(instCount), referenceFiles.get(instCount), 
-								printer, algorithms[alg], count, popSize, generations, xover, mutation));
+								printer, algorithms[alg], count, params.nfe, params.popSize, params.xover, params.swap, params.insert));
 					}
 				}		
 			}
@@ -112,5 +106,70 @@ public class ParallelExperimentRunner {
 		System.out.println();
 		System.out.println("Total Time Elapsed: " + (afterTime-beforeTime)/1000 + "s");
 		System.exit(0);
+	}
+	
+	private static class ParameterVector{
+		
+		public int popSize;
+		public int nfe;
+		public double xover;
+		public double swap;
+		public double insert;
+		
+		public ParameterVector(){
+			popSize = 200;
+			nfe = 100000;
+			xover = 0.75;
+			swap = 0.25;
+			insert = 0.25;
+		}
+		
+		//TODO - Update with tuned values
+		public ParameterVector(String algorithm){
+			if(algorithm.equalsIgnoreCase("NSGAII")){
+				popSize = 200;
+				nfe = 100000;
+				xover = 0.75;
+				swap = 0.25;
+				insert = 0.25;				
+			} else if (algorithm.equalsIgnoreCase("NSGAIII")) {
+				popSize = 200;
+				nfe = 100000;
+				xover = 0.75;
+				swap = 0.25;
+				insert = 0.25;				
+			} else if (algorithm.equalsIgnoreCase("SPEA2")) {
+				popSize = 200;
+				nfe = 100000;
+				xover = 0.75;
+				swap = 0.25;
+				insert = 0.25;				
+			} else if (algorithm.equalsIgnoreCase("PESA2")) {
+				popSize = 200;
+				nfe = 100000;
+				xover = 0.75;
+				swap = 0.25;
+				insert = 0.25;				
+			} else if (algorithm.equalsIgnoreCase("AGEI")) {
+				popSize = 200;
+				nfe = 100000;
+				xover = 0.75;
+				swap = 0.25;
+				insert = 0.25;				
+			} else if (algorithm.equalsIgnoreCase("AGEII")) {
+				popSize = 200;
+				nfe = 100000;
+				xover = 0.75;
+				swap = 0.25;
+				insert = 0.25;				
+			} else {
+				popSize = 200;
+				nfe = 100000;
+				xover = 0.75;
+				swap = 0.25;
+				insert = 0.25;
+			}
+		}
+		
 	}
 }

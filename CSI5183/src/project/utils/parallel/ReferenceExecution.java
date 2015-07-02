@@ -46,8 +46,8 @@ public class ReferenceExecution implements Callable {
 	}
 	
 	private void createApproximationSets (File instanceFile, int runs, File tempDir) {
-		int popSize = 250;
-		int generations = 450;
+		int popSize = 200;
+		int generations = 500;
 
 		int evaluations = popSize * generations;
 
@@ -113,7 +113,6 @@ public class ReferenceExecution implements Callable {
 				}
 			}
 		} catch (IOException e) {
-			//TODO Do nothing?
 		}
 
 		File output = new File(destination);

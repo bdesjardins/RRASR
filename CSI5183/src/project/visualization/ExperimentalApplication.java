@@ -903,7 +903,6 @@ public class ExperimentalApplication {
 		for (int i = 0; i < algorithmsToRun.size(); i++) {
 
 			if (withReferenceSet) {
-				//TODO Some tricksy metrics are here
 				Analyzer test = new Analyzer();	
 				test.withReferenceSet(referenceFile).withProblemClass(RRASRMOO.class, instance);
 				
@@ -1186,13 +1185,13 @@ public class ExperimentalApplication {
 
 			while(!scanner.nextLine().equals("HOLESTART")) {}
 
-			int degree = 0;
+			double degree = 0;
 			while(!scanner.next().equals("EOHOLE")) {
 				//NODE	X_LOC	Y_LOC	DEMAND	DEGREE
 				nodeString = scanner.nextLine().split("\t");
 
 				demand = Integer.parseInt(nodeString[3]);
-				degree = Integer.parseInt(nodeString[4]);
+				degree = Double.parseDouble(nodeString[4]);
 				location = new Coordinate(Double.parseDouble(nodeString[1]), Double.parseDouble(nodeString[2]));
 
 				tempNodes.add(new NodeInfo(demand, location, 0, degree));

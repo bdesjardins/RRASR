@@ -93,7 +93,6 @@ public class ExperimentRunner {
 
 			printer.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		long afterTime = System.currentTimeMillis();
@@ -105,7 +104,6 @@ public class ExperimentRunner {
 		int popSize = 200;
 		final int generations = 500;
 
-		//TODO Some tricksy metrics are here
 		Analyzer test = new Analyzer();	
 		test.withReferenceSet(referenceSet).withProblemClass(RRASRMOO.class, instanceFile);
 

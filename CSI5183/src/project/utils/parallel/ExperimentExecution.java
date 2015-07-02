@@ -21,22 +21,24 @@ public class ExperimentExecution implements Callable {
 	String algorithm;
 	int run;
 	int popSize;
-	int generations;
+	int evaluations;
 	double xover;
-	double mutation;
+	double swap;
+	double insert;
 	String problem;
 	
-	public ExperimentExecution(File instanceFile, File referenceSet, ParallelCSVPrinter printer, String algorithm, int run, int popSize, int gens,
-			double xover, double mutation){
+	public ExperimentExecution(File instanceFile, File referenceSet, ParallelCSVPrinter printer, String algorithm, int run, int popSize, int evaluations,
+			double xover, double swap, double insert){
 		this.instanceFile = instanceFile;
 		this.referenceSet = referenceSet;
 		this.printer = printer;
 		this.algorithm = algorithm;
 		this.run = run;
 		this.popSize = popSize;
-		this.generations = gens;
+		this.evaluations = evaluations;
 		this.xover = xover;
-		this.mutation = mutation;
+		this.swap = swap;
+		this.insert = insert;
 		
 		this.problem = instanceFile.getParentFile().getName();
 	}
@@ -64,10 +66,10 @@ public class ExperimentExecution implements Callable {
 		final NondominatedPopulation result = new Executor()
 		.withProblemClass(RRASRMOO.class, instanceFile)
 		.withAlgorithm(algorithm)
-		.withMaxEvaluations(popSize*generations)
+		.withMaxEvaluations(evaluations)
 		.withProperty("populationSize", popSize)
-		.withProperty("swap.rate", ""+mutation) // swap mutation
-		.withProperty("insertion.rate", ""+mutation) // insertion mutation
+		.withProperty("swap.rate", ""+swap) // swap mutation
+		.withProperty("insertion.rate", ""+insert) // insertion mutation
 		.withProperty("pmx.rate", ""+xover) // partially mapped crossover
 		.withInstrumenter(instrumenter)
 		.run();

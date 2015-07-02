@@ -24,7 +24,7 @@ public class FindAverages implements Callable {
 	@Override
 	public Object call() throws Exception {
 		findAverages();
-		return outputLocation;
+		return dataFolder;
 	}
 
 	private void findAverages(){

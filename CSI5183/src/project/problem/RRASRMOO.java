@@ -74,28 +74,42 @@ public class RRASRMOO extends CustomProblem {
 			
 			while(!scanner.nextLine().equals("HOLESTART")) {}
 			
-			int degree = 0;
+			double score = 0;	
+			
+			double scoreMax = 0;
+			
 			while(!scanner.next().equals("EOHOLE")) {
 				//NODE	X_LOC	Y_LOC	DEMAND	DEGREE
 				nodeString = scanner.nextLine().split("\t");
 				
 				demand = Integer.parseInt(nodeString[3]);
-				degree = Integer.parseInt(nodeString[4]);
+				score = Double.parseDouble(nodeString[4]);
 				location = new Coordinate(Double.parseDouble(nodeString[1]), Double.parseDouble(nodeString[2]));
 				
-				tempNodes.add(new NodeInfo(demand, location, 0, degree));
+				tempNodes.add(new NodeInfo(demand, location, 0, score));
 				
+				if (score > scoreMax){
+					scoreMax = score;
+				}
 				
-				
+						
 				if (demand == -1) {
 					this.sensingHoles.add(nodeCounter);
 				}
 				nodeCounter++;
-			}
-			
+			}			
 			scanner.close();
 			
 			nodes = tempNodes.toArray(new NodeInfo[0]);
+			
+			//Normalize scores
+			for(int i = 0; i < sensingHoles.size(); i++){
+				double tempScore = nodes[sensingHoles.get(i)].getScore();
+				
+				//This is done due to a pipeline error and time constraints. Hard-coding is bad, kids.
+				scoreMax = 192.62499999999775;
+				nodes[sensingHoles.get(i)].setScore(tempScore/scoreMax);
+			}
 			
 			distances = new double[nodes.length][nodes.length];
 			
@@ -155,15 +169,17 @@ public class RRASRMOO extends CustomProblem {
 				}
 			}
 			if (nodes[vector.get(j)].getDemand() == -1) {
-				pathRobustness += batteries.pop()/nodeA.getDegree();
+				pathRobustness += batteries.pop()*nodeA.getScore(); //TODO - New objective is a multiplier
 			}
 			
 			tourLength += distances[vector.get(j)][vector.get(j+1)];
 		}
+		double roundpathRobustness = Math.round(pathRobustness * 1000.0) / 1000.0;
 		
-		solution.setObjective(2, tourLength);
+		solution.setObjective(2, Math.round(Math.round(tourLength)));
 		//MOEA only minimizes, therefore change maximization problems to minimization problems
-		solution.setObjective(1, -Math.round(Math.round(pathRobustness))); 
+//		solution.setObjective(1, -Math.round(Math.round(pathRobustness))); 
+		solution.setObjective(1, -roundpathRobustness); 
 		solution.setObjective(0, -Math.round(Math.round(pathLifetime)));		
 	}
 

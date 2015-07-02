@@ -7,9 +7,13 @@ public class RunVectorSelection {
 	public static void main(String[] args){
 		File tuningResults = new File("Tuning/Results");
 		File vectorList = new File("Tuning/parameterList.txt");
-		VectorSelector selector = new VectorSelector(vectorList, tuningResults);
 		
-		selector.getVectors();
+		//Non-averaged
+//		VectorSelector selector = new VectorSelector(vectorList, tuningResults);		
+//		selector.getVectors();
+		
+		//Averaged
+		GeneralistVectorSelector selector =  new GeneralistVectorSelector(vectorList, tuningResults);
 	}
 	
 }
