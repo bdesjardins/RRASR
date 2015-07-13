@@ -106,7 +106,7 @@ public class VectorSelector {
 		}
 	}
 	
-	private void rankResults(){		
+	protected void rankResults(){		
 		hypervolume = sortByValues(hypervolume);
 		genDistance = sortByValues(genDistance);
 		invGenDistance = sortByValues(invGenDistance);
@@ -166,7 +166,11 @@ public class VectorSelector {
 		
 		//Average the ranks
 		for(int i = 0; i < rankArray.length; i++){
-			rankArray[i][5] = (rankArray[i][0] + rankArray[i][1] + rankArray[i][2] + rankArray[i][3] + rankArray[i][4])/5;
+			//Average the Ranks
+//			rankArray[i][5] = (rankArray[i][0] + rankArray[i][1] + rankArray[i][2] + rankArray[i][3] + rankArray[i][4])/5;
+			
+			//Weighted Average of the ranks
+			rankArray[i][5] = (0.40*rankArray[i][0] + 0.133*rankArray[i][1] + 0.133*rankArray[i][2] + 0.20*rankArray[i][3] + 0.133*rankArray[i][4]);
 		}
 	}
 	

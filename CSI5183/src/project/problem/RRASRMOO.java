@@ -169,7 +169,7 @@ public class RRASRMOO extends CustomProblem {
 				}
 			}
 			if (nodes[vector.get(j)].getDemand() == -1) {
-				pathRobustness += batteries.pop()*nodeA.getScore(); //TODO - New objective is a multiplier
+				pathRobustness += batteries.pop()*nodeA.getScore(); //New objective is a multiplier
 			}
 			
 			tourLength += distances[vector.get(j)][vector.get(j+1)];

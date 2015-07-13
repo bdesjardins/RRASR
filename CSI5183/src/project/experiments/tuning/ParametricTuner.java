@@ -17,7 +17,7 @@ import project.utils.parallel.TuningExecution;
 public class ParametricTuner {
 	
 	public static void main(String[] args){
-		String[] algorithms = new String[]{"NSGAII","NSGAIII","SPEA2","PESA2","AGEI","AGEII"};
+		String[] algorithms = new String[]{"NSGAII","NSGAIII","PESA2","AGEI","AGEII","SPEA2"};
 //		String[] algorithms = new String[]{"NSGAII","PESA2"};
 		File tuningDir = new File("Tuning/Instances");
 		int runs = 15;

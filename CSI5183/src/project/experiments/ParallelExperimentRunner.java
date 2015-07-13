@@ -45,7 +45,7 @@ public class ParallelExperimentRunner {
 			printer.println();
 			
 			String directory = "Instances";
-			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "SPEA2", "PESA2", "AGEI", "AGEII"};
+			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "AGEI", "AGEII", "PESA2", "SPEA2"};
 //			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "PESA2", "AGEI", "AGEII"};
 //			String[] algorithms = new String[]{"NSGAII", "NSGAIII", "PESA2"};
 //			String[] algorithms = new String[]{"AGEI", "AGEII"};
@@ -127,41 +127,41 @@ public class ParallelExperimentRunner {
 		//TODO - Update with tuned values
 		public ParameterVector(String algorithm){
 			if(algorithm.equalsIgnoreCase("NSGAII")){
-				popSize = 200;
-				nfe = 100000;
-				xover = 0.75;
-				swap = 0.25;
-				insert = 0.25;				
+				popSize = 185; //183
+				nfe = 195545; //195458
+				xover = 0.9097;
+				swap = 0.0747;
+				insert = 0.1255;				
 			} else if (algorithm.equalsIgnoreCase("NSGAIII")) {
-				popSize = 200;
-				nfe = 100000;
-				xover = 0.75;
-				swap = 0.25;
-				insert = 0.25;				
+				popSize = 110; //107
+				nfe = 181390; //181396
+				xover = 0.9878;
+				swap = 0.3687;
+				insert = 0.1353;				
 			} else if (algorithm.equalsIgnoreCase("SPEA2")) {
-				popSize = 200;
-				nfe = 100000;
-				xover = 0.75;
-				swap = 0.25;
-				insert = 0.25;				
+				popSize = 185; //183
+				nfe = 195545; //195458
+				xover = 0.7651;
+				swap = 0.3843;
+				insert = 0.4634;				
 			} else if (algorithm.equalsIgnoreCase("PESA2")) {
-				popSize = 200;
-				nfe = 100000;
-				xover = 0.75;
-				swap = 0.25;
-				insert = 0.25;				
+				popSize = 205; //206
+				nfe = 195365; //195458
+				xover = 0.9097;
+				swap = 0.3843;
+				insert = 0.4634;				
 			} else if (algorithm.equalsIgnoreCase("AGEI")) {
-				popSize = 200;
-				nfe = 100000;
-				xover = 0.75;
-				swap = 0.25;
-				insert = 0.25;				
+				popSize = 55; //57
+				nfe = 143880; // 143896
+				xover = 0.8628;
+				swap = 0.3716;
+				insert = 0.2349;				
 			} else if (algorithm.equalsIgnoreCase("AGEII")) {
-				popSize = 200;
-				nfe = 100000;
-				xover = 0.75;
-				swap = 0.25;
-				insert = 0.25;				
+				popSize = 110; //107
+				nfe = 172040; // 172021
+				xover = 0.9878;
+				swap = 0.4966;
+				insert = 0.1099;				
 			} else {
 				popSize = 200;
 				nfe = 100000;
