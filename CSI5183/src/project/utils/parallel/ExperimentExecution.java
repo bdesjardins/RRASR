@@ -27,7 +27,7 @@ public class ExperimentExecution implements Callable {
 	double insert;
 	String problem;
 	
-	public ExperimentExecution(File instanceFile, File referenceSet, ParallelCSVPrinter printer, String algorithm, int run, int popSize, int evaluations,
+	public ExperimentExecution(File instanceFile, File referenceSet, ParallelCSVPrinter printer, String algorithm, int run, int evaluations, int popSize,
 			double xover, double swap, double insert){
 		this.instanceFile = instanceFile;
 		this.referenceSet = referenceSet;

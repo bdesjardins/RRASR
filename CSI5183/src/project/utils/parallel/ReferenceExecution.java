@@ -75,7 +75,7 @@ public class ReferenceExecution implements Callable {
 					.saveReferenceSet(new File(tempDir.getPath() + "/" + algorithms[j] + i + ".set"));
 				}
 				
-//				System.out.println("Created " + algorithms[j] + " set for " + instanceFile.getName());
+				System.out.println("Created " + algorithms[j] + " set for " + instanceFile.getName());
 
 //				System.out.println("Created a reference set");
 			} catch (IOException e) {

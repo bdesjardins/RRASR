@@ -20,7 +20,7 @@
 	<classpathentry kind="lib" path="lib/agape_dependencies/jung-visualization-2.0.1.jar"/>
 	<classpathentry kind="lib" path="lib/agape_dependencies/mascoptLib.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
-	<classpathentry kind="lib" path="lib/MOEAFramework-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/MOEAFramework-2.3.jar" sourcepath="/MOEAFramework-2.3/src"/>
 	<classpathentry kind="lib" path="lib/JMetal-4.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

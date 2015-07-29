@@ -17,11 +17,15 @@ import project.utils.parallel.ParallelCSVPrinter;
 public class ParallelExperimentRunner {
 
 	public static void main(String[] args){
-		Scanner input = new Scanner(System.in);
+//		Scanner input = new Scanner(System.in);
+//		
+//		System.out.println("Input desired number of runs");
+//		int runs = input.nextInt();		
+//		input.close();
 		
-		System.out.println("Input desired number of runs");
-		int runs = input.nextInt();		
-		input.close();
+		System.out.println("Starting!");
+		
+		int runs = 30;
 		
 		long beforeTime = System.currentTimeMillis();
 

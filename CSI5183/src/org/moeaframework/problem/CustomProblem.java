@@ -20,4 +20,6 @@ public abstract class CustomProblem extends AbstractProblem {
 		return null;
 	}
 
+	protected void repair(Solution solution) {}
+
 }

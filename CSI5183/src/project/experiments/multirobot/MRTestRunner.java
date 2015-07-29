@@ -1,4 +1,4 @@
-package project.experiments;
+package project.experiments.multirobot;
 
 import java.io.File;
 
@@ -8,13 +8,12 @@ import org.moeaframework.analysis.collector.Accumulator;
 import org.moeaframework.core.NondominatedPopulation;
 
 import project.problem.RMRASR;
-import project.problem.RRASRMOO;
 
 
-public class ProblemRunner {
+public class MRTestRunner {
 
 	public static void main(String[] args) {
-		String directory = "Instances/Distribution/";
+		String directory = "Instances/Test/";
 		File nodeList = new File(directory + "200n_10s_15d_instance.tsp");
 		
 //		String directory = "Instances/";
@@ -26,7 +25,7 @@ public class ProblemRunner {
 		int evaluations = popSize * generations;
 
 		Instrumenter instrumenter = new Instrumenter()
-		.withProblemClass(RRASRMOO.class, nodeList)
+		.withProblemClass(RMRASR.class, nodeList)
 		.attachElapsedTimeCollector()
 		.attachApproximationSetCollector()
 		.withFrequency(popSize);
@@ -35,7 +34,7 @@ public class ProblemRunner {
 
 		// solve using a Genetic Algorithm
 		final NondominatedPopulation result = new Executor()
-				.withProblemClass(RRASRMOO.class, nodeList)
+				.withProblemClass(RMRASR.class, nodeList)
 				.withAlgorithm("NSGAII")
 				.withMaxEvaluations(evaluations)
 				.withProperty("populationSize", popSize)
@@ -51,12 +50,17 @@ public class ProblemRunner {
 		Accumulator accumulator = instrumenter.getLastAccumulator();
 				
 		System.out.println("Total Time Elapsed: " + (afterTime-beforeTime)/1000.0 + "s");
-		System.out.println("Repair Time Elapsed: " + (RRASRMOO.repairTime)/1000.0 + "s");
-		System.out.println("Repair Percentage: " + ((RRASRMOO.repairTime)*100.0/(afterTime-beforeTime)*1.0) + "%");
+		System.out.println("Repair Time Elapsed: " + (RMRASR.repairTime)/1000.0 + "s");
+		System.out.println("Repair Percentage: " + ((RMRASR.repairTime)*100.0/(afterTime-beforeTime)*1.0) + "%");
 		System.out.println();
-		System.out.println("Validity Function Exeuctions: " + RRASRMOO.validityCount);
-		System.out.println("Validity Calculation Time: " + (RRASRMOO.validityTime)/1000.0 + "s");
-		System.out.println("Validity/Repair Percentage: " + ((RRASRMOO.validityTime)*100.0/(RRASRMOO.repairTime)*1.0) + "%");
+		System.out.println("Repair (Balance) Time Elapsed: " + (RMRASR.repairTime_balance)/1000.0 + "s");
+		System.out.println("Repair (Balance) Percentage: " + ((RMRASR.repairTime_balance)*100.0/(RMRASR.repairTime)*1.0) + "%");
+		System.out.println();
+		System.out.println("Repair (Order) Time Elapsed: " + (RMRASR.repairTime_order)/1000.0 + "s");
+		System.out.println("Repair (Order) Percentage: " + ((RMRASR.repairTime_order)*100.0/(RMRASR.repairTime)*1.0) + "%");
+
+//		System.out.println();
+//		System.out.println("Accumulator Size: " + accumulator.size("NFE"));
 				
 //		for (int i = 0; i < result.size(); i++) {
 //			Solution solution = result.get(i);

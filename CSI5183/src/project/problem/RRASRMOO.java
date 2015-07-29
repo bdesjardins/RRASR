@@ -19,14 +19,18 @@ public class RRASRMOO extends CustomProblem {
 
 	final static Charset ENCODING = StandardCharsets.UTF_8;
 	
-	private NodeInfo[] nodes;
-	private ArrayList<Integer> sensingHoles;
-	private double[][] distances;
+	protected NodeInfo[] nodes;
+	protected ArrayList<Integer> sensingHoles;
+	protected double[][] distances;
 	
-	private int startingSensors = 0;
-	private int maxSensors = 3;
+	protected int startingSensors = 0;
+	protected int maxSensors = 3;
 	
-	private int initCounter;
+	protected int initCounter;
+	
+	public static long repairTime = 0;
+	public static long validityTime = 0;
+	public static int validityCount = 0;
 		
 	public RRASRMOO() {
 		super(1,3);
@@ -132,7 +136,7 @@ public class RRASRMOO extends CustomProblem {
 		} catch (FileNotFoundException e) {
 			System.out.println("Error generating problem from file");
 			e.printStackTrace();
-		}	
+		}
 	}
 
 	@Override
@@ -258,7 +262,7 @@ public class RRASRMOO extends CustomProblem {
 		return solution;	
 	}
 	
-	private Permutation pathHeuristic() {
+	protected Permutation pathHeuristic() {
 		ArrayList<Integer> path = new ArrayList<Integer>();
 		int sensorCount = 0;
 		int maxSensors = 2;
@@ -300,7 +304,7 @@ public class RRASRMOO extends CustomProblem {
 		return buildCustomPermutation(path);
 	}
 	
-	private Permutation robustnessHeuristic() {
+	protected Permutation robustnessHeuristic() {
 		ArrayList<Integer> path = new ArrayList<Integer>();
 		int sensorCount = 0;
 
@@ -335,7 +339,7 @@ public class RRASRMOO extends CustomProblem {
 		return buildCustomPermutation(path);
 	}
 	
-	private Permutation healthHeuristic() {
+	protected Permutation healthHeuristic() {
 		ArrayList<Integer> path = new ArrayList<Integer>();
 		int sensorCount = 0;
 		int maxSensors = 2;
@@ -388,7 +392,7 @@ public class RRASRMOO extends CustomProblem {
 		return buildCustomPermutation(path);
 	}
 	
-	private Permutation buildCustomPermutation(ArrayList<Integer> vector) {
+	protected Permutation buildCustomPermutation(ArrayList<Integer> vector) {
 		ArrayList<Integer> temp = new ArrayList<Integer>();
 		int size = this.nodes.length;
 		
@@ -416,7 +420,8 @@ public class RRASRMOO extends CustomProblem {
 		return new Permutation(permutation);
 	}
 
-	private void repair(Solution solution){
+	protected void repair(Solution solution){
+		long startTime = System.currentTimeMillis();
 		Permutation variable = (Permutation) solution.getVariable(0);
 		
 		int pickups = startingSensors;
@@ -498,9 +503,10 @@ public class RRASRMOO extends CustomProblem {
 		}		
 		variable.fromArray(permutation);
 		solution.setVariable(0, variable);
+		RRASRMOO.repairTime += (System.currentTimeMillis() - startTime);
 	}
 	
-	private int findNextHole(int[] permutation, int startingPoint) {
+	protected int findNextHole(int[] permutation, int startingPoint) {
 		for (int i = startingPoint; i < permutation.length; i++) {
 			if (sensingHoles.contains(Math.abs(permutation[i]))) {
 				return i;
@@ -510,7 +516,7 @@ public class RRASRMOO extends CustomProblem {
 		return -1;
 	}
 	
-	private int findNextSensor(int[] permutation, int startingPoint) {
+	protected int findNextSensor(int[] permutation, int startingPoint) {
 		for (int i = startingPoint; i < permutation.length; i++) {
 			if (permutation[i] > 0 && !sensingHoles.contains(Math.abs(permutation[i]))) {
 				return i;
@@ -520,28 +526,34 @@ public class RRASRMOO extends CustomProblem {
 		return -1;
 	}
 	
-	private boolean isPermutation(int[] permutation) {				
+	protected boolean isPermutation(int[] permutation) {				
+		long startTime = System.currentTimeMillis();
+		RRASRMOO.validityCount++;
 		int sensors = this.startingSensors;
 		
 		for (int i = 0; i < permutation.length; i++) {
 			for (int j = i+1; j < permutation.length; j++) {
 				if (permutation[j] == permutation[i]) {
+					RRASRMOO.validityTime += (System.currentTimeMillis() - startTime);
 					return false;
 				}
 			}
 			if (permutation[i] > 0 && !sensingHoles.contains(permutation[i])) {
 				sensors++;				
 				if (sensors > maxSensors) {
+					RRASRMOO.validityTime += (System.currentTimeMillis() - startTime);
 					return false;
 				}
 			} else if (permutation[i] > 0 && sensingHoles.contains(permutation[i])) {
 				sensors--;
 				
 				if (sensors < 0) {
+					RRASRMOO.validityTime += (System.currentTimeMillis() - startTime);
 					return false;
 				}
 			}
 		}
+		RRASRMOO.validityTime += (System.currentTimeMillis() - startTime);
 		return true;
 	}
 }
