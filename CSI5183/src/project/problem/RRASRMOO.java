@@ -27,10 +27,6 @@ public class RRASRMOO extends CustomProblem {
 	protected int maxSensors = 3;
 	
 	protected int initCounter;
-	
-	public static long repairTime = 0;
-	public static long validityTime = 0;
-	public static int validityCount = 0;
 		
 	public RRASRMOO() {
 		super(1,3);
@@ -421,7 +417,6 @@ public class RRASRMOO extends CustomProblem {
 	}
 
 	protected void repair(Solution solution){
-		long startTime = System.currentTimeMillis();
 		Permutation variable = (Permutation) solution.getVariable(0);
 		
 		int pickups = startingSensors;
@@ -503,7 +498,6 @@ public class RRASRMOO extends CustomProblem {
 		}		
 		variable.fromArray(permutation);
 		solution.setVariable(0, variable);
-		RRASRMOO.repairTime += (System.currentTimeMillis() - startTime);
 	}
 	
 	protected int findNextHole(int[] permutation, int startingPoint) {
@@ -526,34 +520,28 @@ public class RRASRMOO extends CustomProblem {
 		return -1;
 	}
 	
-	protected boolean isPermutation(int[] permutation) {				
-		long startTime = System.currentTimeMillis();
-		RRASRMOO.validityCount++;
+	protected boolean isPermutation(int[] permutation) {				;
 		int sensors = this.startingSensors;
 		
 		for (int i = 0; i < permutation.length; i++) {
 			for (int j = i+1; j < permutation.length; j++) {
 				if (permutation[j] == permutation[i]) {
-					RRASRMOO.validityTime += (System.currentTimeMillis() - startTime);
 					return false;
 				}
 			}
 			if (permutation[i] > 0 && !sensingHoles.contains(permutation[i])) {
 				sensors++;				
 				if (sensors > maxSensors) {
-					RRASRMOO.validityTime += (System.currentTimeMillis() - startTime);
 					return false;
 				}
 			} else if (permutation[i] > 0 && sensingHoles.contains(permutation[i])) {
 				sensors--;
 				
 				if (sensors < 0) {
-					RRASRMOO.validityTime += (System.currentTimeMillis() - startTime);
 					return false;
 				}
 			}
 		}
-		RRASRMOO.validityTime += (System.currentTimeMillis() - startTime);
 		return true;
 	}
 }

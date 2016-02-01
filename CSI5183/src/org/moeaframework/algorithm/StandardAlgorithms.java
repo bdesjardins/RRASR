@@ -30,6 +30,7 @@ import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.NondominatedSortingPopulation;
 import org.moeaframework.core.Population;
 import org.moeaframework.core.Problem;
+import org.moeaframework.core.Selection;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.Variable;
 import org.moeaframework.core.Variation;
@@ -151,6 +152,8 @@ public class StandardAlgorithms extends AlgorithmProvider {
 				return newAGEII(typedProperties, problem);
 			}  else if (name.equalsIgnoreCase("AGEI")){
 				return newAGEI(typedProperties, problem);
+			} else if (name.equalsIgnoreCase("Lifecycle")){
+				return newLifecycle(typedProperties, problem);
 			} else {
 				return null;
 			}
@@ -309,6 +312,31 @@ public class StandardAlgorithms extends AlgorithmProvider {
 		NondominatedPopulation archive = new NondominatedPopulation();
 
 		return new AGEI(problem, population, archive, variation, initialization, selection);
+	}
+	
+	/**
+	 * Returns a new {@link Lifecycle} instance.
+	 * 
+	 * @param properties the properties for customizing the new {@code NSGAII}
+	 *        instance
+	 * @param problem the problem
+	 * @return a new {@code SPELifecycleA2} instance
+	 */
+	private Algorithm newLifecycle(TypedProperties properties, Problem problem) { //TODO
+		int populationSize = (int)properties.getDouble("populationSize", 100);
+
+		Initialization initialization = new SeededInitialization(problem,populationSize);
+
+		NondominatedSortingPopulation population = new NondominatedSortingPopulation();
+
+		TournamentSelection selection = new TournamentSelection(2, new ParetoDominanceComparator());
+
+		Variation variation = OperatorFactory.getInstance().getVariation(null, 
+				properties, problem);
+		
+		NondominatedPopulation archive = new NondominatedPopulation();
+	
+		return new Lifecycle(problem, population, archive, variation, initialization, selection); //null is the archive
 	}
 
 	/**

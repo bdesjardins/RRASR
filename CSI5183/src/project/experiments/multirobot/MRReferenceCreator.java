@@ -1,4 +1,4 @@
-package project.experiments;
+package project.experiments.multirobot;
 
 import java.io.File;
 import java.util.Scanner;
@@ -8,25 +8,26 @@ import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import project.utils.parallel.ReferenceExecution;
+import project.utils.parallel.MRReferenceExecution;
 
-public class ParallelReferenceSetCreator {
+public class MRReferenceCreator {
 
 	public static void main(String[] args) {
-		Scanner input = new Scanner(System.in);
+//		Scanner input = new Scanner(System.in);
+//		
+//		System.out.println("Please input the desired number of runs:");	//30 runs	
+//		int runs = input.nextInt();
+//		input.close();
 		
-		System.out.println("Please input the desired number of runs:");	//30 runs	
-		int runs = input.nextInt();
-		input.close();
+		int runs = 30;
 		System.out.println("Starting!");
 		
 		long beforeTime = System.currentTimeMillis();
 		
 		String directory = "Instances";
 		
-//		String[] problems = new String[]{"Nodes","Distribution","Sparsity"};
-//		String[] problems = new String[]{"Nodes","Distribution","Sparsity","Test"};
-		String[] problems = new String[]{"Test"};
+		String[] problems = new String[]{"Nodes","Distribution"};
+//		String[] problems = new String[]{"Test"};
 		
 		int nrOfProcessors = Runtime.getRuntime().availableProcessors();
 		ExecutorService eservice = Executors.newFixedThreadPool(nrOfProcessors);
@@ -43,13 +44,19 @@ public class ParallelReferenceSetCreator {
 			
 			File[] listOfFiles = folder.listFiles();
 			
-			for (int j = 0; j < listOfFiles.length; j++) {
-				if (!listOfFiles[j].isFile()) {
-					continue;
+			for (int robots = 2; robots <= 5; robots++) { //For 2,3,4, and 5 robot tests				
+				File refDir = new File(directory + "/" + problems[i] + "/References_" + robots);
+				refDir.mkdir();
+				for (int j = 0; j < listOfFiles.length; j++) {
+					if (!listOfFiles[j].isFile()) {
+						continue;
+					}
+					counter++;						
+					cservice.submit(new MRReferenceExecution(listOfFiles[j], runs, 
+							(directory + "/temp"), (refDir.getAbsolutePath() + "/" + listOfFiles[j].getName() + ".ref"), robots));
 				}
-				counter++;						
-				cservice.submit(new ReferenceExecution(listOfFiles[j], runs, 
-						(directory + "/temp"), (directory + "/" + problems[i] + "/References/" + listOfFiles[j].getName() + ".ref")));
+				
+				System.out.println("Reference sets for " + robots + "robots created");
 			}
 		}
 		

@@ -165,7 +165,7 @@ public class SampleGenerator extends CommandLineUtility {
 	 * @throws Exception if an error occurred
 	 */
 	public static void main(String[] args) throws Exception {
-		args = new String[]{"--method","saltelli","--numberOfSamples","20","--parameterFile","Tuning/parameters.txt","--output","Tuning/parameterList_240.txt"};
+		args = new String[]{"--method","saltelli","--numberOfSamples","20","--parameterFile","Tuning/parameters.txt","--output","Tuning/parameterList_MR.txt"};
 		new SampleGenerator().start(args);
 	}
 

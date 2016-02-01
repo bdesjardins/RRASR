@@ -36,7 +36,7 @@ public class ProblemRunner {
 		// solve using a Genetic Algorithm
 		final NondominatedPopulation result = new Executor()
 				.withProblemClass(RRASRMOO.class, nodeList)
-				.withAlgorithm("NSGAII")
+				.withAlgorithm("Lifecycle")
 				.withMaxEvaluations(evaluations)
 				.withProperty("populationSize", popSize)
 				.withProperty("swap.rate", 0.25) // mutation
@@ -51,12 +51,6 @@ public class ProblemRunner {
 		Accumulator accumulator = instrumenter.getLastAccumulator();
 				
 		System.out.println("Total Time Elapsed: " + (afterTime-beforeTime)/1000.0 + "s");
-		System.out.println("Repair Time Elapsed: " + (RRASRMOO.repairTime)/1000.0 + "s");
-		System.out.println("Repair Percentage: " + ((RRASRMOO.repairTime)*100.0/(afterTime-beforeTime)*1.0) + "%");
-		System.out.println();
-		System.out.println("Validity Function Exeuctions: " + RRASRMOO.validityCount);
-		System.out.println("Validity Calculation Time: " + (RRASRMOO.validityTime)/1000.0 + "s");
-		System.out.println("Validity/Repair Percentage: " + ((RRASRMOO.validityTime)*100.0/(RRASRMOO.repairTime)*1.0) + "%");
 				
 //		for (int i = 0; i < result.size(); i++) {
 //			Solution solution = result.get(i);

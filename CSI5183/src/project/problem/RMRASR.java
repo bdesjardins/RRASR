@@ -2,28 +2,52 @@ package project.problem;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Stack;
 
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.variable.Permutation;
+import org.moeaframework.problem.CustomProblem;
 
 import project.problem.types.Coordinate;
 import project.problem.types.NodeInfo;
 
-public class RMRASR extends RRASRMOO {
+public class RMRASR extends CustomProblem {
 
+	final static Charset ENCODING = StandardCharsets.UTF_8;
+	
+	protected NodeInfo[] nodes;
+	protected ArrayList<Integer> sensingHoles;
+	protected double[][] distances;
+	
+	protected int startingSensors = 0;
+	protected int maxSensors = 3;
+	
+	protected int initCounter;
+	
 	public static long repairTime_total = 0;
 	public static long repairTime_balance = 0;
 	public static long repairTime_order = 0;
 	
-	protected int numberOfRobots = 3;
+	protected int numberOfRobots;
 	
 	protected ArrayList<Integer> duplicateDepots;
 	
-	public RMRASR (File nodeList){		
-		super();	
+	public RMRASR() {
+		super(1,4);
+	}
+	
+	public RMRASR(File nodeList){
+		this(nodeList,3);			
+	}
+	
+	public RMRASR (File nodeList, int numberOfRobots){		
+		super(1,4);	
+		this.numberOfRobots = numberOfRobots;
+		
 		this.initCounter = 0;		
 		
 		try {
@@ -88,8 +112,12 @@ public class RMRASR extends RRASRMOO {
 			}			
 			scanner.close();
 			
-			//Add in duplicate depots			
-			for(int i = 0; i < numberOfRobots-1; i++){
+			//Add in duplicate depots
+			if (this.numberOfRobots > sensingHoles.size()){
+				this.numberOfRobots = sensingHoles.size();
+			}
+			
+			for(int i = 0; i < this.numberOfRobots-1; i++){
 				tempNodes.add(new NodeInfo(0, new Coordinate(0,0),0,0));
 				this.duplicateDepots.add(nodeCounter);
 				nodeCounter++;
@@ -135,9 +163,10 @@ public class RMRASR extends RRASRMOO {
 		
 		ArrayList<ArrayList<Integer>> vectors = new ArrayList<ArrayList<Integer>>();
 
-		double tourLength = 0;
+		double totalLength = 0;
 		double pathRobustness = 0;
 		double pathLifetime = 100;
+		double loadBalance = 0;
 
 		repair(solution);
 
@@ -164,13 +193,16 @@ public class RMRASR extends RRASRMOO {
 		vector.add(0);
 		vectors.add(vector);
 
+		ArrayList<Double> vectorLoads = new ArrayList<Double>();
+		
 		for(int i = 0; i < vectors.size(); i++) {
 			Stack<Double> batteries = new Stack<Double>();
 
 			ArrayList<Integer> pathVector = vectors.get(i);
-			
+			double tourLength = 0;
 			for (int j = 0; j < pathVector.size() - 1; j++) {
 				NodeInfo nodeA = nodes[pathVector.get(j)];
+				
 
 				if (nodeA.getDemand() == 1) {
 					batteries.push(nodeA.getBattery());
@@ -182,22 +214,33 @@ public class RMRASR extends RRASRMOO {
 				if (nodes[pathVector.get(j)].getDemand() == -1) {
 					pathRobustness += batteries.pop()*nodeA.getScore(); //New objective is a multiplier
 				}
-
 				tourLength += distances[pathVector.get(j)][pathVector.get(j+1)];
+				totalLength += distances[pathVector.get(j)][pathVector.get(j+1)];
+			}
+			vectorLoads.add(tourLength);
+		}
+		double roundpathRobustness = Math.round(pathRobustness * 10.0) / 10.0;
+
+		for(double tour: vectorLoads){
+			double load = Math.round((tour/totalLength)*100) / 100.0;
+			
+			if(load > loadBalance){
+				loadBalance = load;
 			}
 		}
-		double roundpathRobustness = Math.round(pathRobustness * 100.0) / 100.0;
-
-		solution.setObjective(2, Math.round(Math.round(tourLength)));
+		
+		solution.setObjective(2, Math.round(Math.round(totalLength)));
 		//MOEA only minimizes, therefore change maximization problems to minimization problems
 //		solution.setObjective(1, -Math.round(Math.round(pathRobustness))); 
 		solution.setObjective(1, -roundpathRobustness); 
 		solution.setObjective(0, -Math.round(Math.round(pathLifetime)));
+		
+		solution.setObjective(3, loadBalance*100);
 	}
 
 	@Override //TODO newSolution
 	public Solution newSolution() {
-		Solution solution = new Solution(1,3);
+		Solution solution = new Solution(1,4);
 		
 		solution.setVariable(0, new Permutation(this.nodes.length));		
 		return solution;
@@ -227,11 +270,9 @@ public class RMRASR extends RRASRMOO {
 		variable.fromArray(permutation);
 		solution.setVariable(0, variable);
 		
-		RMRASR.repairTime += (System.currentTimeMillis() - startTime);		
+		RMRASR.repairTime_total += (System.currentTimeMillis() - startTime);		
 	}
-
 	
-	@Override	
 	protected boolean isPermutation(int[] permutation) {				
 		int sensors = this.startingSensors;
 		

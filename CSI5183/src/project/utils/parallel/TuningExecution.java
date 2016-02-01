@@ -112,13 +112,12 @@ public class TuningExecution implements Callable {
 		Algorithm algorithm = AlgorithmFactory.getInstance().getAlgorithm(
 				algorithmName, properties, timingProblem);
 
+		int maxEvaluations = 100000;
 		// find the maximum NFE to run
-		if (!properties.containsKey("maxEvaluations")) {
-			throw new FrameworkException("maxEvaluations not defined");
+		if (properties.containsKey("maxEvaluations")) {
+			maxEvaluations = (int) Double.parseDouble(properties.getProperty("maxEvaluations"));
+//			throw new FrameworkException("maxEvaluations not defined");
 		}
-
-		int maxEvaluations = (int) Double.parseDouble(properties
-				.getProperty("maxEvaluations"));
 
 		// run the algorithm
 		long startTime = System.nanoTime();

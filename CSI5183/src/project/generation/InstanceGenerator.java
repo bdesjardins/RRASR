@@ -25,8 +25,16 @@ public class InstanceGenerator {
 		double defaultHoles = 0.15;
 		int defaultSparsity = 10; //We don't care about sparsity by default
 
+//		int[] numberOfNodes = new int[]{
+//				10,15,20,25,30,35,40,45,50,60,
+//				70,80,90,100,110,120,130,140,150,160,
+//				170,180,190,200,225,250,275,300,325,350,
+//				375,400,425,450,475,500,525,550,575,600,
+//				625,650,675,700,750,800,850,900,950,1000
+//				}; //50 Entries
+		
 		int[] numberOfNodes = new int[]{
-				10,15,20,25,30,35,40,45,50,60,
+				20,25,30,35,40,45,50,55,60,65,
 				70,80,90,100,110,120,130,140,150,160,
 				170,180,190,200,225,250,275,300,325,350,
 				375,400,425,450,475,500,525,550,575,600,
@@ -62,9 +70,9 @@ public class InstanceGenerator {
 //			}
 //		}
 
-		directory = directoryRoot + "/Distribution";
+		directory = directoryRoot + "/Distribution2";
 
-		for (double n = 1; n <= 50; n++) {
+		for (double n = 48; n <= 49; n++) {
 			try {
 				generateInstance(areaSizeMax, defaultNodes, defaultSparsity, n/100, directory, sensingRadius, activeNet);
 			} catch (FileNotFoundException e) {

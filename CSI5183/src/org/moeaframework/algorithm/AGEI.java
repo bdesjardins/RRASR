@@ -22,7 +22,7 @@ import org.moeaframework.core.comparator.ParetoObjectiveComparator;
 
 
 /**
- * This class representing the SPEA2 algorithm
+ * This class representing the AGEI algorithm
  */
 public class AGEI extends AbstractEvolutionaryAlgorithm {
    
