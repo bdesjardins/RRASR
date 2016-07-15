@@ -16,6 +16,14 @@ import org.moeaframework.core.comparator.FitnessComparator;
 import org.moeaframework.core.comparator.ParetoObjectiveComparator;
 import org.moeaframework.core.operator.TournamentSelection;
 
+
+/**
+ * 
+ * @author bdesjardins
+ *
+ *
+ * Implementation of a LifeCycle containing SPEA2, NSGA-III, and AGE-II
+ */
 public class Lifecycle extends AbstractEvolutionaryAlgorithm{
 	
 	private int algorithm = 1;
@@ -33,6 +41,16 @@ public class Lifecycle extends AbstractEvolutionaryAlgorithm{
 	private ReferencePointNondominatedSortingPopulation NSGAIII_pop;
 	private TournamentSelection spea2Selection;
 	
+	/**
+	 * Constructs the LifeCycle algorithm with the specified components.
+	 * 
+	 * @param problem the problem being solved
+	 * @param population the population used to store solutions
+	 * @param archive the archive used to store the result
+	 * @param selection the selection operator
+	 * @param variation the variation operator
+	 * @param initialization the initialization method
+	 */
 	public Lifecycle(Problem problem, Population population,
 			NondominatedPopulation archive, Variation variation, Initialization initialization, Selection selection) {
 		super(problem, population, archive, initialization);
@@ -91,7 +109,11 @@ public class Lifecycle extends AbstractEvolutionaryAlgorithm{
 		return (NondominatedSortingPopulation)super.getPopulation();
 	}
 	
-	public boolean enoughImprovement(){
+	/**
+	 * Checks to see if there has been enough improvement over the last generations.
+	 * @return
+	 */
+	private boolean enoughImprovement(){
 		
 		NondominatedPopulation currentGeneration = null;
 		
@@ -130,6 +152,9 @@ public class Lifecycle extends AbstractEvolutionaryAlgorithm{
 		return true;
 	}
 
+	/**
+	 * Switches to the next algorithm in the cycle
+	 */
 	private void switchAlgorithms(){
 		if (algorithm == 2) { //NSGAIII to SPEA2
 			NondominatedSortingPopulation population = getPopulation();
@@ -234,7 +259,7 @@ public class Lifecycle extends AbstractEvolutionaryAlgorithm{
 		         /* END select mu auf of mu+lambda */		
 	}
 	
-    public void reducePopulationToSize(Population population, Population archive, int targetSize) {
+    private void reducePopulationToSize(Population population, Population archive, int targetSize) {
         // the following array stores the maximum approximations for which a population point is responsible
         int[] whichPopPointIsResponsible = new int[archive.size()];
         int[] whichPopPointIsResponsibleSecondBest = new int[archive.size()];
@@ -419,7 +444,7 @@ public class Lifecycle extends AbstractEvolutionaryAlgorithm{
 	////////							NSGAIII
 	////////////////////////////////////////////////////////////////////////////////////
 	
-	public void iterateNSGAIII() {
+	protected void iterateNSGAIII() {
 		NondominatedSortingPopulation population = NSGAIII_pop;
 		Population offspring = new Population();
 		int populationSize = population.size();

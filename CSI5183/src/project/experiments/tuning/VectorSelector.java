@@ -15,6 +15,12 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.Map.Entry;
 
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Selects the best vector for each algorithm based on a parametric tuning results file
+ */
 public class VectorSelector {
 
 	final static Charset ENCODING = StandardCharsets.UTF_8;
@@ -32,6 +38,15 @@ public class VectorSelector {
 	
 	double[][] rankArray;
 
+	/**
+	 * Evaluator to determine the best parameter vectors for each algorithm
+	 * 
+	 * Uses a set of *.avg files to determine the best parameter vector
+	 * from the ones available
+	 * 
+	 * @param parameterFile File containing the list of parameter vectors
+	 * @param resultsDirectory Folder containing the output of {@link GetAverages} (*.avg files)
+	 */
 	public VectorSelector(File parameterFile, File resultsDirectory){
 		this.parameterFile = parameterFile;
 
@@ -40,6 +55,9 @@ public class VectorSelector {
 		loadParameters();
 	}
 	
+	/**
+	 * Writes the best vector for each algorithm to the console
+	 */
 	public void getVectors(){		
 		for(File file: resultsFiles){
 			if(file.isDirectory()){
@@ -57,16 +75,6 @@ public class VectorSelector {
 		}
 	}
 	
-	public Double[] getVectorRanks(){
-		Double[] ranks = new Double[hypervolume.size()];
-		
-		for(int i = 0; i < ranks.length; i++){
-			ranks[i] = rankArray[i][5];
-		}
-		
-		return ranks;
-	}
-	
 	private String[] findBest(File result){
 		hypervolume = new HashMap<Integer, Double>();
 		genDistance = new HashMap<Integer, Double>();
@@ -81,7 +89,7 @@ public class VectorSelector {
 		return findBestVector();	
 	}
 	
-	private void loadResults(File result){
+	protected void loadResults(File result){
 		Scanner scanner = null;
 		try {
 			scanner = new Scanner(result ,ENCODING.name());
@@ -227,7 +235,7 @@ public class VectorSelector {
 	//Sorts descending
 	//Use iterator on KeySet from resulting map
 	
-	public static <K extends Comparable,V extends Comparable> Map<K,V> sortByValues(Map<K,V> map){
+	protected static <K extends Comparable,V extends Comparable> Map<K,V> sortByValues(Map<K,V> map){
 		List<Map.Entry<K,V>> entries = new LinkedList<Map.Entry<K,V>>(map.entrySet());
 
 		Collections.sort(entries, new Comparator<Map.Entry<K,V>>() {

@@ -11,8 +11,14 @@ import org.moeaframework.analysis.collector.IndicatorCollector;
 import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.indicator.MaximumParetoFrontError;
 
-import project.problem.RRASRMOO;
+import project.problem.RRASR;
 
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Callable experiment execution for the RRASR problem. Used with {@link ExperimentRunner}
+ */
 public class ExperimentExecution implements Callable {
 
 	File instanceFile;
@@ -27,6 +33,20 @@ public class ExperimentExecution implements Callable {
 	double insert;
 	String problem;
 	
+	/**
+	 * Experiment execution to run one algorithm against an instance file once
+	 * 
+	 * @param instanceFile instance file to be evaluated
+	 * @param referenceSet reference set for the instance file
+	 * @param printer CSV printer object
+	 * @param algorithm Algorithm to be used
+	 * @param run Number of the run being conducted
+	 * @param evaluations Number of evaluations to do
+	 * @param popSize Size of the population
+	 * @param xover Crossover Rate
+	 * @param swap Swap mutation rate
+	 * @param insert Insertion mutation rate
+	 */
 	public ExperimentExecution(File instanceFile, File referenceSet, ParallelCSVPrinter printer, String algorithm, int run, int evaluations, int popSize,
 			double xover, double swap, double insert){
 		this.instanceFile = instanceFile;
@@ -48,23 +68,23 @@ public class ExperimentExecution implements Callable {
 		long beforeTime = System.currentTimeMillis();
 
 		Analyzer test = new Analyzer();	
-		test.withReferenceSet(referenceSet).withProblemClass(RRASRMOO.class, instanceFile);
+		test.withReferenceSet(referenceSet).withProblemClass(RRASR.class, instanceFile);
 
 		Instrumenter instrumenter = new Instrumenter()
-		.withProblemClass(RRASRMOO.class, instanceFile)
+		.withProblemClass(RRASR.class, instanceFile)
 		.withReferenceSet(referenceSet)
 		.attachGenerationalDistanceCollector()
 		.attachInvertedGenerationalDistanceCollector()
 		.attachHypervolumeCollector()
 		.attachElapsedTimeCollector()
 		.attachSpacingCollector()
-		.attach(new IndicatorCollector(new MaximumParetoFrontError(new RRASRMOO(), test.getReferenceSet())))
+		.attach(new IndicatorCollector(new MaximumParetoFrontError(new RRASR(), test.getReferenceSet())))
 		.withFrequency(popSize);
 
 		// solve using a Genetic Algorithm
 		@SuppressWarnings("unused")
 		final NondominatedPopulation result = new Executor()
-		.withProblemClass(RRASRMOO.class, instanceFile)
+		.withProblemClass(RRASR.class, instanceFile)
 		.withAlgorithm(algorithm)
 		.withMaxEvaluations(evaluations)
 		.withProperty("populationSize", popSize)

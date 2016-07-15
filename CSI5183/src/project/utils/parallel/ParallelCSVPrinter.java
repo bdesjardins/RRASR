@@ -6,6 +6,13 @@ import java.io.IOException;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
+/**
+ * 
+ * @author bdesjardins
+ * 
+ * CSV printer with synchronized methods to avoid deadlock when
+ * writing from multiple threads
+ */
 public class ParallelCSVPrinter{
 
 	CSVPrinter printer;

@@ -15,7 +15,13 @@ import org.moeaframework.problem.CustomProblem;
 import project.problem.types.Coordinate;
 import project.problem.types.NodeInfo;
 
-public class RRASRMOO extends CustomProblem {
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Implementation of the Reliable Robot-Assisted Sensor Relocation problem
+ */
+public class RRASR extends CustomProblem {
 
 	final static Charset ENCODING = StandardCharsets.UTF_8;
 	
@@ -28,11 +34,18 @@ public class RRASRMOO extends CustomProblem {
 	
 	protected int initCounter;
 		
-	public RRASRMOO() {
+	/**
+	 * Create a simple RRASR instance
+	 */
+	public RRASR() {
 		super(1,3);
 	}
 	
-	public RRASRMOO(File nodeList) {
+	/**
+	 * Creates a RRASR instance using a nodeList (instance file)
+	 * @param nodeList Instance file
+	 */
+	public RRASR(File nodeList) {
 		//Populate the nodes and activeNodes arrays so we can evaluate the solutions
 		//This will be done from generated instance files
 		super(1,3);
@@ -135,6 +148,9 @@ public class RRASRMOO extends CustomProblem {
 		}
 	}
 
+	/**
+	 * Evaluates the fitness values of a given solution
+	 */
 	@Override
 	public void evaluate(Solution solution) {
 		ArrayList<Integer> vector = new ArrayList<Integer>();
@@ -183,6 +199,9 @@ public class RRASRMOO extends CustomProblem {
 		solution.setObjective(0, -Math.round(Math.round(pathLifetime)));		
 	}
 
+	/**
+	 * Evaluates the fitness values of a given jMetal solution
+	 */
 	public void evaluateJmetal(jmetal.core.Solution solution) {
 		ArrayList<Integer> vector = new ArrayList<Integer>();
 		
@@ -232,6 +251,11 @@ public class RRASRMOO extends CustomProblem {
 		solution.setObjective(0, -Math.round(Math.round(pathLifetime)));	
 	}
 	
+	/**
+	 * Creates a new solution. The first 3 solutions created are done
+	 * heuristically; one for each objective function. The remainder
+	 * are randomly initialized
+	 */
 	@Override
 	public Solution newSolution() {
 		Solution solution = new Solution(1,3);

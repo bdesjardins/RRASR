@@ -17,6 +17,17 @@ import org.moeaframework.util.io.FileUtils;
 
 import project.problem.RMRASR;
 
+/**
+ * 
+ * 
+ * @author bdesjardins
+ *
+ *
+ * Callable object housing the methods to complete a set
+ * of executions for creating a reference set.
+ * 
+ * Called by {@link MRReferenceCreator}
+ */
 public class MRReferenceExecution implements Callable {
 
 	File instanceFile;

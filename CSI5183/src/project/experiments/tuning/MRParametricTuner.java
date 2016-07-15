@@ -14,6 +14,18 @@ import project.problem.RMRASR;
 import project.utils.parallel.FindAverages;
 import project.utils.parallel.TuningExecution;
 
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Application to run tuning instances of problems
+ * 
+ * Would run each algorithm with each set of parameters 15 times on each file.
+ * Designed for the multiple robot case (RMRASR)
+ * Creates a set of *.met files
+ * 
+ * Requires a set of instances and their appropriate reference files
+ */
 public class MRParametricTuner {
 	
 	public static void main(String[] args){
@@ -87,6 +99,11 @@ public class MRParametricTuner {
 		System.exit(0);
 	}
 	
+	/**
+	 * Gets the overall rank of each vector for the given algorithms
+	 * 
+	 * @param algorithms List of algorithms
+	 */
 	public static void getAvgs(String[] algorithms){
 		int nrOfProcessors = Runtime.getRuntime().availableProcessors();
 		ExecutorService eservice = Executors.newFixedThreadPool(nrOfProcessors);

@@ -15,10 +15,27 @@ import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.Problem;
 import org.moeaframework.util.io.FileUtils;
 
-import project.problem.RRASRMOO;
+import project.problem.RRASR;
+
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Creates reference sets for all available instance files
+ */
 
 public class ReferenceSetCreator {
 
+	/**
+	 * Self contained class for creating reference sets.
+	 *
+	 * Assumes that all reference folders will be in the same location
+	 * as the jar for this program.
+	 * 
+	 * Folders to target are hard coded as "problems"
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		Scanner input = new Scanner(System.in);
 		
@@ -68,7 +85,7 @@ public class ReferenceSetCreator {
 		// solve using Genetic Algorithms
 		for (int j = 0; j < algorithms.length; j++) {
 			final List<NondominatedPopulation> result = new Executor()
-			.withProblemClass(RRASRMOO.class, instanceFile)
+			.withProblemClass(RRASR.class, instanceFile)
 			.withAlgorithm(algorithms[j])
 			.withMaxEvaluations(evaluations)
 			.withProperty("populationSize", popSize)
@@ -101,7 +118,7 @@ public class ReferenceSetCreator {
 		File folder = new File(folderLocation);
 		File[] listOfFiles = folder.listFiles();
 		
-		Problem problem = new RRASRMOO();
+		Problem problem = new RRASR();
 		NondominatedPopulation mergedSet = null;
 		ResultFileReader reader = null;
 		

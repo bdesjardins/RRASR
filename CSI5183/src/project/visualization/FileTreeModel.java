@@ -7,6 +7,12 @@ import javax.swing.tree.TreeModel;
 
 //This code has been taken from http://java.dzone.com/news/taking-new-swing-tree-table-a-
 
+/**
+ * 
+ * @author bdesjardins
+ * 
+ * Creates an object representing a file tree
+ */
 public class FileTreeModel implements TreeModel {
 
     private File root;

@@ -13,6 +13,14 @@ import javax.swing.JPanel;
 
 import project.problem.types.NodeInfo;
 
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Creates the tour visualization panel of the GUI application
+ * 
+ * Most of this code was taken from tutorials.
+ */
 public class TourVisualizer extends JPanel {
 
 	/**

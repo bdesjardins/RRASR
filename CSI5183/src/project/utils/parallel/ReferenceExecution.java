@@ -15,7 +15,7 @@ import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.Problem;
 import org.moeaframework.util.io.FileUtils;
 
-import project.problem.RRASRMOO;
+import project.problem.RRASR;
 
 public class ReferenceExecution implements Callable {
 
@@ -56,7 +56,7 @@ public class ReferenceExecution implements Callable {
 		// solve using Genetic Algorithms
 		for (int j = 0; j < algorithms.length; j++) {
 			final List<NondominatedPopulation> result = new Executor()
-			.withProblemClass(RRASRMOO.class, instanceFile)
+			.withProblemClass(RRASR.class, instanceFile)
 			.withAlgorithm(algorithms[j])
 			.withMaxEvaluations(evaluations)
 			.withProperty("populationSize", popSize)
@@ -89,7 +89,7 @@ public class ReferenceExecution implements Callable {
 //		File folder = new File(folderLocation);
 		File[] listOfFiles = folder.listFiles();
 		
-		Problem problem = new RRASRMOO();
+		Problem problem = new RRASR();
 		NondominatedPopulation mergedSet = null;
 		ResultFileReader reader = null;
 		

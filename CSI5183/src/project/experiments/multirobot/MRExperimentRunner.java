@@ -13,8 +13,23 @@ import java.util.concurrent.Executors;
 import project.utils.parallel.MRExperimentExecution;
 import project.utils.parallel.ParallelCSVPrinter;
 
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Parallelized application for running multi-robot experiments. Each run (instance file/ algorithm) is
+ * done in a separate thread. This application will create a number of threads equal to the number
+ * of available processing threads on the executing machine.
+ */
 public class MRExperimentRunner {
 
+	/**
+	 * This program is meant to be compiled as a jar and run that way. Instance files
+	 * should be divided into folders by experiment type and those folder should be inside
+	 * another called "Instances" (i.e. ./Instances/Exp1)
+	 * 
+	 * @param args Hard coded.
+	 */
 	public static void main(String[] args){
 //		Scanner input = new Scanner(System.in);
 //		

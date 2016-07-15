@@ -28,7 +28,7 @@ import org.moeaframework.core.indicator.MaximumParetoFrontError;
 import org.moeaframework.core.variable.Permutation;
 
 import project.generation.InstanceGenerator;
-import project.problem.RRASRMOO;
+import project.problem.RRASR;
 import project.problem.types.Coordinate;
 import project.problem.types.NodeInfo;
 
@@ -68,7 +68,12 @@ import java.awt.Color;
 import org.math.plot.Plot2DPanel;
 
 import javax.swing.JCheckBox;
-
+/**
+ * 
+ * @author bdesjardins
+ * 
+ * Visualization application used to view results of a single RRASR problem execution in detail
+ */
 @SuppressWarnings(value = { "rawtypes", "unchecked" })
 public class ExperimentalApplication {
 
@@ -904,11 +909,11 @@ public class ExperimentalApplication {
 
 			if (withReferenceSet) {
 				Analyzer test = new Analyzer();	
-				test.withReferenceSet(referenceFile).withProblemClass(RRASRMOO.class, instance);
+				test.withReferenceSet(referenceFile).withProblemClass(RRASR.class, instance);
 				
 				
 				instrumenter = new Instrumenter()
-				.withProblemClass(RRASRMOO.class, instance)
+				.withProblemClass(RRASR.class, instance)
 				.withReferenceSet(referenceFile)
 				.attachContributionCollector()
 				.attachGenerationalDistanceCollector()
@@ -917,12 +922,12 @@ public class ExperimentalApplication {
 				.attachElapsedTimeCollector()
 				.attachSpacingCollector()
 				.attachAllMetricCollectors()
-				.attach(new IndicatorCollector(new MaximumParetoFrontError(new RRASRMOO(), test.getReferenceSet())))
+				.attach(new IndicatorCollector(new MaximumParetoFrontError(new RRASR(), test.getReferenceSet())))
 				.withFrequency(population);
 
 				// solve using a Genetic Algorithm
 				final NondominatedPopulation result = new Executor()
-				.withProblemClass(RRASRMOO.class, instance)
+				.withProblemClass(RRASR.class, instance)
 				.withAlgorithm(algorithmsToRun.get(i))
 				.withMaxEvaluations(evaluations)
 				.withProperty("populationSize", population)
@@ -934,14 +939,14 @@ public class ExperimentalApplication {
 
 			} else {
 				instrumenter = new Instrumenter()
-				.withProblemClass(RRASRMOO.class, instance)
+				.withProblemClass(RRASR.class, instance)
 				.attachElapsedTimeCollector()
 				.attachApproximationSetCollector()
 				.withFrequency(population);
 
 				// solve using a Genetic Algorithm
 				final NondominatedPopulation result = new Executor()
-				.withProblemClass(RRASRMOO.class, instance)
+				.withProblemClass(RRASR.class, instance)
 				.withAlgorithm(algorithmsToRun.get(i))
 				.withMaxEvaluations(evaluations)
 				.withProperty("populationSize", population)
@@ -961,7 +966,7 @@ public class ExperimentalApplication {
 		}
 	}
 
-	public void displayGenerationInfo() {
+	private void displayGenerationInfo() {
 		if (selectedAccumulator != null) {
 			updateMetricFields();
 			updateParetoViewer();

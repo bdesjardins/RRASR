@@ -8,9 +8,17 @@ import org.moeaframework.analysis.collector.Accumulator;
 import org.moeaframework.core.NondominatedPopulation;
 
 import project.problem.RMRASR;
-import project.problem.RRASRMOO;
+import project.problem.RRASR;
 
-
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Quick testing program. Meant as a quick debug check for algorithms without
+ * having to run an entire experimental set.
+ * 
+ * Hard Coded.
+ */
 public class ProblemRunner {
 
 	public static void main(String[] args) {
@@ -26,7 +34,7 @@ public class ProblemRunner {
 		int evaluations = popSize * generations;
 
 		Instrumenter instrumenter = new Instrumenter()
-		.withProblemClass(RRASRMOO.class, nodeList)
+		.withProblemClass(RRASR.class, nodeList)
 		.attachElapsedTimeCollector()
 		.attachApproximationSetCollector()
 		.withFrequency(popSize);
@@ -35,7 +43,7 @@ public class ProblemRunner {
 
 		// solve using a Genetic Algorithm
 		final NondominatedPopulation result = new Executor()
-				.withProblemClass(RRASRMOO.class, nodeList)
+				.withProblemClass(RRASR.class, nodeList)
 				.withAlgorithm("Lifecycle")
 				.withMaxEvaluations(evaluations)
 				.withProperty("populationSize", popSize)

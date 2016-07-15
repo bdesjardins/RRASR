@@ -317,10 +317,10 @@ public class StandardAlgorithms extends AlgorithmProvider {
 	/**
 	 * Returns a new {@link Lifecycle} instance.
 	 * 
-	 * @param properties the properties for customizing the new {@code NSGAII}
+	 * @param properties the properties for customizing the new {@code Lifecycle}
 	 *        instance
 	 * @param problem the problem
-	 * @return a new {@code SPELifecycleA2} instance
+	 * @return a new {@code Lifecycle} instance
 	 */
 	private Algorithm newLifecycle(TypedProperties properties, Problem problem) { //TODO
 		int populationSize = (int)properties.getDouble("populationSize", 100);

@@ -29,6 +29,8 @@ import org.moeaframework.core.comparator.ParetoObjectiveComparator;
  * 
  * Creator: Markus Wagner (wagner@acrocon.com)
  * Feel free to contact me. There are many gems hidden in this code.
+ * 
+ * Ported to MOEA by Ben Desjardins
  */
 public class AGEII extends AbstractEvolutionaryAlgorithm {
 

@@ -10,12 +10,31 @@ import java.util.concurrent.Executors;
 
 import org.moeaframework.analysis.sensitivity.ParameterFile;
 
-import project.problem.RRASRMOO;
+import project.problem.RRASR;
 import project.utils.parallel.FindAverages;
 import project.utils.parallel.TuningExecution;
 
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Application to run tuning instances of problems
+ * 
+ * Would run each algorithm with each set of parameters 15 times on each file.
+ * Designed for the single robot case (RRASR)
+ * 
+
+ */
 public class ParametricTuner {
 	
+	/**
+	 * Creates a set of *.met files. This files contains the metrics for
+	 * one run of each parameter vector
+	 * 
+	 * Requires a set of instances and their appropriate reference files
+	 * 
+	 * @param args Hard Coded.
+	 */
 	public static void main(String[] args){
 		String[] algorithms = new String[]{"NSGAII","NSGAIII","PESA2","AGEI","AGEII","SPEA2"};
 //		String[] algorithms = new String[]{"NSGAII","PESA2"};
@@ -58,7 +77,7 @@ public class ParametricTuner {
 					File outputFile = new File(instFile.getPath() + "/" + instance.getName().replace(".tsp", "") + "_r" + i + ".met");
 					
 					counter++;
-					cservice.submit(new TuningExecution(algorithm,new RRASRMOO(instance),instance, parameterFile, inputFile, outputFile, i));
+					cservice.submit(new TuningExecution(algorithm,new RRASR(instance),instance, parameterFile, inputFile, outputFile, i));
 				}				
 			}
 		}
@@ -87,6 +106,12 @@ public class ParametricTuner {
 		System.exit(0);
 	}
 	
+	/**
+	 * Averages the metrics from a set of *.met files
+	 * Only files from the same instance file are averaged
+	 * 
+	 * @param algorithms List of algorithms
+	 */
 	public static void getAvgs(String[] algorithms){
 		int nrOfProcessors = Runtime.getRuntime().availableProcessors();
 		ExecutorService eservice = Executors.newFixedThreadPool(nrOfProcessors);

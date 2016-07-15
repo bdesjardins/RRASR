@@ -6,6 +6,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
+/**
+ * 
+ * @author bdesjardins
+ * 
+ * Selects the best parameter vector for each specified algorithm.
+ * Less verbose than {@link VectorSelector}
+ * 
+ * Works on an algorithm by algorithm basis. Could likely be consolidated
+ * with {@link VectorSelector} rather than being a subclass.
+ */
 public class GeneralistVectorSelector extends VectorSelector {
 	
 	HashMap<String, Double[]> rankLists;
@@ -14,6 +24,17 @@ public class GeneralistVectorSelector extends VectorSelector {
 	File vectorList;
 	File resultsFile;
 	
+	/**
+	 * Evaluator to determine the best parameter vectors for each algorithm
+	 * based on a parametric tuning execution
+	 * 
+	 * Uses a set of *.avg files to determine the best parameter vector
+	 * from the ones available
+	 * 
+	 * @param vectorList File containing the list of vectors
+	 * @param resultsFile File containing results of parametric tuning
+	 * @param algorithms List of algorithms to get parameters for
+	 */
 	public GeneralistVectorSelector(File vectorList, File resultsFile, String[] algorithms){
 		super(vectorList, resultsFile);
 		
@@ -31,6 +52,10 @@ public class GeneralistVectorSelector extends VectorSelector {
 //		selector.getVectors();
 //	}
 	
+	/**
+	 * Finds the best vectors for each algorithm and prints
+	 * them to console
+	 */
 	@Override
 	public void getVectors(){	
 		
@@ -93,7 +118,13 @@ public class GeneralistVectorSelector extends VectorSelector {
 		rankLists.put(algorithm, avgRanks);
 	}
 	
-	
+	/**
+	 * Finds the best vector for an algorithm and build
+	 * a descriptive string for it
+	 * 
+	 * @param algorithm Algorithm to find parameters for
+	 * @return Descriptive string representation of vector
+	 */
 	private String[] findBestVector(String algorithm){
 		int bestVector = -1;
 		double value = 99999999;
@@ -146,30 +177,6 @@ public class GeneralistVectorSelector extends VectorSelector {
 		rankArray = new double[hypervolume.size()][6];
 		rankResults();	
 	}
-	
-	private void loadResults(File result){
-		Scanner scanner = null;
-		try {
-			scanner = new Scanner(result ,ENCODING.name());
-			int counter = 0;
-			
-			while (scanner.hasNextLine()){
-				String line = scanner.nextLine();
-				
-				String[] values = line.split(" ");
-				
-				hypervolume.put(counter, Double.parseDouble(values[0]));
-				genDistance.put(counter, -1*Double.parseDouble(values[1]));
-				invGenDistance.put(counter, -1*Double.parseDouble(values[2]));
-				spacing.put(counter, Double.parseDouble(values[3]));
-				maxParetoError.put(counter, -1*Double.parseDouble(values[5]));
-				counter++;
-			}			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} finally {
-			scanner.close();
-		}
-	}
+
 	
 }

@@ -13,6 +13,12 @@ import org.moeaframework.core.indicator.MaximumParetoFrontError;
 
 import project.problem.RMRASR;
 
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Callable experiment execution for the RMRASR problem. Used with {@link MRExperimentRunner}
+ */
 public class MRExperimentExecution implements Callable {
 
 	File instanceFile;
@@ -28,6 +34,21 @@ public class MRExperimentExecution implements Callable {
 	String problem;
 	int robots;
 	
+	/**
+	 * Experiment execution to run one algorithm against an instance file once
+	 * 
+	 * @param instanceFile instance file to be evaluated
+	 * @param referenceSet reference set for the instance file
+	 * @param printer CSV printer object
+	 * @param algorithm Algorithm to be used
+	 * @param run Number of the run being conducted
+	 * @param evaluations Number of evaluations to do
+	 * @param popSize Size of the population
+	 * @param xover Crossover Rate
+	 * @param swap Swap mutation rate
+	 * @param insert Insertion mutation rate
+	 * @param robots Number of robots
+	 */
 	public MRExperimentExecution(File instanceFile, File referenceSet, ParallelCSVPrinter printer, String algorithm, int run, int evaluations, int popSize,
 			double xover, double swap, double insert, int robots){
 		this.instanceFile = instanceFile;

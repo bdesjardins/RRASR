@@ -3,11 +3,8 @@ package project.experiments;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.Set;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.moeaframework.Analyzer;
@@ -19,10 +16,22 @@ import org.moeaframework.core.NondominatedPopulation;
 import org.moeaframework.core.Solution;
 import org.moeaframework.core.indicator.MaximumParetoFrontError;
 
-import project.problem.RRASRMOO;
+import project.problem.RRASR;
 
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Class for quickly running a single instance file one time
+ */
 public class ExperimentRunner {
 
+	/**
+	 * Runs a single experimental instance once.
+	 * Parameters are hard coded within this method. Not for external use.
+	 * 
+	 * @param args None. Hard coded.
+	 */
 	public static void main(String[] args) {
 		Scanner input = new Scanner(System.in);
 		
@@ -100,16 +109,27 @@ public class ExperimentRunner {
 		System.out.println("Time Elapsed: " + (afterTime-beforeTime)/1000 + "s");
 	}
 
+	/**
+	 * Executes an experimental instance and records the results
+	 * 
+	 * @param instanceFile The scenario file to be used
+	 * @param referenceSet The reference set to be tested against
+	 * @param printer CSV printer
+	 * @param algorithm Algorithm to be run
+	 * @param folder 
+	 * @param run How many times to run
+	 * @param problem Problem to be tested
+	 */
 	private static void doTheThing(File instanceFile, File referenceSet, CSVPrinter printer, String algorithm, File folder, int run, String problem) {
 		int popSize = 200;
 		final int generations = 500;
 
 		Analyzer test = new Analyzer();	
-		test.withReferenceSet(referenceSet).withProblemClass(RRASRMOO.class, instanceFile);
+		test.withReferenceSet(referenceSet).withProblemClass(RRASR.class, instanceFile);
 
 
 		Instrumenter instrumenter = new Instrumenter()
-		.withProblemClass(RRASRMOO.class, instanceFile)
+		.withProblemClass(RRASR.class, instanceFile)
 		.withReferenceSet(referenceSet)
 		.attachGenerationalDistanceCollector()
 		.attachInvertedGenerationalDistanceCollector()
@@ -117,12 +137,12 @@ public class ExperimentRunner {
 		.attachApproximationSetCollector()
 		.attachElapsedTimeCollector()
 		.attachSpacingCollector()
-		.attach(new IndicatorCollector(new MaximumParetoFrontError(new RRASRMOO(), test.getReferenceSet())))
+		.attach(new IndicatorCollector(new MaximumParetoFrontError(new RRASR(), test.getReferenceSet())))
 		.withFrequency(popSize);
 
 		// solve using a Genetic Algorithm
 		final NondominatedPopulation result = new Executor()
-		.withProblemClass(RRASRMOO.class, instanceFile)
+		.withProblemClass(RRASR.class, instanceFile)
 		.withAlgorithm(algorithm)
 		.withMaxEvaluations(popSize*generations)
 		.withProperty("populationSize", popSize)

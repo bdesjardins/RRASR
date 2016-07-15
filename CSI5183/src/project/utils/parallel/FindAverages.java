@@ -11,6 +11,17 @@ import java.util.concurrent.Callable;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import org.moeaframework.analysis.sensitivity.MatrixReader;
 
+/**
+ * 
+ * @author bdesjardins
+ * 
+ * Callable function to be used by multi-threaded executor
+ * 
+ * Creates *.avg files for parametric tuning.
+ * 
+ * Used by {@link ParametricTuner} and {@link MRParametricTuner}
+ * 
+ */
 public class FindAverages implements Callable {
 
 	File dataFolder;

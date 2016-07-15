@@ -21,6 +21,16 @@ import org.moeaframework.core.indicator.QualityIndicator;
 import org.moeaframework.core.spi.AlgorithmFactory;
 import org.moeaframework.problem.TimingProblem;
 
+
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Callable object containing the methods for running
+ * a parameter tuning execution.
+ * 
+ * Used by {@link MRParametricTuner} and {@link ParametricTuner}
+ */
 public class TuningExecution implements Callable {
 
 	String algorithmName;

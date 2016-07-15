@@ -23,6 +23,8 @@ import org.moeaframework.core.comparator.ParetoObjectiveComparator;
 
 /**
  * This class representing the AGEI algorithm
+ * 
+ * Ported to MOEA by Ben Desjardins
  */
 public class AGEI extends AbstractEvolutionaryAlgorithm {
    

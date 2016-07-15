@@ -11,7 +11,16 @@ import org.moeaframework.core.variable.EncodingUtils;
 
 import project.problem.RMRASR;
 
-
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Quick testing program. Meant as a quick debug check for algorithms without
+ * having to run an entire experimental set. This is specifically for
+ * the multi-robot problem 
+ * 
+ * Hard Coded.
+ */
 public class MRTestRunner {
 
 	public static void main(String[] args) {

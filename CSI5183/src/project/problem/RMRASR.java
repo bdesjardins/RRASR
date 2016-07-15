@@ -15,12 +15,20 @@ import org.moeaframework.problem.CustomProblem;
 import project.problem.types.Coordinate;
 import project.problem.types.NodeInfo;
 
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Implementation of the Reliable Multiple Robot-Assisted Sensor Relocation problem
+ */
 public class RMRASR extends CustomProblem {
 
 	final static Charset ENCODING = StandardCharsets.UTF_8;
 	
 	protected NodeInfo[] nodes;
 	protected ArrayList<Integer> sensingHoles;
+	
+	//Store this so we only have to calculate distances once
 	protected double[][] distances;
 	
 	protected int startingSensors = 0;
@@ -36,14 +44,28 @@ public class RMRASR extends CustomProblem {
 	
 	protected ArrayList<Integer> duplicateDepots;
 	
+	/**
+	 * Create a simple RMRASR instance
+	 */
 	public RMRASR() {
 		super(1,4);
 	}
 	
+	/**
+	 * Creates a RMRASR instance using a nodeList (instance file)
+	 * Defaults to 3 robots
+	 * @param nodeList Instance file
+	 */
 	public RMRASR(File nodeList){
 		this(nodeList,3);			
 	}
 	
+	/**
+	 * Creates a RMRASR instance using a nodeList (instance file)
+	 *
+	 * @param nodeList Instance file
+	 * @param numberOfRobots The number of robots to use
+	 */
 	public RMRASR (File nodeList, int numberOfRobots){		
 		super(1,4);	
 		this.numberOfRobots = numberOfRobots;
@@ -158,6 +180,9 @@ public class RMRASR extends CustomProblem {
 		}
 	}
 
+	/**
+	 * Evaluates the fitness values of a given solution
+	 */
 	@Override //- Original evaluate function may suffice. We shall see
 	public void evaluate(Solution solution){		
 		
@@ -238,6 +263,11 @@ public class RMRASR extends CustomProblem {
 		solution.setObjective(3, loadBalance*100);
 	}
 
+	/**
+	 * Creates a new randomly initialized solution
+	 * 
+	 * @return A new solution
+	 */
 	@Override //TODO newSolution
 	public Solution newSolution() {
 		Solution solution = new Solution(1,4);
@@ -246,6 +276,8 @@ public class RMRASR extends CustomProblem {
 		return solution;
 	}
 
+	//Due to the amount of reordering occurring it may be better to 
+	//re-implement this using linked-lists instead
 	@Override
 	protected void repair(Solution solution){
 		long startTime = System.currentTimeMillis();
@@ -534,10 +566,6 @@ public class RMRASR extends CustomProblem {
 			return false;
 		}
 	}
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	//Linked List repair implementation - If there is extra time before experiments
-	///////////////////////////////////////////////////////////////////////////////////////////////
 
 }
 

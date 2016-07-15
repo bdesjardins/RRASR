@@ -9,6 +9,14 @@ import agape.visu.Visualization;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
 
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Creates an active note network on a grid that is used to
+ * determine the score value for the Trajectory Robustness
+ * objective
+ */
 public class ActiveNetwork {
 
 	InstanceNode[] nodes;
@@ -19,6 +27,14 @@ public class ActiveNetwork {
 	int sensingRadius;
 	int communicationRadius;
 	
+	/**
+	 * Creates an Active Network generator that is used to create the active network
+	 * as well as the list of sensors within that network that require replacement
+	 * 
+	 * @param min minimum value for the range of the ROI boundary
+	 * @param max maximum value for the range of the ROI boundary
+	 * @param sensingRadius Radius of the sensors sensing radius
+	 */
 	public ActiveNetwork(int min, int max, int sensingRadius){
 		this.min = min;
 		this.max = max;
@@ -28,30 +44,18 @@ public class ActiveNetwork {
 		this.nodes = gridGeneration(min, max, sensingRadius);
 		buildAdjacencyList();
 		findScores();
-//		scoreTest();
 	}
-	
-	private void scoreTest(){
-		double[] scores = new double[nodes.length];
-		double maxScore = 0;
 		
-		for(int i = 0; i < nodes.length; i++){
-			scores[i] = nodes[i].score;
-			if(scores[i] > maxScore){
-				maxScore = scores[i];
-			}
-		}
-		
-//		Arrays.sort(scores);
-		
-		for(int i = scores.length-1; i>=0; i--){
-			System.out.println(i + " " + scores[i]);
-		}
-		
-		System.out.println("Max Score: " + maxScore);
-	}
-	
-	//Basic non-random generation. Assumes some sort of grid deployment has taken place
+	/**
+	 * Basic non-random generation. Assumes some sort of grid deployment has taken place.
+	 * 
+	 * Static method providing similar functionality as the instanced object
+	 * 
+	 * @param min minimum value for the range of the ROI boundary
+	 * @param max maximum value for the range of the ROI boundary
+	 * @param sensingRadius Radius of the sensors sensing radius
+	 * @return The nodes that make up the problem instanc
+	 */
 	public static InstanceNode[] gridGeneration(int min, int max, int sensingRadius) {
 		ArrayList<InstanceNode> activeNetwork = new ArrayList<InstanceNode>();
 		
@@ -135,6 +139,12 @@ public class ActiveNetwork {
 		}	
 	}
 	
+	/**
+	 * Creates a problem instance with a set number of sensing holes 
+	 * 
+	 * @param numHoles Number of sensing holes
+	 * @return The nodes that make up the problem instance
+	 */
 	public InstanceNode[] getSensingHoles(int numHoles){
 		ArrayList<Integer> holeIndex = new ArrayList<Integer>();
 
@@ -186,6 +196,13 @@ public class ActiveNetwork {
 		return sensingHoles.toArray(new InstanceNode[0]);
 	}
 	
+	/**
+	 * Used in the visualization application for RRASR
+	 * 
+	 * @param numHoles Number of sensing holes in the network
+	 * @return A list of nodes to make up an instance file
+	 */
+	@Deprecated
 	public InstanceNode[] getSensingHolesOld(int numHoles){
 		ArrayList<Integer> holeIndex = new ArrayList<Integer>();
 

@@ -10,8 +10,28 @@ import java.util.concurrent.Executors;
 
 import project.utils.parallel.MRReferenceExecution;
 
+/**
+ * 
+ * @author bdesjardins
+ * 
+ * Creates reference sets for all available instance files
+ * 
+ * Each run (instance file/ algorithm/# of robots) is done in a separate thread. 
+ * This application will create a number of threads equal to the number
+ * of available processing threads on the executing machine.
+ */
 public class MRReferenceCreator {
 
+	/**
+	 * Self contained class for creating reference sets.
+	 *
+	 * Assumes that all reference folders will be in the same location
+	 * as the jar for this program.
+	 * 
+	 * Folders to target are hard coded as "problems"
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 //		Scanner input = new Scanner(System.in);
 //		

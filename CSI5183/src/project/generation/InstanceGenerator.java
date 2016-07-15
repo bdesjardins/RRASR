@@ -6,8 +6,21 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * 
+ * @author bdesjardins
+ *
+ * Creates all necessary instance files to run all experiment types
+ * 
+ * Parameters are hard coded.
+ */
 public class InstanceGenerator {
 
+	/**
+	 * Creates all of the instance files coded within this method.
+	 * 
+	 * @param args Hard Coded.
+	 */
 	public static void main(String[] args){
 		String directoryRoot = "Instances";
 		int areaSizeMin = -500;
@@ -208,6 +221,7 @@ public class InstanceGenerator {
 		return sensingHoles.toArray(new InstanceNode[0]);
 	}
 
+	//This algorithm is used to determine the density of passive sensors within the ROI
 	private static InstanceNode[] max_dpa(int numNodes, int degree, int maxValue, int maxDegree, int minDistance, int communicationRadius) {
 		double r = Math.sqrt((degree * Math.pow((maxValue*2), 2))/((numNodes-1)*Math.PI)) + 15;		
 
@@ -284,6 +298,14 @@ public class InstanceGenerator {
 		return nodes;
 	}
 	
+	/**
+	 * Creates a random problem instance. This is used with the problem visualizer to create instances on the spot.
+	 * 
+	 * @param numNodes Number of nodes (passive sensors + sensing holes)
+	 * @param sparsity Geographic density of passive sensors (higher is closer)
+	 * @param distribution Percentage of damages sensors
+	 * @return
+	 */
 	public static File generateCustomInstance(int numNodes, int sparsity, int distribution) {
 		int areaSizeMin = -500;
 		int areaSizeMax = 500;

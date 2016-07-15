@@ -33,6 +33,8 @@ import org.moeaframework.core.Variation;
 
 /**
  * This class implements the PESA2 algorithm.
+ * 
+ * Ported to MOEA by Ben Desjardins
  */
 public class PESA2 extends AbstractEvolutionaryAlgorithm {
 
